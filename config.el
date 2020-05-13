@@ -19,7 +19,7 @@
 ;;
 ;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
 ;; font string. You generally only need these two:
-(setq doom-font (font-spec :family "monospace" :size 14))
+(setq doom-font (font-spec :family "monospace" :size 12))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
@@ -36,10 +36,10 @@
   (auto-compile-on-load-mode)
   (auto-compile-on-save-mode))
 
-(use-package! server
+(after! server
   :config
   (setq! server-name "server")
-  (setq! server-socket-dir "~/.emacs.d/server")
+  (setq! server-socket-dir (expand-file-name "server" user-emacs-directory))
   (setq! server-use-tcp t)
   (defun warn-server-name-changed (original-server-name)
     (when (not (string= server-name original-server-name))
@@ -50,20 +50,36 @@
       (warn "Not starting server - server with name \"%s\" already running" server-name)
     (server-start)))
 
+(after! (counsel org)
+  (defun counsel-rg-org (search-archives)
+    "Specialize ‘counsel-rg’ for Org-mode files.
+
+  Unless ‘\\[universal-argument]’ prefix ARG is used, don’t include archives in
+  the search. Saves all Org buffers beforehand so that ‘counsel-rg’ sees the
+  contents of all Org-mode buffers."
+    (interactive "P")
+    (org-save-all-org-buffers)
+    (let* ((extra-rg-args (concat "--smart-case"
+                                  " --type-add 'org:*.org'"
+                                  " --type-add 'org:*.org_archive'"
+                                  " --type org")))
+      (when (not search-archives)
+        (setq extra-rg-args (concat extra-rg-args " '-g!*.org_archive'")))
+      (counsel-rg nil "~/Documents/org/" extra-rg-args nil)))
+  (map! "C-c q" #'counsel-rg-org))
+
 ;; Kill current buffer but keep its frame around
 (map! :n "Q" #'kill-this-buffer)
 
-;; Evil magic search
-(setq! evil-magic 'very-magic)
-
-(defun prog-mode-wrap-hook ()
-  "Set auto-fill for comments only in `prog-mode'."
-  (setq-local comment-auto-fill-only-comments t)
-  (auto-fill-mode t))
-(add-hook 'prog-mode-hook 'prog-mode-wrap-hook)
+;;; Line and column numbers
+(setq! display-line-numbers-type 'visual)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+(add-hook 'text-mode-hook #'display-line-numbers-mode)
+(line-number-mode 1)
+(column-number-mode 1)
 
 (use-package! rg
-  :commands (rg rg-project rg-dwim)
+  :commands (rg rg-org rg-project rg-dwim)
   :config
   (setq! rg-custom-type-aliases
          '(("org" . "*.org *.org_archive")))
@@ -115,40 +131,21 @@
   ;; highlights the variable at its declaration the same way as its use.
   (rainbow-identifiers-faces-to-override '(font-lock-variable-name-face)))
 
-(map! "C-c a" #'org-agenda
-      "C-c b" #'org-switchb
-      "C-c c" #'org-capture
-      "C-c l" #'org-store-link
-      "S-<f11>" #'org-clock-goto
-      "C-<f11>" #'my-org-clock-in
-      "C-S-<f11>" #'my-org-goto-heading)
-(defun my-org-clock-in ()
-  "Select a recently clock-in task to clock into.  See `org-clock-in'."
-  (interactive) (org-clock-in '(4)))
-(defun my-org-goto-heading ()
-  "Run C-u org-refile to list all headings."
-  (interactive)
-  ;; org-file doesn't work unless it's run from within an Org buffer, so find
-  ;; an arbitrary one.
-  (with-current-buffer
-    (save-excursion
-      (catch 'aaa
-        (dolist (buffer (buffer-list))
-          (with-current-buffer buffer
-            (when (derived-mode-p 'org-mode)
-              (throw 'aaa buffer))))))
-    (org-refile '(4))))
-
-;;; Org agenda
-(setq!
- org-agenda-files (expand-file-name "agenda_files" user-emacs-directory)
- org-agenda-span 'day
- org-agenda-start-on-weekday nil
- org-agenda-skip-deadline-prewarning-if-scheduled t)
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (setq! org-directory "~/Documents/org/google-org/")
+(after! org
+  (load! "org-config.el"))
+
+;;; Enable commands disabled by default
+(put 'narrow-to-region 'disabled nil)
+(put 'list-timers 'disabled nil)
+
+;;;* Local configuration
+
+;;; Allow users to provide an optional "init-local" containing personal settings
+(load! "init-local.el")
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
@@ -166,3 +163,7 @@
 ;;
 ;; You can also try 'gd' (or 'C-c g d') to jump to their definition and see how
 ;; they are implemented.
+
+;;; Local Variables:
+;;; outline-regexp: ";;;\\*+\\|\\`"
+;;; End:

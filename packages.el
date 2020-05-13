@@ -59,3 +59,23 @@
 (package! rg)
 (package! vimrc-mode)
 (package! rainbow-identifiers)
+(package! git-auto-commit-mode
+  :recipe (:host github :repo "ryuslash/git-auto-commit-mode"
+           :fork (:repo "git@github.com:telotortium/git-auto-commit-mode"
+                  :host nil :branch "gac-merge")))
+
+(package! so-long :built-in 'prefer)
+(package! org-pomodoro
+  :recipe (:host github :repo "marcinkoziej/org-pomodoro"
+           :fork (:host nil :repo "git@github.com:telotortium/org-pomodoro")))
+(when (package! alert)
+  (package! org-gcal
+    :recipe (:host github :repo "kidd/org-gcal.el"
+             :fork (:host nil :repo "git@github.com:telotortium/org-gcal.el"))))
+(package! org-drill)
+(package! org-drill-table)
+(package! org-ql)
+(package! org-randomnote)
+(package! org-super-agenda)
+(package! org-download)
+(package! org-cliplink)
