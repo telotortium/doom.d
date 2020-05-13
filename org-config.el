@@ -11,6 +11,7 @@
       "C-S-<f11>" #'my-org-goto-heading
       :mode org-mode
       "C-c C-x C-i" #'org-clock-in
+      "C-c C-x <C-i>" #'org-clock-in
       "C-c C-x i" #'org-clock-in
       "C-c C-x C-o" #'org-clock-out
       "C-c C-x o" #'org-clock-in)
