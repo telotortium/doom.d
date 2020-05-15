@@ -733,6 +733,11 @@ Iterates over all buffers in FRAME."
 (after! org-pomodoro
   (load! "org-pomodoro-config.el"))
 
+(add-to-list 'org-modules 'org-id)      ; Needed for ID links to work
+(after! org-id
+  (setq! org-id-locations-file
+         (expand-file-name ".org-id-locations.el"
+                           user-emacs-directory)))
 (defcustom distraction-id nil
   "Task ID of task to clock into for distracting tasks (Hacker News, Reddit, etc.). Must specify manually."
   :type 'string)
