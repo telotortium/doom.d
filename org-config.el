@@ -622,10 +622,6 @@ argument when called in `org-agenda-custom-commands'."
 
 (org-defkey org-mode-map (kbd "C-c C-1") 'org-time-stamp-inactive)
 
-;; Pop up org-agenda-list a few times a day
-(after! org-agenda
-  (run-at-time "08:00" 21600 'org-agenda-list))
-
 ;;;** Idle time
 
 ;;; Make idle time more accurate on Linux (X idle time rather than just Emacs
