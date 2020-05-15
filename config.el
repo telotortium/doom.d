@@ -6,8 +6,12 @@
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets.
-(setq user-full-name "Robert Irelan"
-      user-mail-address "rirelan@gmail.com")
+(setq! user-full-name "Robert Irelan"
+       user-mail-address "rirelan@gmail.com")
+
+(setq! debug-on-error t)
+(add-to-list 'debug-ignored-errors 'search-failed)
+(setq! debug-on-message "^deferred error :")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
 ;; are the three important ones:
