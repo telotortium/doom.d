@@ -328,6 +328,11 @@ headline under the headline at the current point."
                              (org-refile-cache-clear)
                              (org-refile-get-targets)))
 (setq! org-alphabetical-lists t)
+;; Override Doom Emacs default. I've already written too many files with my
+;; value for this setting, and I don't write much code in Org-mode files, so
+;; I'll live with the consequences outlined in
+;; https://github.com/hlissner/doom-emacs/issues/1049#issuecomment-446837455
+(setq! org-src-preserve-indentation nil)
 (setq! org-src-fontify-natively t)
 (setq! org-pretty-entities t)
 (setq! org-use-sub-superscripts '{})
