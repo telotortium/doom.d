@@ -1,0 +1,6 @@
+.DS_Store
+.idea
+*.log
+tmp/
+
+org-gcal-secret-config.el
