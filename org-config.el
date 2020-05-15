@@ -949,9 +949,6 @@ don't support wrapping."
 ;; Stolen from http://doc.norang.ca/org-mode.html#Clocking
 ;; bh/organization-task-id changed.
 
-;; Resume clocking task when emacs is restarted
-(org-clock-persistence-insinuate)
-;;
 ;; Show lot of clocking history so it's easy to pick items off the C-F11 list
 (setq! org-clock-history-length 23)
 ;; Resume clocking task on clock-in if the clock is open
