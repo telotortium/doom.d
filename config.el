@@ -76,7 +76,7 @@
 (map! :n "Q" #'kill-this-buffer)
 
 ;;; Line and column numbers
-(setq! display-line-numbers-type 'visual)
+(setq! display-line-numbers-type 'relative)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
 (line-number-mode 1)
