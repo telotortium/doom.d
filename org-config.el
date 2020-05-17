@@ -889,7 +889,9 @@ Default suggestions (in the absence of existing data in the entry):
       (org-gcal-post-at-point 'skip-import))))
 
 ;;;** Org-drill
-(after! org-drill
+(use-package! org-drill
+  :commands (org-drill)
+  :config
   (setq! org-drill-scope 'agenda-with-archives)
   (setq! org-drill-left-cloze-delimiter "!|")
   (setq! org-drill-right-cloze-delimiter "|!")
