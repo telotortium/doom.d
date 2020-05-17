@@ -822,10 +822,10 @@ TAG is chosen interactively from the global tags completion table."
     (load org-gcal-config-file)))
 
 (defun my-org-gcal-schedule ()
-  "\
-Suggest a default schedule time for the event at point and create/update it
-using ‘org-gcal-post-at-point’. Default suggestions (in the absence of existing
-data in the entry):
+  "Suggest a default schedule time for the event at point and create/update it \
+using ‘org-gcal-post-at-point’.
+
+Default suggestions (in the absence of existing data in the entry):
 
 - Calendar ID: first entry in ‘org-gcal-file-alist’
 - Start time: tomorrow at 10 AM
@@ -859,14 +859,14 @@ data in the entry):
                   (resolution 5))       ; Event resolution
               (org-duration-from-minutes
                (max
-                 min-duration
-                 ;; Round up to the nearest multiple of ‘resolution’ minutes.
-                 (* resolution
-                    (ceiling
-                      (/ (- (org-duration-to-minutes (org-element-property
-                                                         :EFFORT elem))
-                            (org-clock-sum-current-item))
-                         resolution)))))))
+                min-duration
+                ;; Round up to the nearest multiple of ‘resolution’ minutes.
+                (* resolution
+                   (ceiling
+                    (/ (- (org-duration-to-minutes (org-element-property
+                                                    :EFFORT elem))
+                          (org-clock-sum-current-item))
+                       resolution)))))))
       (when (and (= (plist-get (cadr tobj) :hour-start)
                     (plist-get (cadr tobj) :hour-end))
                  (= (plist-get (cadr tobj) :minute-start)
