@@ -142,6 +142,16 @@
 (after! org
   (load! "org-config.el"))
 
+;; Pocket
+(after! pocket-reader
+  (setq! pocket-reader-open-url-default-function #'browse-url-default-browser)
+  (defun archive-is-browse-url-default-browser (url)
+    (browse-url-default-browser (concat "https://archive.is/" url)))
+  (setq! pocket-reader-url-open-fn-map nil)
+  (add-to-list 'pocket-reader-url-open-fn-map
+               '(archive-is-browse-url-default-browser
+                 "\\(.*\\.\\)?medium.com" "bloomberg.com" "nytimes.com")))
+
 ;;; Enable commands disabled by default
 (put 'narrow-to-region 'disabled nil)
 (put 'list-timers 'disabled nil)

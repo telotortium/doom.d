@@ -79,3 +79,4 @@
 (package! org-super-agenda)
 (package! org-download)
 (package! org-cliplink)
+(package! pocket-reader)
