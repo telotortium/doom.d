@@ -910,6 +910,17 @@ don't support wrapping."
             (apply org-drill r))
         (global-visual-line-mode old-global-visual-line-mode))))
   (advice-add #'org-drill :around #'my-org-drill-global-visual-line-mode)
+  (defun my-org-drill-maximize-frame (fn &rest r)
+    "Maximize frame when ‘org-drill' is run."
+    (let* ((frame (selected-frame))
+           (maximized? (eq 'maximized (frame-parameter frame 'fullscreen))))
+      (when (not maximized?)
+        (toggle-frame-maximized frame))
+      (apply fn r)
+      (when (not maximized?)
+        (toggle-frame-maximized frame))))
+  (advice-add #'org-drill :around #'my-org-drill-maximize-frame)
+  (advice-add #'org-drill :around #'my-org-drill-global-visual-line-mode)
   (load! "org-drill-cloze-enhancement"))
 
 ;;;* Org-roam
