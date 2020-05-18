@@ -13,6 +13,12 @@
 (add-to-list 'debug-ignored-errors 'search-failed)
 (setq! debug-on-message "^deferred error :")
 
+(after! evil
+  (add-to-list 'evil-emacs-state-modes 'image-mode)
+  (add-to-list 'evil-emacs-state-modes 'Custom-mode)
+  (add-to-list 'evil-emacs-state-modes 'profiler-report-mode)
+  (add-to-list 'evil-emacs-state-modes 'pocket-reader-mode))
+
 ;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
 ;; are the three important ones:
 ;;
