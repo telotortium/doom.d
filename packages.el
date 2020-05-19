@@ -65,6 +65,8 @@
                   :host nil :branch "gac-merge")))
 
 (package! so-long :built-in 'prefer)
+
+(package! org-clock-csv)
 (package! org-pomodoro
   :recipe (:host github :repo "marcinkoziej/org-pomodoro"
            :fork (:host nil :repo "git@github.com:telotortium/org-pomodoro")))

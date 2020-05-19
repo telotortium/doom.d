@@ -4,3 +4,4 @@
 tmp/
 
 org-gcal-secret-config.el
+client_secrets.json

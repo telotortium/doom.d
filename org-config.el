@@ -166,6 +166,8 @@ Checklist:
   - [ ] Review Action Lists \\\\
     Mark off completed actions. Review for reminders of further action steps to
     record.
+  - [ ] Review Clock Data \\\\
+    Run `org-clock-csv-calendar-export' and examine Org Clock calendar.
   - [ ] Review Previous Calendar Data \\\\
     Review past calendar in detail for remaining action items, reference data,
     etc., and transfer into the active system.
@@ -987,6 +989,23 @@ don't support wrapping."
 (setq! org-clock-report-include-clocking-task t)
 ;; Create globally unique entry IDs when needed
 (setq! org-id-link-to-org-use-id t)
+
+(defcustom org-clock-csv-calendar-export-id nil
+  "Calendar to export clock data to.  Used by ‘org-clock-csv-calendar-export'.")
+(defun org-clock-csv-calendar-export ()
+  "Export Org-clock data to Google Calendar with ID \
+‘org-clock-csv-calendar-export-id'."
+  (interactive)
+  (let ((csv-buffer (org-clock-csv nil 'no-switch)))
+    (save-excursion
+      (with-current-buffer csv-buffer
+        (call-process-region
+         nil nil
+         (expand-file-name "org_clock_csv_calendar_export.py" doom-private-dir)
+         nil (get-buffer-create "*org_clock_csv_calendar_export.py*") nil
+         "--org_clock_csv" "/dev/stdin"
+         "--calendar_id" org-clock-csv-calendar-export-id
+         "--logging_level" "DEBUG")))))
 
 ;; Reset day at 4 AM, just like Anki.
 (setq! org-extend-today-until 4)
