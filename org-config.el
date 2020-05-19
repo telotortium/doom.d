@@ -36,6 +36,7 @@
 (setq!
  org-agenda-files (expand-file-name "agenda_files" doom-private-dir)
  org-agenda-span 'day
+ org-agenda-start-day "."
  org-agenda-start-on-weekday nil
  org-agenda-skip-deadline-prewarning-if-scheduled t)
 
