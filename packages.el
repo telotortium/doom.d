@@ -66,6 +66,9 @@
 
 (package! so-long :built-in 'prefer)
 
+;; Disable default evil-org-agenda package used by Doom Emacs.
+(package! evil-org-agenda :disable t)
+
 (package! org-clock-csv)
 (package! org-pomodoro
   :recipe (:host github :repo "marcinkoziej/org-pomodoro"
