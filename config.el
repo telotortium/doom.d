@@ -157,10 +157,10 @@
   (add-to-list 'pocket-reader-url-open-fn-map
                '(archive-is-browse-url-default-browser
                  "\\(.*\\.\\)?medium.com" "bloomberg.com" "nytimes.com"))
-  (after! org-roam-protocol
-    (cl-defun pocket-reader-roam-capture ()
+  (cl-defun pocket-reader-roam-capture ()
       "Open URL of current item with default function."
       (interactive)
+      (require 'org-roam-protocol)
       (pocket-reader--at-marked-or-current-items
         (let* ((id (tabulated-list-get-id))
                (item (ht-get pocket-reader-items id))
@@ -170,7 +170,7 @@
                                                                     (ht-get item 'given_title)
                                                                     "[untitled]"))))
           (org-roam-protocol-open-ref (list :template "r" :ref url :title title)))))
-    (map! :mode pocket-reader-mode "x" #'pocket-reader-roam-capture)))
+  (map! :mode pocket-reader-mode "x" #'pocket-reader-roam-capture))
 
 ;;; Enable commands disabled by default
 (put 'narrow-to-region 'disabled nil)
