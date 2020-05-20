@@ -157,7 +157,7 @@ while True:
 (defvar my-org-pomodoro-time-today-var 0
   "Amount of time spent in pomodoro today.
 DO NOT USE - contains only time logged outside of the current pomodoro.
-Call (my-org-pomodoro-time-today) instead.")
+Call ‘my-org-pomodoro-time-today' instead.")
 (defun my-org-pomodoro-time-today ()
   "Return amount of time spent in pomodoro today, as a floating-point
 number of seconds."
@@ -190,7 +190,6 @@ number of seconds."
                    (float-time
                     (time-subtract org-pomodoro-last-clock-in
                                    effective-midnight))))
-
         (setq my-org-pomodoro-time-today-var 0)))))
 (advice-add #'org-pomodoro :before #'my-org-pomodoro-reset-today)
 (defun my-org-pomodoro-set-start-time ()
@@ -260,6 +259,7 @@ number of seconds."
                                        remainder)
                                org-clock-heading)))))))
 (defun my-org-pomodoro-finished-create-break-end-alarm ()
+  "Create Google Calendar alarm for end of ‘org-pomodoro' break."
   (interactive)
   (when (and (or (eq org-pomodoro-state :short-break)
                  (eq org-pomodoro-state :long-break))
@@ -287,4 +287,4 @@ number of seconds."
 (add-hook 'org-pomodoro-tick-hook #'my-org-pomodoro-tick-current-task-reminder)
 (add-hook 'org-pomodoro-break-finished-hook #'my-org-pomodoro-break-finished-notify-hook)
 (add-hook 'org-pomodoro-short-break-finished-hook #'my-org-pomodoro-short-break-finished-punch-in)
-(add-hook 'org-pomodoro-long-break-finished-hook #'my-org-pomodoro-long-break-finished-punch-out))
+(add-hook 'org-pomodoro-long-break-finished-hook #'my-org-pomodoro-long-break-finished-punch-out)
