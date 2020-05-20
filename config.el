@@ -81,6 +81,13 @@
 ;; Kill current buffer but keep its frame around
 (map! :n "Q" #'kill-this-buffer)
 
+;; Remap keys for tag/xref navigation
+(map! :n "C-]" #'+lookup/definition
+      :n "C-t" #'better-jumper-jump-backward
+      "C-<mouse-1>" #'+lookup/definition
+      ;; Doom binds this to C-t by default
+      "M-t" #'+workspace/new)
+
 ;;; Line and column numbers
 (setq! display-line-numbers-type 'relative)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
