@@ -14,6 +14,13 @@
 ;;      Alternatively, press 'gd' (or 'C-c g d') on a module to browse its
 ;;      directory (for easy access to its source code).
 
+;; Blacklist some environment variables for `doom env`
+(when (boundp 'doom-env-blacklist)
+  (nconc doom-env-blacklist
+         '("DISPLAY" "LaunchInstanceId" "SECURITYSESSIONID" "XPC_SERVICE_NAME"
+           "XPC_FLAGS" "TERM_SESSION_ID" "TMPDIR"
+           "ITERM_SESSION_ID" "ITERM_PROFILE")))
+
 (doom! :input
        ;;chinese
        ;;japanese
