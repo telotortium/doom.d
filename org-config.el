@@ -835,6 +835,7 @@ Default suggestions (in the absence of existing data in the entry):
 - End time: start time plus effort. Prompt for effort if not already present.
 "
   (interactive)
+  (require 'org-gcal)
   (save-excursion
     (org-back-to-heading)
     (let* ((elem (org-element-at-point))
