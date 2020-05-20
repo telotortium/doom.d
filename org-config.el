@@ -891,6 +891,11 @@ Default suggestions (in the absence of existing data in the entry):
             (org-timestamp-format end-time "%H:%M")))))
       ;; Finally, create/update event with information added to entry.
       (org-gcal-post-at-point 'skip-import))))
+(defun my-org-gcal-schedule-now ()
+  "Schedule event at point to current time, then call ‘my-org-gcal-schedule'."
+  (interactive)
+  (org-schedule nil (format-time-string ". %H:%M"))
+  (call-interactively #'my-org-gcal-schedule))
 
 ;;;** Org-drill
 (use-package! org-drill
