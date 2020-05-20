@@ -176,6 +176,20 @@
 (put 'narrow-to-region 'disabled nil)
 (put 'list-timers 'disabled nil)
 
+;; Attempt to fix slow scrolling by delaying highlighting of current line -
+;; https://github.com/hlissner/doom-emacs/issues/2217#issuecomment-615088393
+(use-package! hl-line+
+  :config
+  (hl-line-when-idle-interval 0.3)
+  (toggle-hl-line-when-idle 1))
+
+(setq! profiler-max-stack-depth 64)
+(use-package! explain-pause-mode
+  :config
+  (explain-pause-mode t)
+  (explain-pause-profiles-ignore-command
+   '(gcmh-idle-garbage-collect idle-timer)))
+
 ;;;* Local configuration
 
 ;;; Allow users to provide an optional "init-local" containing personal settings

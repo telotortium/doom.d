@@ -85,3 +85,9 @@
 (package! org-download)
 (package! org-cliplink)
 (package! pocket-reader)
+
+(package! hl-line :disable t)
+(package! hl-line+)
+
+(package! explain-pause-mode
+  :recipe (:host github :repo "lastquestion/explain-pause-mode"))
