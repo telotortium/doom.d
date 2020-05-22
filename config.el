@@ -13,6 +13,11 @@
 (add-to-list 'debug-ignored-errors 'search-failed)
 (setq! debug-on-message "^deferred error :")
 
+;; Reset these values to ‘gcmh’ defaults. Doom sets them too low for my usage.
+(after! gcmh
+  (setq! gcmh-high-cons-threshold #x40000000)
+  (setq! gcmh-idle-delay 15))
+
 (after! evil
   (add-to-list 'evil-emacs-state-modes 'image-mode)
   (add-to-list 'evil-emacs-state-modes 'Custom-mode)
