@@ -179,10 +179,11 @@
         (let* ((id (tabulated-list-get-id))
                (item (ht-get pocket-reader-items id))
                (url (pocket-reader--get-url item))
-               (title (pocket-reader--not-empty-string (pocket-reader--or-string-not-blank
-                                                                    (ht-get item 'resolved_title)
-                                                                    (ht-get item 'given_title)
-                                                                    "[untitled]"))))
+               (title (pocket-reader--not-empty-string
+                       (pocket-reader--or-string-not-blank
+                        (ht-get item 'resolved_title)
+                        (ht-get item 'given_title)
+                        "[untitled]"))))
           (org-roam-protocol-open-ref (list :template "r" :ref url :title title)))))
   (map! :mode pocket-reader-mode "x" #'pocket-reader-roam-capture))
 
