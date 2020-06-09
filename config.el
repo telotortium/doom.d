@@ -205,6 +205,10 @@
   (explain-pause-profiles-ignore-command
    '(gcmh-idle-garbage-collect idle-timer)))
 
+(setq! adaptive-wrap-extra-indent 2)
+(add-hook 'visual-line-mode-hook #'adaptive-wrap-prefix-mode)
+(global-visual-line-mode +1)
+
 ;;;* Local configuration
 
 ;;; Allow users to provide an optional "init-local" containing personal settings
