@@ -1491,6 +1491,13 @@ sparse tree or with the help of occur.  The original buffer is not modified.
 (setq! org-adapt-indentation nil)
 (setq! org-startup-indented nil)
 
+;;; Turn off some org-mode eye candy for performance (see
+;;; https://github.com/hlissner/doom-emacs/blob/develop/docs/faq.org#why-is-scrolling-slow-in-emacsdoom)
+(remove-hook 'org-mode-hook #'org-superstar-mode)
+(setq org-fontify-quote-and-verse-blocks nil
+      org-fontify-whole-heading-line nil
+      org-hide-leading-stars nil)
+
 (require 'org-inlinetask)
 
 (use-package! org-randomnote
