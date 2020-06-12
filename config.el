@@ -88,6 +88,18 @@
 ;; Kill current buffer but keep its frame around
 (map! :n "Q" #'kill-this-buffer)
 
+(defadvice! my-doom-disable-enlargen ()
+  "Disable ‘doom/window-enlargen’ in favor of ‘doom/window-maximize-buffer'.
+
+This appears similar to an old Emacs bug #32351:
+https://lists.gnu.org/archive/html/bug-gnu-emacs/2018-08/msg00097.html. While
+this bug should have long been fixed, I saw a stack trace that was very similar
+when Emacs was hanging on macOS. ‘doom/window-enlargen' creates narrow buffers
+near the edge of the frame, so it may be a culprit. Work around this by using
+‘doom/window-maximize-buffer', which has one window take up the whole frame."
+  :override #'doom/window-enlargen
+  (call-interactively #'doom/window-maximize-buffer))
+
 ;; Remap keys for tag/xref navigation
 (map! :n "C-]" #'+lookup/definition
       :n "C-t" #'better-jumper-jump-backward
