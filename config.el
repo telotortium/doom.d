@@ -9,7 +9,6 @@
 (setq! user-full-name "Robert Irelan"
        user-mail-address "rirelan@gmail.com")
 
-(setq! debug-on-error t)
 (add-to-list 'debug-ignored-errors 'search-failed)
 (setq! debug-on-message "^deferred error :")
 
