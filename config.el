@@ -19,9 +19,14 @@
 
 (after! evil
   (add-to-list 'evil-emacs-state-modes 'image-mode)
+  (add-to-list 'evil-emacs-state-modes 'magit-mode)
   (add-to-list 'evil-emacs-state-modes 'Custom-mode)
   (add-to-list 'evil-emacs-state-modes 'profiler-report-mode)
   (add-to-list 'evil-emacs-state-modes 'pocket-reader-mode))
+(after! evil-collection
+  (setq! evil-collection-setup-minibuffer t)
+  (add-to-list '+evil-collection-disabled-list 'magit)
+  (add-to-list '+evil-collection-disabled-list 'outline))
 (use-package! evil-collection
   :custom (evil-collection-setup-minibuffer t))
 
