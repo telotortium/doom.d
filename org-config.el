@@ -1504,10 +1504,10 @@ sparse tree or with the help of occur.  The original buffer is not modified.
   :bind ("C-c r" . org-randomnote)
   :config
   (setq! org-randomnote-candidates
-          (remove-if
-           (lambda (x)
-             (string-match-p "/gcal.org$" x))
-           (org-agenda-files))))
+         (remove-if
+          (lambda (x)
+            (string-match-p "/gcal.org$" x))
+          (org-agenda-files))))
 
 (setq! org-agenda-dim-blocked-tasks t)
 (setq! org-enforce-todo-dependencies t)
