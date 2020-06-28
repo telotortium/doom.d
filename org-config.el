@@ -821,6 +821,7 @@ TAG is chosen interactively from the global tags completion table."
   ;; slows down every fetch. Instead, I'll just archive old entries once a
   ;; month along with the rest of the entries to be archived.
   (setq! org-gcal-auto-archive nil)
+  (setq! org-gcal-remove-api-cancelled-events nil)
   (when (file-exists-p org-gcal-config-file)
     (load org-gcal-config-file)))
 
