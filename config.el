@@ -63,7 +63,6 @@
 (after! server
   :config
   (setq! server-name "server")
-  (setq! server-socket-dir (expand-file-name "server" user-emacs-directory))
   (setq! server-use-tcp t)
   (defun warn-server-name-changed (original-server-name)
     (when (not (string= server-name original-server-name))
