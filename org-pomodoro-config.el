@@ -139,7 +139,19 @@ while True:
 (defun my-org-pomodoro-short-break-finished-punch-in ()
   "Run bh/punch-in when Pomodoro short breaks end."
   (setq org-clock-idle-time my-org-pomodoro-clock-idle-time)
-  (message-box "Break finished - please run bh/punch-in"))
+  (if (executable-find "osascript")
+      ;; Use osascript on macOS because I suspect ‘message-box’ of sometimes
+      ;; hanging Emacs if it’s not dismissed after a while.
+      (start-process "org-pomodoro-notification" "*notify*"
+                     "osascript" "-e" "\
+tell application \"SystemUIServer\" \
+to display dialog \"Break finished - please run bh/punch-in\" \
+    with title \"Org Pomodoro\" \
+    default button 1 \
+    buttons {\"OK\"}
+activate application (path to frontmost application as text)
+")
+    (message-box "Break finished - please run bh/punch-in")))
 (defun my-org-pomodoro-long-break-finished-punch-out ()
   "Run bh/punch-out when Pomodoro long breaks end."
   (bh/punch-out))
