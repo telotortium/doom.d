@@ -1590,6 +1590,17 @@ Follows the same rules as `org-agenda-files'"
 ;; Use sticky agenda's so they persist
 (setq! org-agenda-sticky t)
 
+(defadvice! my-org-agenda-no-dim-checkboxes (_orig-fn &rest _args)
+  :around #'org-agenda--mark-blocked-entry
+  "Don't dim tasks with empty checkboxes in org-agenda.
+
+This lets me enable ‘org-agenda-dim-blocked-tasks' and
+‘org-enforce-todo-checkbox-dependencies’ simultaneously without dimming tasks
+with empty todo checkboxes."
+  (let ((org-blocker-hook (remove #'org-block-todo-from-checkboxes
+                                  org-blocker-hook)))
+    (apply _orig-fn _args)))
+
 (setq! org-list-allow-alphabetical t)
 
 ;; See https://github.com/hlissner/doom-emacs/issues/3185
