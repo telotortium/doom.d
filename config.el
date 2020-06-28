@@ -71,6 +71,8 @@
   (run-at-time nil 30 #'warn-server-name-changed server-name)
   (if (server-running-p)
       (warn "Not starting server - server with name \"%s\" already running" server-name)
+    (server-force-stop)
+    (server-force-delete)
     (server-start)))
 
 (after! (counsel org)
