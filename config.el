@@ -12,7 +12,10 @@
 (add-to-list 'debug-ignored-errors 'search-failed)
 (setq! debug-on-message "^deferred error :")
 
-;; Reset these values to ‘gcmh’ defaults. Doom sets them too low for my usage.
+;; Disabled by Doom Emacs, but I want it.
+(setq! auto-save-default t)
+
+;; reset these values to ‘gcmh’ defaults. Doom sets them too low for my usage.
 (after! gcmh
   (setq! gcmh-high-cons-threshold #x40000000)
   (setq! gcmh-idle-delay 15))
