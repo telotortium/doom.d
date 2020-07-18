@@ -2,6 +2,7 @@
 
 ;;;** Org-pomodoro
 
+(require 'async)
 (require 's)
 
 ;; Complice.co Less Wrong study hall
@@ -290,7 +291,70 @@ number of seconds."
    "--timestamp" (format-time-string "%FT%T%z" time)
    "--title" "org-pomodoro break end -- get back to work!"))
 
+(defcustom my-org-pomodoro-log-gcal-calendar-id nil
+  "The Google Calendar ID on which to create Pomodoro logs."
+  :type 'string)
+(defvar my-org-pomodoro-log-event-id nil
+  "The event ID to update when org-pomodoro ends.")
+(defvar my-org-pomodoro-log-state nil
+  "The value of ‘org-pomodoro-state’ when pomodoro was logged.")
+(defvar my-org-pomodoro-log-event-titles nil
+  "Titles of events clocked during a pomodoro.")
+(defvar my-org-pomodoro-log-event-start-time nil
+  "The start time of the event ID to update when org-pomodoro ends.")
+(defun my-org-pomodoro-started-create-log-event ()
+  "Create Google Calendar event to log start of ‘org-pomodoro' session."
+  (setq my-org-pomodoro-log-event-start-time (current-time))
+  (setq my-org-pomodoro-log-event-titles (list org-clock-heading))
+  (setq my-org-pomodoro-log-state org-pomodoro-state)
+  (message "%s" (format-time-string "%FT%T%z" org-pomodoro-end-time))
+  (my-org-pomodoro--create-log-event
+   my-org-pomodoro-log-gcal-calendar-id
+   my-org-pomodoro-log-state
+   my-org-pomodoro-log-event-titles
+   nil
+   my-org-pomodoro-log-event-start-time
+   org-pomodoro-end-time))
+(defun my-org-pomodoro-ended-update-log-event ()
+  "Update Google Calendar event to log end of ‘org-pomodoro' session."
+  (my-org-pomodoro--create-log-event
+   my-org-pomodoro-log-gcal-calendar-id
+   my-org-pomodoro-log-state
+   my-org-pomodoro-log-event-titles
+   my-org-pomodoro-log-event-id
+   my-org-pomodoro-log-event-start-time
+   (current-time))
+  (setq my-org-pomodoro-log-event-id nil
+        my-org-pomodoro-log-event-start-time nil
+        my-org-pomodoro-log-event-titles nil))
+(defun my-org-pomodoro--create-log-event
+    (calendar-id state clocked-events event-id start-time end-time)
+  (apply
+   #'async-start-process
+   "org_pomodoro_calendar_export.py"
+   (expand-file-name "org_pomodoro_calendar_export.py" doom-private-dir)
+   (if event-id
+       (lambda (proc))
+     (lambda (proc)
+       (when (= 0 (process-exit-status proc))
+         (with-current-buffer (process-buffer proc)
+           (setq my-org-pomodoro-log-event-id
+                 (string-trim (buffer-substring-no-properties
+                               (point-min) (point-max))))))))
+   (append
+    (list
+     "--calendar_id" calendar-id
+     "--state" (format "%s" state)
+     "--start_timestamp" (format-time-string "%FT%T%z" start-time)
+     "--end_timestamp" (format-time-string "%FT%T%z" end-time))
+    (mapcar (lambda (x) (concat "--clocked_event=" x))
+            clocked-events)
+    (when event-id
+      (list "--event_id" event-id)))))
+
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-notify-hook)
+(add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-create-log-event)
+(add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-ended-update-log-event)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-notify-hook)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-lock-screen)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-caffeinate)
