@@ -299,7 +299,7 @@ number of seconds."
 (defvar my-org-pomodoro-log-state nil
   "The value of ‘org-pomodoro-state’ when pomodoro was logged.")
 (defvar my-org-pomodoro-log-event-titles nil
-  "Titles of events clocked during a pomodoro.")
+  "Titles of events clocked during a pomodoro, from newest to oldest.")
 (defvar my-org-pomodoro-log-event-start-time nil
   "The start time of the event ID to update when org-pomodoro ends.")
 (defun my-org-pomodoro-started-create-log-event ()
@@ -307,7 +307,6 @@ number of seconds."
   (setq my-org-pomodoro-log-event-start-time (current-time))
   (setq my-org-pomodoro-log-event-titles (list org-clock-heading))
   (setq my-org-pomodoro-log-state org-pomodoro-state)
-  (message "%s" (format-time-string "%FT%T%z" org-pomodoro-end-time))
   (my-org-pomodoro--create-log-event
    my-org-pomodoro-log-gcal-calendar-id
    my-org-pomodoro-log-state
@@ -320,13 +319,21 @@ number of seconds."
   (my-org-pomodoro--create-log-event
    my-org-pomodoro-log-gcal-calendar-id
    my-org-pomodoro-log-state
-   my-org-pomodoro-log-event-titles
+   (reverse my-org-pomodoro-log-event-titles)
    my-org-pomodoro-log-event-id
    my-org-pomodoro-log-event-start-time
    (current-time))
   (setq my-org-pomodoro-log-event-id nil
         my-org-pomodoro-log-event-start-time nil
         my-org-pomodoro-log-event-titles nil))
+(defun my-org-pomodoro-update-log-event-titles ()
+  "Update ‘my-org-pomodoro-log-event-titles’ with currently clocked task."
+  (when (not (string= org-clock-heading
+                      (car my-org-pomodoro-log-event-titles)))
+    (push org-clock-heading my-org-pomodoro-log-event-titles))
+  ;; Output current value of variable for easier debugging.
+  my-org-pomodoro-log-event-titles)
+
 (defun my-org-pomodoro--create-log-event
     (calendar-id state clocked-events event-id start-time end-time)
   (apply
@@ -354,6 +361,7 @@ number of seconds."
 
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-notify-hook)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-create-log-event)
+(add-hook 'org-clock-in-hook #'my-org-pomodoro-update-log-event-titles)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-ended-update-log-event)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-notify-hook)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-lock-screen)
