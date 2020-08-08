@@ -34,6 +34,8 @@
   (add-to-list '+evil-collection-disabled-list 'outline))
 (use-package! evil-collection
   :custom (evil-collection-setup-minibuffer t))
+(after! evil-visual-mark-mode
+  (evil-visual-mark-mode t))
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
 ;; are the three important ones:

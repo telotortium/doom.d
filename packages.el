@@ -88,6 +88,7 @@
 
 (package! hl-line :disable t)
 (package! hl-line+)
+(package! evil-visual-mark-mode)
 
 (package! explain-pause-mode
   :recipe (:host github :repo "lastquestion/explain-pause-mode"))
