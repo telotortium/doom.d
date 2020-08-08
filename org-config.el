@@ -822,6 +822,7 @@ TAG is chosen interactively from the global tags completion table."
   ;; month along with the rest of the entries to be archived.
   (setq! org-gcal-auto-archive nil)
   (setq! org-gcal-remove-api-cancelled-events nil)
+  (setq! org-gcal-recurring-events-mode 'nested)
   (when (file-exists-p org-gcal-config-file)
     (load org-gcal-config-file)))
 
