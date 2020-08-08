@@ -491,6 +491,7 @@ Use `org-ql-search' to search."
     `(and
       (not (tags "REFILE" "dailylog" "ARCHIVE"))
       (not (ts :from -30))
+      (not (property "recurrence"))     ; Exclude parents of recurring events
       (or (done)
           (and (tags "gcal")
                (not (todo))))
