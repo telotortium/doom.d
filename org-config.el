@@ -704,6 +704,39 @@ argument when called in `org-agenda-custom-commands'."
 
 ;; Display images inline, but not too wide by default.
 (setq! org-startup-with-inline-images t)
+;; Override ‘org--create-inline-image’ to set ‘:max-width’ rather than ‘:width’.
+;; This will resize image widths up to a max of their original width, rather
+;; than taking up the whole buffer, which prevents smaller images from becoming
+;; pixelated due to being resized larger than their original size.
+(defun org--create-inline-image (file width)
+  "Create image located at FILE, or return nil.
+WIDTH is the width of the image.  The image may not be created
+according to the value of `org-display-remote-inline-images'.
+
+NOTE: Local override of internal function."
+  (let* ((remote? (file-remote-p file))
+         (file-or-data
+          (pcase org-display-remote-inline-images
+            ((guard (not remote?)) file)
+            (`download (with-temp-buffer
+                         (set-buffer-multibyte nil)
+                         (insert-file-contents-literally file)
+                         (buffer-string)))
+            (`cache (let ((revert-without-query '(".")))
+                      (with-current-buffer (find-file-noselect file)
+                        (buffer-string))))
+            (`skip nil)
+            (other
+             (message "Invalid value of `org-display-remote-inline-images': %S"
+                      other)
+             nil))))
+    (when file-or-data
+      (create-image file-or-data
+                    (and (image-type-available-p 'imagemagick)
+                         width
+                         'imagemagick)
+                    remote?
+                    :max-width width))))
 (defun org-resize-inline-images-hook (frame)
   "Hook to update Org-mode image width in resized Org-mode windows.
 
