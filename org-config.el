@@ -726,11 +726,12 @@ Iterates over all buffers in FRAME."
            (not (= (window-pixel-width)
                    (window-pixel-width-before-size-change))))
     (when org-resize-inline-images--timer
-        (cancel-timer org-resize-inline-images--timer))
+      (cancel-timer org-resize-inline-images--timer))
     (setq org-resize-inline-images--timer
           (run-at-time
            1 nil #'org-redisplay-inline-images-in-buffer (current-buffer)))
-    (setq-local org-image-actual-width (list (window-pixel-width)))))
+    (setq-local org-image-actual-width
+                (list (floor (* 0.95 (window-pixel-width)))))))
 (add-hook 'window-size-change-functions #'org-resize-inline-images-hook)
 (add-hook 'org-mode-hook #'org-resize-inline-images)
 (setq! org-image-actual-width '(800))
