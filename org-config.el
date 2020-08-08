@@ -961,6 +961,8 @@ don't support wrapping."
 
 ;;;* Useful packages suggested by
 ;;;* https://blog.jethro.dev/posts/zettelkasten_with_org/.
+(after! org-attach
+  (setq! org-attach-id-dir "data/"))
 (use-package! org-download
   :hook (dired-mode . org-download-enable)
   :custom
