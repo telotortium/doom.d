@@ -21,6 +21,8 @@
 ;; takes less CPU.
 (defvar org-pomodoro-ticking-process nil)
 (setq! org-pomodoro-ticking-sound-p nil)
+(defvar org-pomodoro-ticking-volume 1.0)
+  "Volume for ‘my-org-pomodoro-start-tick’. Should be in range 0.0-1.0."
 (defun my-org-pomodoro-start-tick ()
   "Start ticks for org-pomodoro-mode.
 
@@ -29,7 +31,8 @@ Requires the \"play\" executable from the SoX package
   (let ((cmd
          ;; Pad with 0.79 seconds of silence because tick.wav included with
          ;; ‘org-pomodoro’ is 0.21 seconds long, to get a 1-second tick.
-         (format "play %s pad 0 0.79 repeat - </dev/null"
+         (format "play --volume %f %s pad 0 0.79 repeat - </dev/null"
+                 org-pomodoro-ticking-volume
                  (shell-quote-argument org-pomodoro-ticking-sound))))
     (setq org-pomodoro-ticking-process
           (start-process
@@ -56,6 +59,12 @@ while True:
   (when org-pomodoro-ticking-process
     (signal-process org-pomodoro-ticking-process 15) ; SIGTERM
     (setq org-pomodoro-ticking-process nil)))
+(defun my-org-pomodoro-change-ticking-volume (volume)
+  "Change ticking volume for Pomodoro to VOLUME"
+  (interactive "nVolume (0.0-1.0): ")
+  (setq org-pomodoro-ticking-volume volume)
+  (my-org-pomodoro-stop-tick)
+  (my-org-pomodoro-start-tick))
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-start-tick)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-stop-tick)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-stop-tick)
