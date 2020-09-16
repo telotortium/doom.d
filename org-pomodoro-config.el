@@ -78,6 +78,13 @@ while True:
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-stop-tick)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-stop-tick)
 
+(defun org-pomodoro-end-at ()
+  "Force the current Pomodoro to end at a time prompted from the user."
+  (interactive)
+  (setq my-org-pomodoro-current-task-reminder-next-time nil)
+  (setq org-pomodoro-end-time
+        (org-read-date 'with-time 'to-time)))
+
 (defun org-pomodoro-end-in (minutes)
   "Force the current Pomodoro to end in MINUTES minutes."
   (interactive "nMinutes: ")
