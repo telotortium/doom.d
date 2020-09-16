@@ -76,6 +76,13 @@ while True:
   (setq org-pomodoro-end-time
         (time-add (current-time) (* minutes 60))))
 
+(defun org-pomodoro-start-long-break ()
+  "Start a long break immediately."
+  (interactive)
+  (org-pomodoro-set :pomodoro)
+  (setq org-pomodoro-count -1)
+  (org-pomodoro-end-in 0))
+
 (defcustom my-org-pomodoro-break-id nil
   "Task ID of task to clock into during Pomodoro breaks. Must specify manually."
   :type 'string)
