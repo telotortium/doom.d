@@ -159,9 +159,9 @@ while True:
 (defun my-org-pomodoro-finished-clock-in-break-hook ()
   "Clock into task with ID my-org-pomodoro-break-id during breaks if set."
   (require 'call-log)
-  (clog/msg "%s %s" my-org-pomodoro-break-id org-pomodoro-state)
+  (message "%s %s" my-org-pomodoro-break-id org-pomodoro-state)
   (when my-org-pomodoro-break-id
-    (clog/msg "About to start clock")
+    (message "About to start clock")
     (my-org-pomodoro-start-break)))
 (defun my-org-pomodoro-break-finished-notify-hook ()
   (let ((msg "Pomodoro break finished -- get back to work!"))
@@ -217,7 +217,7 @@ number of seconds."
   (require 'call-log)
   (let* ((input
           (read-from-minibuffer "Org Pomodoro Time Elapsed Today: ")))
-    (clog/msg "Setting elapsed time to %s" input)
+    (message "Setting elapsed time to %s" input)
     (setq my-org-pomodoro-time-today-var
           (* 60 (org-duration-to-minutes input)))))
 (defun my-org-pomodoro-reset-today (&optional arg)
