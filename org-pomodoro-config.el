@@ -30,8 +30,8 @@
 ;; takes less CPU.
 (defvar org-pomodoro-ticking-process nil)
 (setq! org-pomodoro-ticking-sound-p nil)
-(defvar org-pomodoro-ticking-volume 1.0)
-  "Volume for ‘my-org-pomodoro-start-tick’. Should be in range 0.0-1.0."
+(defvar org-pomodoro-ticking-volume 1.0
+  "Volume for ‘my-org-pomodoro-start-tick’. Should be in range 0.0-1.0.")
 (defun my-org-pomodoro-start-tick ()
   "Start ticks for org-pomodoro-mode.
 
@@ -85,7 +85,8 @@ while True:
     (org-pomodoro))
   (setq my-org-pomodoro-current-task-reminder-next-time nil)
   (setq org-pomodoro-end-time
-        (org-read-date 'with-time 'to-time)))
+        (org-read-date 'with-time 'to-time))
+  (my-org-pomodoro-reschedule-alarm))
 
 (defun org-pomodoro-end-in (minutes)
   "Force the current Pomodoro to end in MINUTES minutes."
@@ -94,11 +95,13 @@ while True:
     (org-pomodoro))
   (setq my-org-pomodoro-current-task-reminder-next-time nil)
   (setq org-pomodoro-end-time
-        (time-add (current-time) (* minutes 60))))
+        (time-add (current-time) (* minutes 60)))
+  (my-org-pomodoro-reschedule-alarm))
 
 (defun org-pomodoro-start-long-break ()
   "Start a long break immediately."
   (interactive)
+  (my-org-pomodoro-remove-alarm)
   (org-pomodoro-set :pomodoro)
   (setq org-pomodoro-count -1)
   (org-pomodoro-end-in 0))
@@ -307,6 +310,9 @@ number of seconds."
           (org-pomodoro-notify (format "Pomodoro in progress - %ds to break"
                                        remainder)
                                org-clock-heading)))))))
+(defvar my-org-pomodoro-break-end-alarm-event-id nil
+  "The event ID of the break-end alarm created by
+‘my-org-pomodoro-finished-create-break-end-alarm’.")
 (defun my-org-pomodoro-finished-create-break-end-alarm ()
   "Create Google Calendar alarm for end of ‘org-pomodoro' break."
   (interactive)
@@ -318,14 +324,61 @@ number of seconds."
              my-org-pomodoro-alarm-gcal-calendar-id)
     (my-org-pomodoro--create-alarm-event
      my-org-pomodoro-alarm-gcal-calendar-id
-     org-pomodoro-end-time)))
-(defun my-org-pomodoro--create-alarm-event (calendar-id time)
-  (call-process
+     nil
+     org-pomodoro-end-time
+     nil)))
+(defun my-org-pomodoro-break-finished-clear-alarm-event-id ()
+  "Clear ‘my-org-pomodoro-break-end-alarm-event-id’ at end of break."
+  (setq my-org-pomodoro-break-end-alarm-event-id nil))
+(defun my-org-pomodoro-reschedule-alarm ()
+  "Reschedule alarm created with ‘my-org-pomodoro--create-alarm-event’ to
+current ‘org-pomodoro-end-time’."
+  (when my-org-pomodoro-break-end-alarm-event-id
+    (my-org-pomodoro--create-alarm-event
+     my-org-pomodoro-alarm-gcal-calendar-id
+     my-org-pomodoro-break-end-alarm-event-id
+     org-pomodoro-end-time
+     nil)))
+(defun my-org-pomodoro-remove-alarm ()
+  "Remove alarm created with ‘my-org-pomodoro--create-alarm-event’ when Pomodoro
+killed."
+  (when my-org-pomodoro-break-end-alarm-event-id
+    (my-org-pomodoro--create-alarm-event
+     my-org-pomodoro-alarm-gcal-calendar-id
+     my-org-pomodoro-break-end-alarm-event-id
+     org-pomodoro-end-time
+     t)))
+
+
+(defun my-org-pomodoro--create-alarm-event (calendar-id event-id time remove?)
+  (apply
+   #'async-start-process
+   "pomodoro_schedule_alarm.py"
    (expand-file-name "pomodoro_schedule_alarm.py" doom-private-dir)
-   nil (get-buffer-create "*pomodoro_schedule_alarm.py*") nil
-   "--calendar_id" calendar-id
-   "--timestamp" (format-time-string "%FT%T%z" time)
-   "--title" "org-pomodoro break end -- get back to work!"))
+   ;; Store event ID in ‘my-org-pomodoro-break-end-alarm-event-id'.
+   (cond
+    (remove? (lambda (proc)
+               (setq my-org-pomodoro-break-end-alarm-event-id nil)))
+    (event-id
+     (lambda (proc)))
+    (t
+     (lambda (proc)
+       (when (= 0 (process-exit-status proc))
+         (with-current-buffer (process-buffer proc)
+           (setq my-org-pomodoro-break-end-alarm-event-id
+                 (string-trim (buffer-substring-no-properties
+                               (point-min) (point-max)))))))))
+   (append
+    (list
+     "--calendar_id" calendar-id
+     "--timestamp" (format-time-string "%FT%T%z" time)
+     "--title" "org-pomodoro break end -- get back to work!")
+    (when event-id
+      (list "--event_id" event-id))
+    (when remove?
+      (list "--remove")))))
+
+
 
 (defcustom my-org-pomodoro-log-gcal-calendar-id nil
   "The Google Calendar ID on which to create Pomodoro logs."
@@ -376,6 +429,7 @@ number of seconds."
    #'async-start-process
    "org_pomodoro_calendar_export.py"
    (expand-file-name "org_pomodoro_calendar_export.py" doom-private-dir)
+   ;; Store event ID in ‘my-org-pomodoro-log-event-id'.
    (if event-id
        (lambda (proc))
      (lambda (proc)
@@ -399,6 +453,7 @@ number of seconds."
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-create-log-event)
 (add-hook 'org-clock-in-hook #'my-org-pomodoro-update-log-event-titles)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-ended-update-log-event)
+(add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-remove-alarm)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-ended-update-log-event)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-notify-hook)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-lock-screen)
