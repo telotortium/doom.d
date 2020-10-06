@@ -81,6 +81,8 @@ while True:
 (defun org-pomodoro-end-at ()
   "Force the current Pomodoro to end at a time prompted from the user."
   (interactive)
+  (unless (org-pomodoro-active-p)
+    (org-pomodoro))
   (setq my-org-pomodoro-current-task-reminder-next-time nil)
   (setq org-pomodoro-end-time
         (org-read-date 'with-time 'to-time)))
@@ -88,6 +90,8 @@ while True:
 (defun org-pomodoro-end-in (minutes)
   "Force the current Pomodoro to end in MINUTES minutes."
   (interactive "nMinutes: ")
+  (unless (org-pomodoro-active-p)
+    (org-pomodoro))
   (setq my-org-pomodoro-current-task-reminder-next-time nil)
   (setq org-pomodoro-end-time
         (time-add (current-time) (* minutes 60))))
