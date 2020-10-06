@@ -86,6 +86,7 @@ while True:
   (setq my-org-pomodoro-current-task-reminder-next-time nil)
   (setq org-pomodoro-end-time
         (org-read-date 'with-time 'to-time))
+  (my-org-pomodoro-update-log-event org-pomodoro-end-time)
   (my-org-pomodoro-reschedule-alarm))
 
 (defun org-pomodoro-end-in (minutes)
@@ -96,6 +97,7 @@ while True:
   (setq my-org-pomodoro-current-task-reminder-next-time nil)
   (setq org-pomodoro-end-time
         (time-add (current-time) (* minutes 60)))
+  (my-org-pomodoro-update-log-event org-pomodoro-end-time)
   (my-org-pomodoro-reschedule-alarm))
 
 (defun org-pomodoro-start-long-break ()
@@ -403,15 +405,20 @@ killed."
    nil
    my-org-pomodoro-log-event-start-time
    org-pomodoro-end-time))
+(defun my-org-pomodoro-update-log-event (end-time)
+  "Update Event with ‘my-org-pomodoro-log-event-id’ with END-TIME as well as
+current ‘my-org-pomodoro-log-event-titles'."
+  (when my-org-pomodoro-log-event-id
+    (my-org-pomodoro--create-log-event
+     my-org-pomodoro-log-gcal-calendar-id
+     my-org-pomodoro-log-state
+     (reverse my-org-pomodoro-log-event-titles)
+     my-org-pomodoro-log-event-id
+     my-org-pomodoro-log-event-start-time
+     end-time)))
 (defun my-org-pomodoro-ended-update-log-event ()
   "Update Google Calendar event to log end of ‘org-pomodoro' session."
-  (my-org-pomodoro--create-log-event
-   my-org-pomodoro-log-gcal-calendar-id
-   my-org-pomodoro-log-state
-   (reverse my-org-pomodoro-log-event-titles)
-   my-org-pomodoro-log-event-id
-   my-org-pomodoro-log-event-start-time
-   (current-time))
+  (my-org-pomodoro-update-log-event (current-time))
   (setq my-org-pomodoro-log-event-id nil
         my-org-pomodoro-log-event-start-time nil
         my-org-pomodoro-log-event-titles nil))
