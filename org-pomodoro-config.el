@@ -172,6 +172,9 @@ while True:
   (when my-org-pomodoro-break-id
     (message "About to start clock")
     (my-org-pomodoro-start-break)))
+(defun my-org-pomodoro-clear-break-end-alarm-id ()
+  "Clear ‘my-org-pomodoro-break-end-alarm-event-id’."
+  (setq my-org-pomodoro-break-end-alarm-event-id nil))
 (defun my-org-pomodoro-break-finished-notify-hook ()
   (let ((msg "Pomodoro break finished -- get back to work!"))
     (if (fboundp 'terminal-notifier-notify)
@@ -456,11 +459,11 @@ current ‘my-org-pomodoro-log-event-titles'."
     (when event-id
       (list "--event_id" event-id)))))
 
+(add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-clear-break-end-alarm-id)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-notify-hook)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-create-log-event)
 (add-hook 'org-clock-in-hook #'my-org-pomodoro-update-log-event-titles)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-ended-update-log-event)
-(add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-remove-alarm)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-ended-update-log-event)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-notify-hook)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-lock-screen)
