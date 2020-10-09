@@ -101,6 +101,13 @@
 ;; Kill current buffer but keep its frame around
 (map! :n "Q" #'kill-this-buffer)
 
+;; Swap gj and j, gk and k
+(map!
+ :m "j" #'evil-next-visual-line
+ :m "gj" #'evil-next-line
+ :m "k" #'evil-previous-visual-line
+ :m "gk" #'evil-previous-line)
+
 (defadvice! my-doom-disable-enlargen (&rest _r)
   :override #'doom/window-enlargen
   "Disable ‘doom/window-enlargen’ in favor of ‘doom/window-maximize-buffer’.
