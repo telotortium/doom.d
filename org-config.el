@@ -15,6 +15,17 @@
       "C-c C-x i" #'org-clock-in
       "C-c C-x C-o" #'org-clock-out
       "C-c C-x o" #'org-clock-in)
+(use-package! evil-org
+  :hook (org . evil-org-mode))
+(after! evil-org
+  (map! :map evil-org-mode-map
+        (:when IS-MAC
+         :mi "<s-up>" #'org-backward-element
+         :mi "<s-down>" #'org-forward-element))
+  (let-alist evil-org-movement-bindings
+    (evil-define-key 'motion evil-org-mode-map
+      (kbd (concat "g" .up)) nil
+      (kbd (concat "g" .down)) nil)))
 (defun my-org-clock-in ()
   "Select a recently clock-in task to clock into.  See `org-clock-in'."
   (interactive) (org-clock-in '(4)))
@@ -650,7 +661,7 @@ argument when called in `org-agenda-custom-commands'."
   "The path to terminal-notifier."
   :type 'file)
 (defun terminal-notifier-notify (title message &optional timeout)
-  "Show a message with `terminal-notifier-command`."
+  "Show a message with `terminal-notifier-command'."
   (let ((timeout (number-to-string (if timeout timeout 60))))
     (start-process "terminal-notifier"
                    "*terminal-notifier*"
@@ -691,7 +702,7 @@ argument when called in `org-agenda-custom-commands'."
 ;;;; Based on http://doc.norang.ca/org-mode.html#Refiling and
 ;;;; https://blog.aaronbieber.com/2017/03/19/organizing-notes-with-refile.html
 (setq! org-refile-targets '((nil :maxlevel . 9)
-                             (org-agenda-files :maxlevel . 9)))
+                            (org-agenda-files :maxlevel . 9)))
 (setq! org-refile-use-outline-path 'buffer-name)
 ;;; Targets complete directly with Ivy, so no need to complete in steps.
 (setq! org-outline-path-complete-in-steps nil)
