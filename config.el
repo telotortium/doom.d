@@ -107,6 +107,12 @@
  :m "gj" #'evil-next-line
  :m "k" #'evil-previous-visual-line
  :m "gk" #'evil-previous-line)
+;; Disable evil-lion keybindings
+(after! evil-lion
+  (map! :map evil-normal-state-map "gl" nil
+        :map evil-visual-state-map "gl" nil
+        :map evil-normal-state-map "gL" nil
+        :map evil-visual-state-map "gL" nil))
 
 (defadvice! my-doom-disable-enlargen (&rest _r)
   :override #'doom/window-enlargen
