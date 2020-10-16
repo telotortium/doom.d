@@ -76,6 +76,10 @@
 (package! org-pomodoro
   :recipe (:host github :repo "marcinkoziej/org-pomodoro"
            :fork (:host nil :repo "git@github.com:telotortium/org-pomodoro")))
+(package! org-fc
+  :recipe (:host nil :repo "https://git.sr.ht/~l3kn/org-fc"
+           :branch "main"
+           :files (:defaults "awk" "demo.org")))
 (when (package! alert)
   (package! org-gcal
     :recipe (:host github :repo "kidd/org-gcal.el"

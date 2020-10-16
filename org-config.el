@@ -977,6 +977,26 @@ don't support wrapping."
         (toggle-frame-maximized frame))))
   (advice-add #'org-drill :around #'my-org-drill-maximize-frame))
 
+
+;;;* org-fc
+(use-package! org-fc
+  :custom
+  (org-fc-directories '("~/Documents/org/home-org")))
+(after! (evil org-fc)
+  (add-to-list 'evil-emacs-state-modes 'org-fc-dashboard-mode)
+  (evil-define-minor-mode-key '(normal insert emacs) 'org-fc-review-flip-mode
+    (kbd "RET") 'org-fc-review-flip
+    (kbd "n") 'org-fc-review-flip
+    (kbd "s") 'org-fc-review-suspend-card
+    (kbd "q") 'org-fc-review-quit)
+  (evil-define-minor-mode-key '(normal insert emacs) 'org-fc-review-rate-mode
+    (kbd "a") 'org-fc-review-rate-again
+    (kbd "h") 'org-fc-review-rate-hard
+    (kbd "g") 'org-fc-review-rate-good
+    (kbd "e") 'org-fc-review-rate-easy
+    (kbd "s") 'org-fc-review-suspend-card
+    (kbd "q") 'org-fc-review-quit))
+
 ;;;* Org-roam
 (use-package! org-roam
   :hook (after-init . org-roam-mode)
