@@ -82,6 +82,7 @@
              :fork (:host nil :repo "git@github.com:telotortium/org-gcal.el"))))
 (package! org-drill)
 (package! org-drill-table)
+(package! org-journal)
 (package! org-ql)
 (package! org-randomnote)
 (package! org-super-agenda)

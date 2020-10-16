@@ -1004,6 +1004,16 @@ don't support wrapping."
   (nconc (assoc "r" org-roam-capture-ref-templates)
          '(:immediate-finish t :jump-to-captured t)))
 
+(use-package org-journal
+  :bind
+  ("C-c n j" . org-journal-new-entry)
+  :custom
+  (org-journal-date-prefix "#+title: ")
+  (org-journal-file-format "%Y-%m-%d.org")
+  (org-journal-date-format "%A, %d %B %Y"))
+(after! (org-journal org-roam)
+  (setq! org-journal-dir org-roam-directory))
+
 ;;;* Useful packages suggested by
 ;;;* https://blog.jethro.dev/posts/zettelkasten_with_org/.
 (after! org-attach
