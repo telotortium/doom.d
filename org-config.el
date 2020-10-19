@@ -1043,7 +1043,13 @@ don't support wrapping."
     "Split current window and select new window."
     (unless (eq org-roam-capture--context 'ref)
       (select-window (split-window))))
-  (advice-add 'org-roam--capture :before #'my-org-roam-capture-split-window))
+  (advice-add 'org-roam--capture :before #'my-org-roam-capture-split-window)
+  (defun my-org-roam-set-buffer-name-hook ()
+    "Set buffer name of org-roam files."
+    (when (org-roam--org-roam-file-p)
+      (rename-buffer (org-roam--get-title-or-slug (buffer-file-name)))))
+  (add-hook 'find-file-hook #'my-org-roam-set-buffer-name-hook))
+
 (after! org-roam-protocol
   (nconc (assoc "d" org-roam-capture-templates)
          '(:immediate-finish t :jump-to-captured t))
