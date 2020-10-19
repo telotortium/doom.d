@@ -981,7 +981,10 @@ don't support wrapping."
 ;;;* org-fc
 (use-package! org-fc
   :custom
-  (org-fc-directories '("~/Documents/org/home-org")))
+  (org-fc-directories '("~/Documents/org/home-org"))
+  (org-fc-custom-contexts
+   '((inbox . (:filter (tag "inbox")))
+     (reviews . (:filter (not (tag "inbox")))))))
 (after! (evil org-fc)
   (add-to-list 'evil-emacs-state-modes 'org-fc-dashboard-mode)
   (evil-define-minor-mode-key '(normal insert emacs) 'org-fc-review-flip-mode
@@ -996,6 +999,29 @@ don't support wrapping."
     (kbd "e") 'org-fc-review-rate-easy
     (kbd "s") 'org-fc-review-suspend-card
     (kbd "q") 'org-fc-review-quit))
+(defun org-fc-review-inbox ()
+  "Run ‘org-fc’ review on the ‘inbox’ context (see ‘org-fc-custom-contexts')."
+  (interactive)
+  (org-fc-review (alist-get 'inbox (org-fc-contexts))))
+(defun org-fc-review-reviews ()
+  "Run ‘org-fc’ review on the ‘reviews’ context (see ‘org-fc-custom-contexts')."
+  (interactive)
+  (org-fc-review (alist-get 'reviews (org-fc-contexts))))
+(defun org-fc-type-inbox-init ()
+  "Mark headline as card of the inbox type."
+  (interactive)
+  (org-with-point-at (point)
+    (org-fc-type-normal-init)
+    (org-fc--add-tag "inbox")
+    (org-fc-set-review-data
+     `("front" "2.5" "2" "2.0"
+       ,(format-time-string
+         org-fc-timestamp-format
+         (encode-time (decoded-time-add (decode-time nil "UTC")
+                                        (make-decoded-time :day 2)))
+         "UTC")))))
+
+
 
 ;;;* Org-roam
 (use-package! org-roam
