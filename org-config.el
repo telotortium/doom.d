@@ -1060,6 +1060,8 @@ don't support wrapping."
   (nconc (assoc "r" org-roam-capture-ref-templates)
          '(:immediate-finish t :jump-to-captured t)))
 
+(defcustom my-org-roam-directories (list org-roam-directory)
+  "List of org-roam directories to examine in ‘my-org-roam-agenda-file-hook’.")
 (defun my-org-roam-agenda-file-hook ()
   "Add recently-modified org-roam files to ‘org-agenda-files’."
   (let* ((since
@@ -1067,24 +1069,34 @@ don't support wrapping."
            "%Y-%m-%d"
            (encode-time (decoded-time-add (decode-time nil)
                                           (make-decoded-time :day -60))))))
-    (setq!
-     org-agenda-files
-     (append
-      (org-agenda-expand-files-name)
-      (mapcar
-       (lambda (x)
-         (expand-file-name x (file-name-directory org-roam-directory)))
-       (split-string
-        (shell-command-to-string
-         (mapconcat
-          #'identity
-          `("cd" ,(shell-quote-argument (expand-file-name org-roam-directory))
-            "; git log --after" ,since "--oneline | awk '{print $1}' |"
-            "xargs -n1 bash -c 'git diff --name-only \"$0\" \"${0}~1\"' |"
-            "sort | uniq | grep ^roam/ | grep '\.org$' |"
-            "grep -v ^roam/notes.andymatuschak.org")
-          " "))
-        "\n" t))))))
+    (async-start-process
+     "org-roam-agenda-update"
+     "sh"
+     (lambda (proc)
+       (let ((lines
+              (split-string
+               (with-current-buffer (process-buffer proc)
+                 (buffer-string))
+               "\n" t)))
+         (setq!
+          org-agenda-files
+          (append (org-agenda-expand-files-name) lines))))
+     "-c"
+     (string-join
+      `("for dir in"
+        ,(string-join (mapcar (lambda (x)
+                                (shell-quote-argument (expand-file-name x)))
+                              my-org-roam-directories)
+                      " ")
+        "; do cd \"$dir\";"
+        "git log --after" ,since "--oneline | awk '{print $1}' |"
+        "xargs -n1 sh -c 'git diff --name-only \"$0\" \"${0}~1\"' |"
+        "sort | uniq | grep ^roam/ | grep '\.org$' |"
+        "grep -v ^roam/notes.andymatuschak.org | tr '\\n' '\\0' |"
+        "xargs -0 -n1 sh -c"
+        "'printf \"%s\\n\" \"$(git rev-parse --show-toplevel)/$0\"';"
+        "done")
+      " "))))
 (run-with-idle-timer 5 nil #'my-org-roam-agenda-file-hook)
 (run-with-idle-timer (* 60 3) t #'my-org-roam-agenda-file-hook)
 
