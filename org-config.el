@@ -45,7 +45,11 @@
 
 ;;; Org agenda
 (setq!
- org-agenda-files (expand-file-name "agenda_files" doom-private-dir)
+ org-agenda-files-name (expand-file-name "agenda_files" doom-private-dir))
+(defun org-agenda-expand-files-name ()
+  (let ((org-agenda-files org-agenda-files-name)) (org-agenda-files)))
+(setq!
+ org-agenda-files (org-agenda-expand-files-name)
  org-agenda-span 'day
  org-agenda-start-day "."
  org-agenda-start-on-weekday nil
@@ -1055,6 +1059,34 @@ don't support wrapping."
          '(:immediate-finish t :jump-to-captured t))
   (nconc (assoc "r" org-roam-capture-ref-templates)
          '(:immediate-finish t :jump-to-captured t)))
+
+(defun my-org-roam-agenda-file-hook ()
+  "Add recently-modified org-roam files to ‘org-agenda-files’."
+  (let* ((since
+          (format-time-string
+           "%Y-%m-%d"
+           (encode-time (decoded-time-add (decode-time nil)
+                                          (make-decoded-time :day -60))))))
+    (setq!
+     org-agenda-files
+     (append
+      (org-agenda-expand-files-name)
+      (mapcar
+       (lambda (x)
+         (expand-file-name x (file-name-directory org-roam-directory)))
+       (split-string
+        (shell-command-to-string
+         (mapconcat
+          #'identity
+          `("cd" ,(shell-quote-argument (expand-file-name org-roam-directory))
+            "; git log --after" ,since "--oneline | awk '{print $1}' |"
+            "xargs -n1 bash -c 'git diff --name-only \"$0\" \"${0}~1\"' |"
+            "sort | uniq | grep ^roam/ | grep '\.org$' |"
+            "grep -v ^roam/notes.andymatuschak.org")
+          " "))
+        "\n" t))))))
+(run-with-idle-timer 5 nil #'my-org-roam-agenda-file-hook)
+(run-with-idle-timer (* 60 3) t #'my-org-roam-agenda-file-hook)
 
 (use-package org-journal
   :bind
