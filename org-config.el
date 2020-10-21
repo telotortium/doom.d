@@ -119,7 +119,10 @@ clocktables in the currently visible portion of the buffer."
 :END:
 %?!|2 + 2|! equals !|4|!.
 " :clock-in t :clock-resume t :jump-to-captured t)
-        ("D" "Daily Log" entry (file+olp+datetree org-daily-log-file)
+        ("D" "Daily Log" entry
+         (file (lambda ()
+                 (require 'org-journal)
+                 (org-journal--get-entry-path org-overriding-default-time)))
          "
 * %u Daily log
 :PROPERTIES:
@@ -141,8 +144,11 @@ clocktables in the currently visible portion of the buffer."
 
 #+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"-Google\"
 #+END: clocktable
-" :time-prompt t :tree-type week :clock-in t :clock-resume t)
-        ("W" "GTD weekly review" entry (file+olp+datetree org-daily-log-file)
+" :time-prompt t :clock-in t :clock-resume t :jump-to-captured t)
+        ("W" "GTD weekly review" entry
+         (file (lambda ()
+                 (require 'org-journal)
+                 (org-journal--get-entry-path org-overriding-default-time)))
          "
 * NEXT %u GTD weekly review
 SCHEDULED: <%<%Y-%m-%d %a 13:00-14:00>>
