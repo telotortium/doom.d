@@ -1110,6 +1110,9 @@ don't support wrapping."
 (use-package org-journal
   :bind
   ("C-c n j" . org-journal-new-entry)
+  (:map org-journal-mode-map
+    ("C-c n p" . org-journal-previous-entry)
+    ("C-c n n" . org-journal-next-entry))
   :custom
   (org-journal-date-prefix "#+title: ")
   (org-journal-file-format "%Y-%m-%d.org")
