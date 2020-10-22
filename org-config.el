@@ -1033,12 +1033,12 @@ don't support wrapping."
     (org-fc-type-normal-init)
     (org-fc--add-tag "inbox")
     (org-fc-set-review-data
-     `("front" "2.5" "2" "2.0"
-       ,(format-time-string
-         org-fc-timestamp-format
-         (encode-time (decoded-time-add (decode-time nil "UTC")
-                                        (make-decoded-time :day 2)))
-         "UTC")))))
+     `(("front" "2.5" "2" "2.0"
+        ,(format-time-string
+          org-fc-timestamp-format
+          (encode-time (decoded-time-add (decode-time nil "UTC")
+                                         (make-decoded-time :day 2)))
+          "UTC"))))))
 
 
 
