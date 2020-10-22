@@ -22,6 +22,7 @@
         (:when IS-MAC
          :mi "<s-up>" #'org-backward-element
          :mi "<s-down>" #'org-forward-element))
+  (map! :m "<C-i>" #'better-jumper-jump-forward)
   (let-alist evil-org-movement-bindings
     (evil-define-key 'motion evil-org-mode-map
       (kbd (concat "g" .up)) nil

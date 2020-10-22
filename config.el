@@ -23,6 +23,15 @@
   (setq! gcmh-high-cons-threshold #x40000000)
   (setq! gcmh-idle-delay 15))
 
+(setq! custom-file (expand-file-name "custom.el" doom-private-dir))
+
+;; By default, C-i is equivalent to TAB. Remove this.
+(define-key key-translation-map [?\C-i]
+  (λ! (if (and (not (cl-position 'tab    (this-single-command-raw-keys)))
+               (not (cl-position 'kp-tab (this-single-command-raw-keys)))
+               (display-graphic-p))
+          [C-i] [?\C-i])))
+
 (after! evil
   (add-to-list 'evil-emacs-state-modes 'image-mode)
   (add-to-list 'evil-emacs-state-modes 'magit-mode)
