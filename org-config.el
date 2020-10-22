@@ -1125,7 +1125,8 @@ don't support wrapping."
   :custom
   (org-journal-date-prefix "#+title: ")
   (org-journal-file-format "%Y-%m-%d.org")
-  (org-journal-date-format "%A, %d %B %Y"))
+  (org-journal-date-format "%A, %d %B %Y")
+  (org-journal-carryover-items ""))
 (after! (org-journal org-roam)
   (setq! org-journal-dir org-roam-directory))
 
