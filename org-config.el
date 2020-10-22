@@ -1010,6 +1010,14 @@ don't support wrapping."
         :me "e" #'org-fc-review-rate-easy
         :me "s" #'org-fc-review-suspend-card
         :me "q" #'org-fc-review-quit))
+(after! (org-capture org-fc)
+  (map! :map org-mode-map
+        "C-c d" #'my-org-capture-defer-task))
+(defun my-org-capture-defer-task ()
+  "Defer the task at point to a later time."
+  (interactive)
+  (org-fc-type-inbox-init)
+  (org-capture-finalize))
 (defun org-fc-review-inbox ()
   "Run ‘org-fc’ review on the ‘inbox’ context (see ‘org-fc-custom-contexts')."
   (interactive)
