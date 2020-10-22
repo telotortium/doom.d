@@ -693,8 +693,12 @@ argument when called in `org-agenda-custom-commands'."
           'my-org-mode-ask-effort)
 (defun my-org-mode-ask-effort ()
   "Ask for an effort estimate when clocking in."
-  (when (null (org-entry-get-multivalued-property (point) "Effort"))
-    (org-set-effort)))
+  (let ((todo (nth 2 (org-heading-components))))
+    (message "todo %s" todo)
+    (when (and (null (org-entry-get-multivalued-property (point) "Effort"))
+               (not (seq-find (lambda (x) (string= todo x))
+                              '("TODO" "MEETING" ""))))
+      (org-set-effort))))
 
 ;;; Show current task in frame title
 (setq! org-clock-clocked-in-display 'frame-title)
