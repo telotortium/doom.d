@@ -167,6 +167,11 @@ near the edge of the frame, so it may be a culprit. Work around this by using
     (org-save-all-org-buffers))
   (advice-add 'rg-org :before #'rg-org-save-files))
 
+;; Allow creating org-roam files that are a prefix of existing file names
+;; (see https://www.orgroam.com/manual/How-do-I-create-a-note-whose-title-already-matches-one-of-the-candidates_003f.html#How-do-I-create-a-note-whose-title-already-matches-one-of-the-candidates_003f)
+(after! ivy
+  (setq! ivy-use-selectable-prompt t))
+
 (setq!
  ;; Inherit Emacs load-path from current session - prevents annoying errors
  ;; from custom packages.
