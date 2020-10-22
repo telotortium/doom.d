@@ -1107,7 +1107,7 @@ don't support wrapping."
         "git log --after" ,since "--oneline | awk '{print $1}' |"
         "xargs -n1 sh -c 'git diff --name-only \"$0\" \"${0}~1\"' |"
         "sort | uniq | grep ^roam/ | grep '\.org$' |"
-        "grep -v ^roam/notes.andymatuschak.org | tr '\\n' '\\0' |"
+        "grep -v ^roam/andy-matuschack-notes | tr '\\n' '\\0' |"
         "xargs -0 -n1 sh -c"
         "'printf \"%s\\n\" \"$(git rev-parse --show-toplevel)/$0\"';"
         "done")
