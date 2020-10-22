@@ -1079,6 +1079,7 @@ don't support wrapping."
   "List of org-roam directories to examine in ‘my-org-roam-agenda-file-hook’.")
 (defun my-org-roam-agenda-file-hook ()
   "Add recently-modified org-roam files to ‘org-agenda-files’."
+  (interactive)
   (let* ((since
           (format-time-string
            "%Y-%m-%d"
