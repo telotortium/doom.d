@@ -1133,6 +1133,20 @@ don't support wrapping."
   (org-journal-carryover-items ""))
 (after! (org-journal org-roam)
   (setq! org-journal-dir org-roam-directory))
+(defun org-journal-add-agenda-link ()
+  "Add link to agenda to current file."
+  (cl-assert (string= org-journal-file-format
+                      "%Y-%m-%d.org"))
+  (require 'f)
+  (newline)
+  (org-insert-link
+   nil
+   (format "elisp:(let ((org-agenda-sticky nil)) (org-agenda-list nil \"%s\"))"
+           (f-base (buffer-file-name)))
+   "(agenda)"))
+(add-hook 'org-journal-after-header-create-hook #'org-journal-add-agenda-link)
+
+
 
 ;;;* Useful packages suggested by
 ;;;* https://blog.jethro.dev/posts/zettelkasten_with_org/.
