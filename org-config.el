@@ -696,8 +696,7 @@ argument when called in `org-agenda-custom-commands'."
   (let ((todo (nth 2 (org-heading-components))))
     (message "todo %s" todo)
     (when (and (null (org-entry-get-multivalued-property (point) "Effort"))
-               (not (seq-find (lambda (x) (string= todo x))
-                              '("TODO" "MEETING" ""))))
+               (not org-capture-mode))
       (org-set-effort))))
 
 ;;; Show current task in frame title
