@@ -92,7 +92,7 @@ clocktables in the currently visible portion of the buffer."
       `(("t" "Task" entry (file (lambda () (concat org-directory "/inbox.org")))
          "
 * TODO %?%^{Title}
-%^{Effort}p%u
+%u
 " :clock-in t :clock-resume t :jump-to-captured t)
         ("n" "Note" entry (file (lambda () (concat org-directory "/inbox.org")))
          "
