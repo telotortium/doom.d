@@ -1140,7 +1140,7 @@ don't support wrapping."
   (newline)
   (org-insert-link
    nil
-   (format "elisp:(let ((org-agenda-sticky nil)) (org-agenda-list nil \"%s\"))"
+   (format "elisp:(let ((org-agenda-sticky nil) (org-agenda-window-setup 'reorganize-frame)) (org-agenda-list nil \"%s\"))"
            (f-base (buffer-file-name)))
    "(agenda)"))
 (add-hook 'org-journal-after-header-create-hook #'org-journal-add-agenda-link)
