@@ -1001,21 +1001,25 @@ don't support wrapping."
      (reviews . (:filter (not (tag "inbox")))))))
 (after! (evil org-fc)
   (add-to-list 'evil-emacs-state-modes 'org-fc-dashboard-mode)
-  (map! :map org-fc-review-flip-mode-map
-        :me "RET" #'org-fc-review-flip
-        :me "n" #'org-fc-review-flip
-        :me "s" #'org-fc-review-suspend-card
-        :me "q" #'org-fc-review-quit)
-  (map! :map org-fc-review-rate-mode-map
-        :me "a" #'org-fc-review-rate-again
-        :me "h" #'org-fc-review-rate-hard
-        :me "g" #'org-fc-review-rate-good
-        :me "e" #'org-fc-review-rate-easy
-        :me "s" #'org-fc-review-suspend-card
-        :me "q" #'org-fc-review-quit))
-(after! (org-capture org-fc)
-  (map! :map org-mode-map
-        "C-c d" #'my-org-capture-defer-task))
+  (evil-define-minor-mode-key '(normal insert emacs) 'org-fc-review-flip-mode
+    (kbd "RET") 'org-fc-review-flip
+    (kbd "p") 'org-fc-review-edit
+    (kbd "E") 'org-fc-review-edit
+    (kbd "n") 'org-fc-review-flip
+    (kbd "s") 'org-fc-review-suspend-card
+    (kbd "q") 'org-fc-review-quit)
+  (evil-define-minor-mode-key '(normal insert emacs) 'org-fc-review-rate-mode
+    (kbd "a") 'org-fc-review-rate-again
+    (kbd "p") 'org-fc-review-edit
+    (kbd "E") 'org-fc-review-edit
+    (kbd "h") 'org-fc-review-rate-hard
+    (kbd "g") 'org-fc-review-rate-good
+    (kbd "e") 'org-fc-review-rate-easy
+    (kbd "s") 'org-fc-review-suspend-card
+    (kbd "q") 'org-fc-review-quit))
+  (after! (org-capture org-fc)
+    (map! :map org-mode-map
+          "C-c d" #'my-org-capture-defer-task))
 (defun my-org-capture-defer-task ()
   "Defer the task at point to a later time."
   (interactive)
