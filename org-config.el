@@ -82,6 +82,20 @@ clocktables in the currently visible portion of the buffer."
         (while (re-search-forward "#\\\+BEGIN: clocktable" nil t)
             (org-clock-report)
             (forward-line 1)))))
+(defun org-timestamp-add-days (ts days)
+  "Return timestamp TS shifted by a number of days.
+
+TS is a string timestamp understandable by ‘org-parse-time-string’. DAYS is an
+integer number of days.
+
+Examples:
+  (string= (org-timestamp-add-days \"2020-10-25\" 2) \"2020-10-27\")
+  (string= (org-timestamp-add-days \"2020-10-25\" -2) \"2020-10-23\")
+"
+   (format-time-string
+    "%F"
+    (encode-time (decoded-time-add (org-parse-time-string ts)
+                                   (make-decoded-time :day days)))))
 
 (defcustom org-daily-log-file
   (concat org-directory "/daily-log.org")
@@ -214,6 +228,15 @@ Checklist:
   - [ ] Be Creative and Courageous \\\\
     Any new, wonderful, hare-brained, creative, thought-provoking, risk-taking
     ideas to add into your system???
+
+#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :tstart \"%(org-timestamp-add-days \"%<%F>\" -6)\" :tend \"%<%F>\" :link t :match \"Google/-MEETING\" :narrow 60!
+#+END: clocktable
+
+#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :tstart \"%(org-timestamp-add-days \"%<%F>\" -6)\" :tend \"%<%F>\" :link t :match \"Google/MEETING\" :narrow 60!
+#+END: clocktable
+
+#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :tstart \"%(org-timestamp-add-days \"%<%F>\" -6)\" :tend \"%<%F>\" :link t :match \"-Google\" :narrow 60!
+#+END: clocktable
 " :time-prompt t :tree-type week :clock-in t :clock-resume t :jump-to-captured t)
         ("p" "Link and Text" entry (file+headline org-default-notes-file "Links")
          "
