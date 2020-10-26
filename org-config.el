@@ -151,13 +151,13 @@ Examples:
 
 *Tomorrow*:
 
-#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"Google/-MEETING\"
+#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"Google/-MEETING\" :narrow 60!
 #+END: clocktable
 
-#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"Google/MEETING\"
+#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"Google/MEETING\" :narrow 60!
 #+END: clocktable
 
-#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"-Google\"
+#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"-Google\" :narrow 60!
 #+END: clocktable
 " :time-prompt t :clock-in t :clock-resume t :jump-to-captured t)
         ("W" "GTD weekly review" entry
