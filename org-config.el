@@ -550,6 +550,31 @@ Use `org-ql-search' to search."
     :super-groups '((:auto-map my-org-super-agenda-group-by-project-or-task-group))
     :sort 'date
     :title "Archivable tasks"))
+(defcustom my-org-agenda-old-gcal-archive-files
+  '("~/Documents/org/home-org/gcal.org_archive")
+  "List of files for ‘my-org-agenda-old-gcal-tasks' to search.")
+(cl-defun my-org-agenda-old-gcal-tasks (&optional buffer)
+  "Show agenda for old GCal tasks that can be deleted.
+
+Look for tasks in ‘my-org-agenda-old-gcal-archive-files' that are older than 90
+days, have never been clocked, have no children, and are not parents of
+recurring events. These tasks are merely cached versions of events on Google
+Calendar that I’ve never interacted with, and can thus be deleted without any
+ill effect.
+
+Use ‘org-ql-search' to search."
+  (interactive)
+  (org-ql-search
+    my-org-agenda-old-gcal-archive-files
+    `(and
+      (not (ts :from -90))
+      (not (property "recurrence"))     ; Exclude parents of recurring events
+      (not (clocked))
+      (not (children)))
+    :buffer (or buffer org-ql-view-buffer)
+    :super-groups '((:auto-ts))
+    :sort 'date
+    :title "Old GCal tasks to delete."))
 (defmacro my-org-agenda-ql-wrapper (wrapper-name wrapped-func-name)
   "Defines a wrapper for use in `org-agenda-custom-commands'.
 
@@ -573,6 +598,23 @@ argument when called in `org-agenda-custom-commands'."
                           my-org-agenda-next-tasks)
 (my-org-agenda-ql-wrapper my-org-agenda-archivable-tasks-agenda-command
                           my-org-agenda-archivable-tasks)
+(my-org-agenda-ql-wrapper my-org-agenda-old-gcal-tasks-agenda-command
+                          my-org-agenda-old-gcal-tasks)
+
+(defun org-agenda-kill-or-down ()
+  "Call ‘org-agenda-kill’, or ‘org-agenda-next-line' if not on a headline."
+  (interactive)
+  (condition-case err
+      (funcall-interactively #'org-agenda-kill)
+    (t
+     (pcase-let ((`(user-error ,msg) err))
+       (if (string= msg "Command not allowed in this line")
+           (funcall-interactively #'org-agenda-next-line)
+         (user-error msg))))))
+(after! org-agenda
+  (setq! org-agenda-confirm-kill nil)
+  (org-defkey org-agenda-mode-map "\C-k" #'org-agenda-kill-or-down))
+
 
 (setq! org-agenda-span 1)
 (setq my-org-agenda-export-options
@@ -614,6 +656,12 @@ argument when called in `org-agenda-custom-commands'."
                ((my-org-agenda-archivable-tasks-agenda-command ""))
                ((org-tags-match-list-sublevels nil)
                 (org-agenda-archives-mode nil))))
+(add-to-list 'org-agenda-custom-commands
+             '("c" "Old GCal tasks"
+               ((my-org-agenda-old-gcal-tasks-agenda-command ""))
+               ((org-tags-match-list-sublevels nil)
+                (org-agenda-archives-mode nil)
+                (org-agenda-confirm-kill nil))))
 (add-to-list 'org-agenda-custom-commands
              '("Q" . "Custom queries"))
 (add-to-list 'org-agenda-custom-commands
@@ -1039,10 +1087,10 @@ don't support wrapping."
     (kbd "g") 'org-fc-review-rate-good
     (kbd "e") 'org-fc-review-rate-easy
     (kbd "s") 'org-fc-review-suspend-card
-    (kbd "q") 'org-fc-review-quit))
+    (kbd "q") 'org-fc-review-quit)
   (after! (org-capture org-fc)
     (map! :map org-mode-map
-          "C-c d" #'my-org-capture-defer-task))
+          "C-c d" #'my-org-capture-defer-task)))
 (defun my-org-capture-defer-task ()
   "Defer the task at point to a later time."
   (interactive)
