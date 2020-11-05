@@ -107,6 +107,12 @@
       (counsel-rg nil "~/Documents/org/" extra-rg-args nil)))
   (map! "C-c q" #'counsel-rg-org))
 
+(after! fd-dired
+  (when (eq system-type 'darwin)
+    (setq! fd-dired-ls-option
+           '("| xargs -0 gls -ld --quoting-style=literal" . "-ld"))))
+
+
 ;; Kill current buffer but keep its frame around
 (map! :n "Q" #'kill-this-buffer)
 
