@@ -143,13 +143,11 @@ Examples:
 :PROPERTIES:
 :Effort: 0:05
 :END:
-*Summary*:%?
-
-*Problem*:
-
-*Insight*:
-
-*Tomorrow*:
+** Summary
+** Problem
+** Insight
+** NEXT [#A] Three things for the day <%(org-timestamp-add-days \"%<%F>\" +1) 06:00>
+** Clocktables
 
 #+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"Google/-MEETING\" :narrow 60!
 #+END: clocktable
