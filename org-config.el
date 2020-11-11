@@ -1130,7 +1130,8 @@ don't support wrapping."
     ("C-c n f" . org-roam-find-file)
     ("C-c n g" . org-roam-show-graph))
    (:map org-mode-map
-    ("C-c n i" . org-roam-insert))))
+    ("C-c n i" . org-roam-insert)
+    ("C-c n u" . org-roam-unlinked-references))))
 (after! org-roam
   (require 'org-roam-compat)
   (setq! org-roam-directory "~/Documents/org/home-org/roam")
