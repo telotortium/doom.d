@@ -456,6 +456,23 @@ Use `org-ql-search' to search for all WAITING tasks."
     :buffer (or buffer org-ql-view-buffer)
     :sort 'date
     :title "WAITING for tasks"))
+(cl-defun my-org-agenda-ready-projects (&optional buffer)
+  "Show agenda for ready projects (those with all children done)
+
+Use `org-ql-search' to search for all loose TODOs."
+  (interactive)
+  (org-ql-search
+    (org-agenda-files)
+    `(and
+      (todo "TODO")
+      (children)
+      (not (children (todo)))
+      (not (tags "HOLD" "CANCELLED" "ARCHIVED"))
+      (not (scheduled :from 1))
+      (not (bh/skip-subprojects)))
+    :super-groups '((:auto-map my-org-super-agenda-group-by-project-or-task-group))
+    :title "Ready projects (those with all children done)"
+    :buffer (or buffer org-ql-view-buffer)))
 (cl-defun my-org-agenda-loose-todos (&optional buffer)
   "Show agenda for Loose TODOs (those not part of projects)
 
@@ -465,6 +482,7 @@ Use `org-ql-search' to search for all loose TODOs."
     (org-agenda-files)
     `(and
       (todo "TODO")
+      (not (children))
       (not (tags "HOLD" "CANCELLED" "ARCHIVED"))
       (not (scheduled :from 1))
       (not (bh/skip-subprojects)))
@@ -588,6 +606,8 @@ argument when called in `org-agenda-custom-commands'."
                           my-org-agenda-someday-maybe)
 (my-org-agenda-ql-wrapper my-org-agenda-waiting-agenda-command
                           my-org-agenda-waiting)
+(my-org-agenda-ql-wrapper my-org-agenda-ready-projects-agenda-command
+                          my-org-agenda-ready-projects)
 (my-org-agenda-ql-wrapper my-org-agenda-loose-todos-agenda-command
                           my-org-agenda-loose-todos)
 (my-org-agenda-ql-wrapper my-org-agenda-stuck-projects-agenda-command
@@ -625,6 +645,14 @@ argument when called in `org-agenda-custom-commands'."
 (add-to-list 'org-agenda-custom-commands
              `("W" "WAITING"
                ((my-org-agenda-waiting-agenda-command ""))))
+(add-to-list 'org-agenda-custom-commands
+             `("P" "Ready projects (those with all children done)"
+               ((my-org-agenda-ready-projects-agenda-command ""))
+               ((org-agenda-write-buffer-name
+                 "Ready projects (those with all children done)")
+                (org-agenda-exporter-settings
+                  my-org-agenda-export-options))
+               "~/Downloads/agenda-P-export.pdf"))
 (add-to-list 'org-agenda-custom-commands
              `("U" "Loose TODOs (not part of projects)"
                ((my-org-agenda-loose-todos-agenda-command ""))
