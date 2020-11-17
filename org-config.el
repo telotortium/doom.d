@@ -1181,6 +1181,8 @@ task and reschedule it."
           (message "next-due org-timestamp: %S" (org-timestamp-from-time next-due))
           (org-schedule
            nil (format-time-string (org-time-stamp-format) next-due)))))))
+(run-with-idle-timer 5 nil #'org-fc-review-schedule)
+
 
 ;;;* Org-roam
 (use-package! org-roam
