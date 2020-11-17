@@ -1169,7 +1169,6 @@ task and reschedule it."
                      (let ((min-due
                             (seq-reduce
                              (lambda (x position)
-                               (message "%S %S" x position)
                                (let ((due (plist-get position :due)))
                                  (if (time-less-p x due) x due)))
                              (plist-get entry :positions)
@@ -1177,11 +1176,9 @@ task and reschedule it."
                        (if (time-less-p x min-due) x min-due)))
                    (org-fc-index context)
                    max-time)))
-      (message "next-due: %S %s" next-due (format-time-string "%Y-%m-%d" next-due))
       (save-excursion
         (save-restriction
           (org-id-goto task-id)
-          (message "next-due org-timestamp: %S" (org-timestamp-from-time next-due))
           (org-schedule
            nil (format-time-string (org-time-stamp-format) next-due)))))))
 (run-with-idle-timer 5 nil #'org-fc-review-schedule)
