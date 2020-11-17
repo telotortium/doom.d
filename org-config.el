@@ -1101,6 +1101,7 @@ don't support wrapping."
   (evil-define-minor-mode-key '(normal insert emacs) 'org-fc-review-flip-mode
     (kbd "RET") 'org-fc-review-flip
     (kbd "p") 'org-fc-review-edit
+    (kbd "D") 'org-fc-type-inbox-remove
     (kbd "E") 'org-fc-review-edit
     (kbd "n") 'org-fc-review-flip
     (kbd "s") 'org-fc-review-suspend-card
@@ -1108,6 +1109,7 @@ don't support wrapping."
   (evil-define-minor-mode-key '(normal insert emacs) 'org-fc-review-rate-mode
     (kbd "a") 'org-fc-review-rate-again
     (kbd "p") 'org-fc-review-edit
+    (kbd "D") 'org-fc-type-inbox-remove
     (kbd "E") 'org-fc-review-edit
     (kbd "h") 'org-fc-review-rate-hard
     (kbd "g") 'org-fc-review-rate-good
@@ -1116,7 +1118,8 @@ don't support wrapping."
     (kbd "q") 'org-fc-review-quit)
   (after! (org-capture org-fc)
     (map! :map org-mode-map
-          "C-c d" #'my-org-capture-defer-task)))
+          "C-c d" #'my-org-capture-defer-task
+          "C-c D" #'org-fc-type-inbox-remove)))
 (defun my-org-capture-defer-task ()
   "Defer the task at point to a later time."
   (interactive)
@@ -1206,6 +1209,12 @@ task and reschedule it."
          (org-remove-empty-drawer-at outside-drawer)))))
   (org-fc-review-reset)
   (org-fc-review-next-card))
+(defun org-fc-type-inbox-remove ()
+  "Remove item at point from ‘org-fc' inbox."
+  (interactive)
+  (org-fc-with-point-at-entry
+    (org-fc--remove-tag "inbox")
+    (org-fc-review-remove)))
 
 ;;;* Org-roam
 (use-package! org-roam
