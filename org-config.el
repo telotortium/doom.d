@@ -1144,7 +1144,43 @@ don't support wrapping."
                                          (make-decoded-time :day 2)))
           "UTC"))))))
 
+(defcustom org-fc-review-schedule-alist nil
+  "Alist mapping review contexts to IDs of org-mode headlines.
 
+These headlines will be rescheduled by ‘org-fc-review-schedule’. If a context
+is not present or is mapped to nil, that context won’t have a schedule task
+associated with it.")
+(defun org-fc-review-schedule ()
+  "Schedule review tasks for ‘org-fc’.
+
+For each context present in ‘org-fc-review-schedule-alist’, find the associated
+task and reschedule it."
+  (interactive)
+  (dolist (entry org-fc-review-schedule-alist)
+    (pcase-let* ((`(,context-name . ,task-id) entry)
+                 (context (alist-get context-name (org-fc-contexts)))
+                 (max-time '(999999 999999)) ; Actually 4046-10-13
+                 (next-due
+                  (seq-reduce
+                   (lambda (x entry)
+                     (let ((min-due
+                            (seq-reduce
+                             (lambda (x position)
+                               (message "%S %S" x position)
+                               (let ((due (plist-get position :due)))
+                                 (if (time-less-p x due) x due)))
+                             (plist-get entry :positions)
+                             max-time)))
+                       (if (time-less-p x min-due) x min-due)))
+                   (org-fc-index context)
+                   max-time)))
+      (message "next-due: %S %s" next-due (format-time-string "%Y-%m-%d" next-due))
+      (save-excursion
+        (save-restriction
+          (org-id-goto task-id)
+          (message "next-due org-timestamp: %S" (org-timestamp-from-time next-due))
+          (org-schedule
+           nil (format-time-string (org-time-stamp-format) next-due)))))))
 
 ;;;* Org-roam
 (use-package! org-roam
