@@ -1092,7 +1092,7 @@ don't support wrapping."
 ;;;* org-fc
 (use-package! org-fc
   :custom
-  (org-fc-directories '("~/Documents/org/home-org"))
+  (org-fc-directories '("~/Documents/org"))
   (org-fc-custom-contexts
    '((inbox . (:filter (tag "inbox")))
      (reviews . (:filter (not (tag "inbox")))))))
