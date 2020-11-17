@@ -1183,6 +1183,29 @@ task and reschedule it."
            nil (format-time-string (org-time-stamp-format) next-due)))))))
 (run-with-idle-timer 5 nil #'org-fc-review-schedule)
 
+(defun org-fc-review-remove ()
+  "Remove all ‘org-fc’ data from the note at the current point."
+  (interactive)
+  (org-fc-with-point-at-entry
+   (atomic-change-group
+     (org-fc--remove-tag org-fc-suspended-tag)
+     (org-fc--remove-tag org-fc-flashcard-tag)
+     (org-delete-property org-fc-created-property)
+     (org-delete-property org-fc-type-property)
+     (org-delete-property org-fc-type-cloze-type-property)
+     (org-delete-property org-fc-type-cloze-max-hole-property)
+     (pcase-let* ((`(,start . ,end) (org-fc-review-data-position t))
+                  (outside-drawer
+                   (save-excursion
+                     (goto-char start)
+                     (forward-line -1)
+                     (point))))
+       (delete-region start end)
+       (save-excursion
+         (goto-char outside-drawer)
+         (org-remove-empty-drawer-at outside-drawer)))))
+  (org-fc-review-reset)
+  (org-fc-review-next-card))
 
 ;;;* Org-roam
 (use-package! org-roam
