@@ -13,7 +13,6 @@
 
 (add-to-list 'debug-ignored-errors 'search-failed)
 (setq! debug-on-message nil)
-(setq! debug-on-quit t)
 
 ;; Disabled by Doom Emacs, but I want it.
 (setq! auto-save-default t)
