@@ -187,6 +187,9 @@ near the edge of the frame, so it may be a culprit. Work around this by using
  flycheck-idle-buffer-switch-delay 4
  flycheck-idle-change-delay 4)
 
+;; Enable for quotes in docstrings.
+(add-hook 'emacs-lisp-mode-hook #'electric-quote-local-mode)
+
 ;;; syntax highlighting for vimscript files
 (use-package! vimrc-mode
   :mode ".vim\\(rc\\)?$")
