@@ -89,6 +89,10 @@
     (server-start)))
 
 (after! (counsel org)
+  ;; Make counsel-rg work correctly - see
+  ;; https://github.com/hlissner/doom-emacs/issues/3038#issuecomment-624165004.
+  (setq counsel-rg-base-command
+        "rg -M 240 --with-filename --no-heading --line-number --color never %s || true")
   (defun counsel-rg-org (search-archives)
     "Specialize ‘counsel-rg’ for Org-mode files.
 
