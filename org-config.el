@@ -1181,7 +1181,7 @@ task and reschedule it."
           (org-id-goto task-id)
           (org-schedule
            nil (format-time-string (org-time-stamp-format) next-due)))))))
-(run-with-idle-timer 5 nil #'org-fc-review-schedule)
+(run-with-idle-timer 5 t #'org-fc-review-schedule)
 
 (defun org-fc-review-remove ()
   "Remove all ‘org-fc’ data from the note at the current point."
