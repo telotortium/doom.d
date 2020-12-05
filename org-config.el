@@ -1176,9 +1176,8 @@ task and reschedule it."
                        (if (time-less-p x min-due) x min-due)))
                    (org-fc-index context)
                    max-time)))
-      (save-excursion
-        (save-restriction
-          (org-id-goto task-id)
+      (org-with-point-at (org-id-find task-id 'marker)
+        (let ((inhibit-message t))
           (org-schedule
            nil (format-time-string (org-time-stamp-format) next-due)))))))
 (run-with-idle-timer 5 t #'org-fc-review-schedule)
