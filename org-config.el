@@ -1236,8 +1236,9 @@ task and reschedule it."
   (advice-add 'org-roam--capture :before #'my-org-roam-capture-split-window)
   (defun my-org-roam-set-buffer-name-hook ()
     "Set buffer name of org-roam files."
-    (when (org-roam--org-roam-file-p)
-      (rename-buffer (org-roam--get-title-or-slug (buffer-file-name)))))
+    (when-let (((org-roam--org-roam-file-p))
+               (name (car (org-roam--extract-titles))))
+      (rename-buffer name)))
   (add-hook 'find-file-hook #'my-org-roam-set-buffer-name-hook))
 
 (after! org-roam-protocol
