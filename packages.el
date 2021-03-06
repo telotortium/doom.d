@@ -55,6 +55,7 @@
   :recipe (:host github :repo "jordonbiondo/call-log"
            :fork (:host nil :repo "git@github.com:telotortium/call-log")))
 
+(package! el-mock)
 (package! auto-compile)
 (package! rg)
 (package! vimrc-mode)
