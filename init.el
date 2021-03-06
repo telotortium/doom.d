@@ -86,6 +86,9 @@
        ;;spell             ; tasing you for misspelling mispelling
        ;;grammar           ; tasing grammar mistake every you make
 
+       :os
+       macos             ; MacOS-specific commands
+
        :tools
        ;;ansible
        ;;debugger          ; FIXME stepping through code, to help you add bugs
@@ -97,7 +100,6 @@
        ;;gist              ; interacting with github gists
        lookup              ; navigate your code and its documentation
        lsp
-       macos             ; MacOS-specific commands
        magit             ; a git porcelain for Emacs
        make              ; run make tasks from Emacs
        ;;pass              ; password manager for nerds
@@ -151,13 +153,13 @@
         +pomodoro        ; be fruitful with the tomato technique
         +present      ; using org-mode for presentations
         +roam)        ; org-roam
-       perl              ; write code no one else can comprehend
        ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
        ;;purescript        ; javascript, but functional
        python            ; beautiful is better than ugly
        ;;qt                ; the 'cutest' gui framework ever
        ;;racket            ; a DSL for DSLs
+       raku              ; write code no one else can comprehend
        ;;rest              ; Emacs as a REST client
        ;;rst               ; ReST in peace
        ;;(ruby +rails)     ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
