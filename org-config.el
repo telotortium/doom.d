@@ -1733,14 +1733,18 @@ otherwise."
 
 
 (defun my-org-archive-dwim (&optional find-done)
-  "Tag heading with ARCHIVE tag if it's not the top-level of a project.
-Otherwise, archive the subtree to a file.
+  "Tag heading with ARCHIVE tag if it's not the top-level of a project, or it’s
+located in an Org-roam file. Otherwise, archive the subtree to a file.
 
 FIND-DONE has the same meaning "
   (interactive "P")
-  (if (bh/is-subproject-p)
-      (org-toggle-archive-tag find-done)
-    (org-archive-subtree find-done)))
+  (cond
+   ((bh/is-subproject-p)
+    (org-toggle-archive-tag find-done))
+   ((string-match-p "/roam/" buffer-file-name)
+    (org-toggle-archive-tag find-done))
+   (t
+    (org-archive-subtree find-done))))
 (setq! org-archive-default-command #'my-org-archive-dwim)
 (after! org-agenda
   (org-defkey org-agenda-mode-map "$" #'org-agenda-archive-default))
