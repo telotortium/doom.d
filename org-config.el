@@ -23,10 +23,9 @@
          :mi "<s-up>" #'org-backward-element
          :mi "<s-down>" #'org-forward-element))
   (map! :m "<C-i>" #'better-jumper-jump-forward)
-  (let-alist evil-org-movement-bindings
-    (evil-define-key 'motion evil-org-mode-map
-      (kbd (concat "g" .up)) nil
-      (kbd (concat "g" .down)) nil)))
+  (evil-define-key 'motion evil-org-mode-map
+    (kbd (concat "g" (alist-get 'up evil-org-movement-bindings))) nil
+    (kbd (concat "g" (alist-get 'down evil-org-movement-bindings))) nil))
 (defun my-org-clock-in ()
   "Select a recently clock-in task to clock into.  See `org-clock-in'."
   (interactive) (org-clock-in '(4)))
