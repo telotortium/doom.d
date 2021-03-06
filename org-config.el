@@ -1103,6 +1103,9 @@ don't support wrapping."
       (when (not maximized?)
         (toggle-frame-maximized frame))))
   (advice-add #'org-drill :around #'my-org-drill-maximize-frame))
+;; Need to eagerly load because my Org files call functions declared by this
+;; file in their local variables.
+(require 'org-drill)
 
 
 ;;;* org-fc
