@@ -81,10 +81,11 @@
            ;;      root. Of course, this command won't work in a sparse clone,
            ;;      and more than that, initiating these compilation step is a
            ;;      hassle, so...
-           :build (with-temp-file (expand-file-name "org-version.el" (straight--repos-dir "org-mode"))
-                    (insert "(fset 'org-release (lambda () \"9.4\"))\n"
-                            "(fset 'org-git-version #'ignore)\n"
-                            "(provide 'org-version)\n"))))
+           :pre-build
+           (with-temp-file (doom-path (straight--repos-dir "org-mode") "org-version.el")
+             (insert "(fset 'org-release (lambda () \"9.4\"))\n"
+                     "(fset 'org-git-version #'ignore)\n"
+                     "(provide 'org-version)\n"))))
 (package! org-clock-csv)
 (package! org-pomodoro
   :recipe (:host github :repo "marcinkoziej/org-pomodoro"
