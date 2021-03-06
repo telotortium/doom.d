@@ -571,8 +571,8 @@ Use `org-ql-search' to search."
 (cl-defun my-org-agenda-old-gcal-tasks (&optional buffer)
   "Show agenda for old GCal tasks that can be deleted.
 
-Look for tasks in ‘my-org-agenda-old-gcal-archive-files' that are older than 90
-days, have never been clocked, have no children, and are not parents of
+Look for tasks with property ‘org-gcal-calendar-id-property' that are older than
+90 days, have never been clocked, have no children, and are not parents of
 recurring events. These tasks are merely cached versions of events on Google
 Calendar that I’ve never interacted with, and can thus be deleted without any
 ill effect.
@@ -580,10 +580,13 @@ ill effect.
 Use ‘org-ql-search' to search."
   (interactive)
   (org-ql-search
-    my-org-agenda-old-gcal-archive-files
+    (org-agenda-files t t)
     `(and
       (not (ts :from -90))
+      (property ,org-gcal-calendar-id-property)
       (not (property "recurrence"))     ; Exclude parents of recurring events
+      (not (property "ID"))             ; Exclude events that might be linked to
+      (not (property "CUSTOM_ID"))
       (not (clocked))
       (not (children)))
     :buffer (or buffer org-ql-view-buffer)
