@@ -618,6 +618,16 @@ argument when called in `org-agenda-custom-commands'."
 (my-org-agenda-ql-wrapper my-org-agenda-old-gcal-tasks-agenda-command
                           my-org-agenda-old-gcal-tasks)
 
+(defun org-agenda-archive-default-or-down ()
+  "Call ‘org-agenda-archive-default’, or ‘org-agenda-next-line' if not on a headline."
+  (interactive)
+  (condition-case err
+      (funcall-interactively #'org-agenda-archive-default)
+    (t
+     (pcase-let ((`(user-error ,msg) err))
+       (if (string= msg "Command not allowed in this line")
+           (funcall-interactively #'org-agenda-next-line)
+         (user-error msg))))))
 (defun org-agenda-kill-or-down ()
   "Call ‘org-agenda-kill’, or ‘org-agenda-next-line' if not on a headline."
   (interactive)
@@ -630,7 +640,11 @@ argument when called in `org-agenda-custom-commands'."
          (user-error msg))))))
 (after! org-agenda
   (setq! org-agenda-confirm-kill nil)
-  (org-defkey org-agenda-mode-map "\C-k" #'org-agenda-kill-or-down))
+  (org-defkey org-agenda-mode-map "\C-k" #'org-agenda-kill-or-down)
+  (org-defkey org-agenda-mode-map "$" #'org-agenda-archive-default-or-down))
+(after! org-super-agenda
+  (org-defkey org-super-agenda-header-map "$"
+              #'org-agenda-archive-default-or-down))
 
 
 (setq! org-agenda-span 1)
