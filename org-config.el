@@ -1102,7 +1102,47 @@ don't support wrapping."
       (apply fn r)
       (when (not maximized?)
         (toggle-frame-maximized frame))))
-  (advice-add #'org-drill :around #'my-org-drill-maximize-frame))
+  (advice-add #'org-drill :around #'my-org-drill-maximize-frame)
+  (after! (org-capture org-drill)
+    (map! :map org-mode-map
+          "C-c d" #'org-drill-type-inbox-init
+          "C-c D" #'org-drill-type-inbox-remove)
+    (map! :map org-capture-mode-map
+          "C-c d" #'my-org-capture-defer-task
+          "C-c D" #'org-drill-type-inbox-remove)))
+(defun org-drill-type-inbox-init ()
+  "Mark headline as card of the inbox type."
+  (interactive)
+  (org-with-point-at (point)
+    ;; Set properties to skip first few steps of review.
+    (org-entry-put (point) "DRILL_LAST_INTERVAL" "4.5234")
+    (org-entry-put (point) "DRILL_REPEATS_SINCE_FAIL" "2")
+    (org-entry-put (point) "DRILL_TOTAL_REPEATS" "1")
+    (org-entry-put (point) "DRILL_FAILURE_COUNT" "0")
+    (org-entry-put (point) "DRILL_AVERAGE_QUALITY" "5.0")
+    (org-entry-put (point) "DRILL_EASE" "2.6")
+    (org-entry-put (point) "DRILL_LAST_QUALITY" "5")
+    ;; Add inbox tag
+    (org-set-tags
+     (cl-remove-duplicates
+      (cons "inbox" (org-get-tags nil 'local))
+      :test #'string=))))
+(defun org-drill-type-inbox-remove ()
+  "Remove all inbox-related data from headline at point."
+  (interactive)
+  (org-with-point-at (point)
+    (when (member "inbox" (org-get-tags nil 'local))
+      (org-drill-strip-entry-data)
+      ;; Remove inbox tag
+      (org-set-tags
+       (seq-filter (lambda (tag) (not (equal tag "inbox")))
+                   (org-get-tags nil 'local))))))
+(defun org-drill-review-inbox ()
+  "Review inbox cards."
+  (interactive)
+  (require 'org-drill)
+  (let ((org-drill-question-tag "inbox"))
+    (call-interactively #'org-drill)))
 ;; Need to eagerly load because my Org files call functions declared by this
 ;; file in their local variables.
 (require 'org-drill)
@@ -1134,15 +1174,11 @@ don't support wrapping."
     (kbd "g") 'org-fc-review-rate-good
     (kbd "e") 'org-fc-review-rate-easy
     (kbd "s") 'org-fc-review-suspend-card
-    (kbd "q") 'org-fc-review-quit)
-  (after! (org-capture org-fc)
-    (map! :map org-mode-map
-          "C-c d" #'my-org-capture-defer-task
-          "C-c D" #'org-fc-type-inbox-remove)))
+    (kbd "q") 'org-fc-review-quit))
 (defun my-org-capture-defer-task ()
   "Defer the task at point to a later time."
   (interactive)
-  (org-fc-type-inbox-init)
+  (org-drill-type-inbox-init)
   (org-capture-finalize))
 (defun org-fc-review-inbox ()
   "Run ‘org-fc’ review on the ‘inbox’ context (see ‘org-fc-custom-contexts')."
@@ -1199,7 +1235,6 @@ task and reschedule it."
         (let ((inhibit-message t))
           (org-schedule
            nil (format-time-string (org-time-stamp-format) next-due)))))))
-(run-with-idle-timer 5 t #'org-fc-review-schedule)
 
 (defun org-fc-review-remove ()
   "Remove all ‘org-fc’ data from the note at the current point."
@@ -1972,6 +2007,7 @@ Follows the same rules as `org-agenda-files'"
            (:name "Important" :priority "A")
            ;; Set order of multiple groups at once
            (:name "Habits" :habit t)
+           (:name "Inbox" :tag "inbox")
            (:name "Drill" :tag "drill")
            (:todo "WAITING")
            (:name "Today" :scheduled today :deadline today)
