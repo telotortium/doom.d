@@ -1293,13 +1293,18 @@ task and reschedule it."
     (when-let (((org-roam--org-roam-file-p))
                (name (car (org-roam--extract-titles))))
       (rename-buffer name)))
-  (add-hook 'find-file-hook #'my-org-roam-set-buffer-name-hook))
-
-(after! org-roam-protocol
+  (add-hook 'find-file-hook #'my-org-roam-set-buffer-name-hook)
+  (require 'org-roam-protocol)
+  (require 'org-roam-capture)
   (nconc (assoc "d" org-roam-capture-templates)
          '(:immediate-finish t :jump-to-captured t))
   (nconc (assoc "r" org-roam-capture-ref-templates)
-         '(:immediate-finish t :jump-to-captured t)))
+         '(:immediate-finish t :jump-to-captured t
+           ;; Use headline to populate title for org-roam bookmark instead of
+           ;; #+title file-level property so that I can easily run
+           ;; ‘org-drill-type-inbox-init’ to defer the task.
+           :head "#+roam_key: ${ref}\n\n* ${title}\n:PROPERTIES:\n:link: [[${ref}][${title}]]\n:END:")))
+
 
 (defun org-roam-create-note-from-headline ()
   "Create an Org-roam note from the current headline and jump to it.
