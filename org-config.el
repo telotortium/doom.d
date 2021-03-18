@@ -786,14 +786,16 @@ argument when called in `org-agenda-custom-commands'."
   :type 'file)
 (defun terminal-notifier-notify (title message &optional timeout)
   "Show a message with `terminal-notifier-command'."
-  (let ((timeout (number-to-string (if timeout timeout 60))))
-    (start-process "terminal-notifier"
-                   "*terminal-notifier*"
-                   terminal-notifier-command
-                   "-title" title
-                   "-message" message
-                   "-activate" "org.gnu.Emacs"
-                   "-timeout" timeout)))
+  (apply
+   #'start-process
+   "terminal-notifier"
+   "*terminal-notifier*"
+   terminal-notifier-command
+   "-title" title
+   "-message" message
+   "-sender" "org.gnu.Emacs"
+   (append
+    (when timeout (list "-timeout" timeout)))))
 (when terminal-notifier-command
   (setq! org-show-notification-handler
         (lambda (message) (terminal-notifier-notify "Org Mode" message))))
