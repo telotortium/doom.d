@@ -100,19 +100,40 @@ while True:
   (my-org-pomodoro-update-log-event org-pomodoro-end-time)
   (my-org-pomodoro-reschedule-alarm))
 
-(defun org-pomodoro-start-long-break ()
-  "Start a long break immediately."
-  (interactive)
+(defun org-pomodoro-start-short-break (&optional no-lock)
+  "Start a short break immediately.
+
+If NO-LOCK is non-nil, don’t lock screen."
+  (interactive "P")
+  (my-org-pomodoro-remove-alarm)
+  (org-pomodoro-set :pomodoro)
+  (setq org-pomodoro-count 0)
+  (when no-lock
+    (setq my-org-pomodoro-inhibit-lock t)
+    (run-at-time 5 nil (lambda () (setq my-org-pomodoro-inhibit-lock nil))))
+  (org-pomodoro-end-in 0))
+
+(defun org-pomodoro-start-long-break (&optional no-lock)
+  "Start a long break immediately.
+
+If NO-LOCK is non-nil, don’t lock screen."
+  (interactive "P")
   (my-org-pomodoro-remove-alarm)
   (org-pomodoro-set :pomodoro)
   (setq org-pomodoro-count -1)
+  (when no-lock
+    (setq my-org-pomodoro-inhibit-lock t)
+    (run-at-time 5 nil (lambda () (setq my-org-pomodoro-inhibit-lock nil))))
   (org-pomodoro-end-in 0))
 
 (defcustom my-org-pomodoro-break-id nil
   "Task ID of task to clock into during Pomodoro breaks. Must specify manually."
   :type 'string)
-(defun my-org-pomodoro-finished-lock-screen ()
+(defvar my-org-pomodoro-inhibit-lock nil)
+(cl-defun my-org-pomodoro-finished-lock-screen ()
   "Lock screen at the end of each Pomodoro work session."
+  (when my-org-pomodoro-inhibit-lock
+    (cl-return-from my-org-pomodoro-finished-lock-screen))
   (message "Locking screen in 15 seconds - post calendar event from *scratch*")
   (cond
    ((eq system-type 'darwin)
