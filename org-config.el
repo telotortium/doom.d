@@ -1121,6 +1121,7 @@ Default suggestions (in the absence of existing data in the entry):
   :commands (org-drill)
   :config
   (setq! org-drill-scope 'agenda-with-archives)
+  (setq! org-drill-match "-ARCHIVE")
   (setq! org-drill-left-cloze-delimiter "!|")
   (setq! org-drill-right-cloze-delimiter "|!")
   (setq! org-drill-add-random-noise-to-intervals-p t)
