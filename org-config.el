@@ -1012,6 +1012,37 @@ TAG is chosen interactively from the global tags completion table."
   (when (file-exists-p org-gcal-config-file)
     (load org-gcal-config-file)))
 
+(defvar org-gcal-debug nil)
+(defun org-gcal-toggle-debug ()
+  "Toggle debugging flags for ‘org-gcal'."
+  (interactive)
+  (cond
+   (org-gcal-debug
+    (setq
+     debug-on-error (cdr (assq 'debug-on-error org-gcal-debug))
+     debug-ignored-errors (cdr (assq 'debug-ignored-errors org-gcal-debug))
+     deferred:debug (cdr (assq 'deferred:debug org-gcal-debug))
+     deferred:debug-on-signal
+     (cdr (assq 'deferred:debug-on-signal org-gcal-debug))
+     org-gcal-debug nil)
+    (message "org-gcal-debug DISABLED"))
+   (t
+    (setq
+     org-gcal-debug
+     `((debug-on-error . ,debug-on-error)
+       (debug-ignored-errors . ,debug-ignored-errors)
+       (deferred:debug . ,deferred:debug)
+       (deferred:debug-on-signal . ,deferred:debug-on-signal))
+     debug-on-error '(error)
+     ;; These are errors that are thrown by various pieces of code that
+     ;; don’t mean anything.
+     debug-ignored-errors (append debug-ignored-errors
+                                  '(scan-error file-already-exists))
+     deferred:debug t
+     deferred:debug-on-signal t)
+    (message "org-gcal-debug ENABLED"))))
+
+
 (defun my-org-gcal-schedule ()
   "Suggest a default schedule time for the event at point and create/update it \
 using ‘org-gcal-post-at-point’.
