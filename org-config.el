@@ -800,6 +800,17 @@ argument when called in `org-agenda-custom-commands'."
   (setq! org-show-notification-handler
         (lambda (message) (terminal-notifier-notify "Org Mode" message))))
 
+;; Notify when Emacs wants to read from minibuffer.
+(setq! minibuffer-auto-raise t)
+(defun my-read-from-minibuffer-alert (fn prompt &rest r)
+  "Prompt when ‘read-from-minibuffer’ is called and frame is not focused."
+  (require 'alert)
+  (unless (or noninteractive
+              (frame-focus-state (selected-frame)))
+    (terminal-notifier-notify "read-from-minibuffer" prompt))
+  (apply fn prompt r))
+(advice-add #'read-from-minibuffer :around #'my-read-from-minibuffer-alert)
+
 ;;; Ask for effort estimate when clocking in, but only when an effort estimate
 ;;; is not present. Based on http://orgmode.org/worg/org-hacks.html#sec-1-9-10
 ;;; but simplified by using the org-set-effort function, which is called
