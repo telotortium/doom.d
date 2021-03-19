@@ -784,18 +784,27 @@ argument when called in `org-agenda-custom-commands'."
   (executable-find "terminal-notifier")
   "The path to terminal-notifier."
   :type 'file)
-(defun terminal-notifier-notify (title message &optional timeout)
-  "Show a message with `terminal-notifier-command'."
+(defun terminal-notifier-notify (title message &optional group)
+  "Show a message with `terminal-notifier-command'.
+
+TITLE and MESSAGE are self-explanatory. GROUP, if present, is passed to
+‘terminal-notifier-command’ to dismiss previous notifications with that GROUP."
   (apply
    #'start-process
    "terminal-notifier"
    "*terminal-notifier*"
    terminal-notifier-command
-   "-title" title
+   "-title" (format "%s%s%s"
+                    (if group group "")
+                    (if group ": " "")
+                    title)
    "-message" message
-   "-sender" "org.gnu.Emacs"
-   (append
-    (when timeout (list "-timeout" timeout)))))
+   ;; Disabled because macOS won’t display a notification if Emacs is focused:
+   ;; https://github.com/julienXX/terminal-notifier/issues/216#issuecomment-616864111
+   ;;"-sender" "org.gnu.Emacs"
+   "-activate" "org.gnu.Emacs"
+   (when group
+     (list "-group" group))))
 (when terminal-notifier-command
   (setq! org-show-notification-handler
         (lambda (message) (terminal-notifier-notify "Org Mode" message))))
