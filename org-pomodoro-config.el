@@ -21,6 +21,14 @@
 (setq! org-pomodoro-long-break-length 35)
 (setq! org-pomodoro-long-break-frequency 5)
 
+(defun my-org-pomodoro-terminal-notifier-notify (fn title message &rest r)
+  "Override ‘org-pomodoro-notify’ to use ‘terminal-notifier-notify’."
+  (if (fboundp #'terminal-notifier-notify)
+      (terminal-notifier-notify title message "org-pomodoro")
+    (apply fn title message r)))
+(advice-add #'org-pomodoro-notify
+            :around #'my-org-pomodoro-terminal-notifier-notify)
+
 ;; Simulate
 ;;
 ;; (setq! org-pomodoro-ticking-sound-p t)
