@@ -72,7 +72,7 @@
 (package! org-mode
   :recipe (:host github :repo "emacs-straight/org-mode"
            :fork (:repo "https://github.com/yantar92/org"
-                  :host nil :branch "feature/org-fold")
+                  :host nil :branch "feature/org-fold-universal-core")
            :files ("*.el" "lisp/*.el" "contrib/lisp/*.el")
            ;; HACK A necessary hack because org requires a compilation step
            ;;      after being cloned, and during that compilation a
