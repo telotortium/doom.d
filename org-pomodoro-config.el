@@ -164,9 +164,11 @@ If NO-LOCK is non-nil, don’t lock screen."
          'my-org-pomodoro-finished-caffeinate
          "Can't prevent system from sleeping"))))))
 (defun my-org-pomodoro-started-notify-hook ()
-  (org-notify "Pomodoro started - snooze notifications in Hangouts Chat."))
+  (org-pomodoro-notify "Pomodoro started"
+                       "Snooze notifications in Hangouts Chat."))
 (defun my-org-pomodoro-finished-notify-hook ()
-  (org-notify "Pomodoro phase finished"))
+  (org-pomodoro-notify "Pomodoro phase finished"
+                       (format "%S" org-pomodoro-state)))
 (defvar my-org-pomodoro-clock-idle-time nil
   "Variable in which ‘org-clock-idle-time’ is saved.")
 (defun my-org-pomodoro-start-break ()
@@ -197,11 +199,8 @@ If NO-LOCK is non-nil, don’t lock screen."
   "Clear ‘my-org-pomodoro-break-end-alarm-event-id’."
   (setq my-org-pomodoro-break-end-alarm-event-id nil))
 (defun my-org-pomodoro-break-finished-notify-hook ()
-  (let ((msg "Pomodoro break finished -- get back to work!"))
-    (if (fboundp 'terminal-notifier-notify)
-        ;; Try to ensure timeout is very high by skipping org-notify.
-        (terminal-notifier-notify "Org Pomodoro" msg 84000)
-      (org-notify msg))))
+  (org-pomodoro-notify
+   "Break finished!" "Pomodoro break finished -- get back to work!"))
 (defun my-org-pomodoro-short-break-finished-punch-in ()
   "Run bh/punch-in when Pomodoro short breaks end."
   (setq org-clock-idle-time my-org-pomodoro-clock-idle-time)
