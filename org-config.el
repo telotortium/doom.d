@@ -565,6 +565,45 @@ Use `org-ql-search' to search."
     :super-groups '((:auto-map my-org-super-agenda-group-by-project-or-task-group))
     :sort 'date
     :title "Archivable tasks"))
+(cl-defun my-org-agenda-stale-tasks (&optional buffer)
+  "Show agenda for stale tasks
+
+Consider these types of headlines for archiving:
+
+- Headlines with a *done* todo keyword.
+- Headlines with *no* todo keyword tagged with \"gcal\" - these are
+  entries created by org-gcal. If I'm actively managing such a task,
+  I'll always add a todo keyword of some kind to the heading, so these
+  tasks will be saved from archiving unless they're marked done.
+
+Only consider top-level tasks in project trees - don't individually archive
+tasks that are part of an ongoing project. Only archive stale that have been
+done for at least 30 days.
+
+Daily log entries (marked by the \"dailylog\" tag) should never be
+archived.
+
+Use `org-ql-search' to search."
+  (interactive)
+  (org-ql-search
+    (org-agenda-files)
+    `(and
+      (not (tags "REFILE" "dailylog" "ARCHIVE"))
+      (not (ts :from -30))
+      (not (property "recurrence"))     ; Exclude parents of recurring events
+      (or (done)
+          (and (tags "gcal")
+               (not (todo))))
+      (or (not (parent))
+          (parent (and (not (todo)) (not (done)))))
+      (or (not (children))
+          (descendants
+           (and (not (todo))
+                (not (ts :from -30))))))
+    :buffer (or buffer org-ql-view-buffer)
+    :super-groups '((:auto-map my-org-super-agenda-group-by-project-or-task-group))
+    :sort 'date
+    :title "Archivable tasks"))
 (defcustom my-org-agenda-old-gcal-archive-files
   '("~/Documents/org/home-org/gcal.org_archive")
   "List of files for ‘my-org-agenda-old-gcal-tasks' to search.")
