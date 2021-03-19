@@ -40,7 +40,7 @@ Requires the \"play\" executable from the SoX package
   (let ((cmd
          ;; Pad with 0.79 seconds of silence because tick.wav included with
          ;; ‘org-pomodoro’ is 0.21 seconds long, to get a 1-second tick.
-         (format "play --volume %f %s pad 0 0.79 repeat - </dev/null"
+         (format "play --volume %f %s pad 0 0.79 repeat - </dev/null >/dev/null 2>&1"
                  org-pomodoro-ticking-volume
                  (shell-quote-argument org-pomodoro-ticking-sound))))
     (setq org-pomodoro-ticking-process
