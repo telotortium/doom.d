@@ -273,6 +273,14 @@ near the edge of the frame, so it may be a culprit. Work around this by using
 (add-hook 'visual-line-mode-hook #'adaptive-wrap-prefix-mode)
 (global-visual-line-mode +1)
 
+;; https://superuser.com/a/132347
+(defun switch-to-minibuffer-window ()
+  "switch to minibuffer window (if active)"
+  (interactive)
+  (when (active-minibuffer-window)
+    (select-frame-set-input-focus (window-frame (active-minibuffer-window)))
+    (select-window (active-minibuffer-window))))
+
 ;;;* Local configuration
 
 ;;; Allow users to provide an optional "init-local" containing personal settings
