@@ -1237,14 +1237,17 @@ don't support wrapping."
 (defun org-fc-review-inbox ()
   "Run ‘org-fc’ review on the ‘inbox’ context (see ‘org-fc-custom-contexts')."
   (interactive)
+  (require 'org-fc)
   (org-fc-review (alist-get 'inbox (org-fc-contexts))))
 (defun org-fc-review-reviews ()
   "Run ‘org-fc’ review on the ‘reviews’ context (see ‘org-fc-custom-contexts')."
   (interactive)
+  (require 'org-fc)
   (org-fc-review (alist-get 'reviews (org-fc-contexts))))
 (defun org-fc-type-inbox-init ()
   "Mark headline as card of the inbox type."
   (interactive)
+  (require 'org-fc)
   (org-with-point-at (point)
     (org-fc-type-normal-init)
     (org-fc--add-tag "inbox")
@@ -1268,6 +1271,7 @@ associated with it.")
 For each context present in ‘org-fc-review-schedule-alist’, find the associated
 task and reschedule it."
   (interactive)
+  (require 'org-fc)
   (dolist (entry org-fc-review-schedule-alist)
     (pcase-let* ((`(,context-name . ,task-id) entry)
                  (context (alist-get context-name (org-fc-contexts)))
@@ -1293,6 +1297,7 @@ task and reschedule it."
 (defun org-fc-review-remove ()
   "Remove all ‘org-fc’ data from the note at the current point."
   (interactive)
+  (require 'org-fc)
   (org-fc-with-point-at-entry
    (atomic-change-group
      (org-fc--remove-tag org-fc-suspended-tag)
@@ -1316,10 +1321,10 @@ task and reschedule it."
 (defun org-fc-type-inbox-remove ()
   "Remove item at point from ‘org-fc' inbox."
   (interactive)
+  (require 'org-fc)
   (org-fc-with-point-at-entry
-    (org-fc--remove-tag "inbox")
-    (org-fc-review-remove)))
-
+   (org-fc--remove-tag "inbox")
+   (org-fc-review-remove)))
 ;;;* Org-roam
 (use-package! org-roam
   :hook (after-init . org-roam-mode)
