@@ -35,12 +35,12 @@
   ;; org-file doesn't work unless it's run from within an Org buffer, so find
   ;; an arbitrary one.
   (with-current-buffer
-    (save-excursion
-      (catch 'aaa
-        (dolist (buffer (buffer-list))
-          (with-current-buffer buffer
-            (when (derived-mode-p 'org-mode)
-              (throw 'aaa buffer))))))
+      (save-excursion
+        (catch 'aaa
+          (dolist (buffer (buffer-list))
+            (with-current-buffer buffer
+              (when (derived-mode-p 'org-mode)
+                (throw 'aaa buffer))))))
     (org-refile '(4))))
 
 ;;; Org agenda
@@ -77,10 +77,10 @@ clocktables in the currently visible portion of the buffer."
     (unless no-narrow
       (org-narrow-to-subtree))
     (save-excursion
-        (goto-char (point-min))
-        (while (re-search-forward "#\\\+BEGIN: clocktable" nil t)
-            (org-clock-report)
-            (forward-line 1)))))
+      (goto-char (point-min))
+      (while (re-search-forward "#\\\+BEGIN: clocktable" nil t)
+        (org-clock-report)
+        (forward-line 1)))))
 (defun org-timestamp-add-days (ts days)
   "Return timestamp TS shifted by a number of days.
 
@@ -91,10 +91,10 @@ Examples:
   (string= (org-timestamp-add-days \"2020-10-25\" 2) \"2020-10-27\")
   (string= (org-timestamp-add-days \"2020-10-25\" -2) \"2020-10-23\")
 "
-   (format-time-string
-    "%F"
-    (encode-time (decoded-time-add (org-parse-time-string ts)
-                                   (make-decoded-time :day days)))))
+  (format-time-string
+   "%F"
+   (encode-time (decoded-time-add (org-parse-time-string ts)
+                                  (make-decoded-time :day days)))))
 
 (defcustom org-daily-log-file
   (concat org-directory "/daily-log.org")
@@ -102,21 +102,21 @@ Examples:
   :type 'file)
 
 (setq! org-capture-templates
-      `(("t" "Task" entry (file (lambda () (concat org-directory "/inbox.org")))
-         "
+       `(("t" "Task" entry (file (lambda () (concat org-directory "/inbox.org")))
+          "
 * TODO %?%^{Title}
 %u
 " :clock-in t :clock-resume t :jump-to-captured t)
-        ("n" "Note" entry (file (lambda () (concat org-directory "/inbox.org")))
-         "
+         ("n" "Note" entry (file (lambda () (concat org-directory "/inbox.org")))
+          "
 * %u %?
 " :jump-to-captured t)
-        ("i" "Idea" entry (file (lambda () (concat org-directory "/inbox.org")))
-         "
+         ("i" "Idea" entry (file (lambda () (concat org-directory "/inbox.org")))
+          "
 * %u %?REPLACE_ME                      :IDEA:
 " :clock-in t :clock-resume t)
-        ("j" "Journal" plain (file+weektree (lambda () (concat org-directory "/journal.org")))
-         "
+         ("j" "Journal" plain (file+weektree (lambda () (concat org-directory "/journal.org")))
+          "
 * %U %^{Title}                 :journal:
 :PROPERTIES:
 :Effort: 9999:00
@@ -124,8 +124,8 @@ Examples:
 
 %?
 " :clock-in t :clock-resume t)
-        ("d" "Drill" entry (file+headline org-default-notes-file "Drill")
-         "
+         ("d" "Drill" entry (file+headline org-default-notes-file "Drill")
+          "
 * Drill entry        :drill:
 :PROPERTIES:
 :DRILL_CARD_TYPE: hide1cloze
@@ -133,11 +133,11 @@ Examples:
 :END:
 %?!|2 + 2|! equals !|4|!.
 " :clock-in t :clock-resume t :jump-to-captured t)
-        ("D" "Daily Log" entry
-         (file (lambda ()
-                 (require 'org-journal)
-                 (org-journal--get-entry-path org-overriding-default-time)))
-         "
+         ("D" "Daily Log" entry
+          (file (lambda ()
+                  (require 'org-journal)
+                  (org-journal--get-entry-path org-overriding-default-time)))
+          "
 * %u Daily log
 :PROPERTIES:
 :Effort: 0:05
@@ -157,11 +157,11 @@ Examples:
 #+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"-Google\" :narrow 60!
 #+END: clocktable
 " :time-prompt t :clock-in t :clock-resume t :jump-to-captured t)
-        ("W" "GTD weekly review" entry
-         (file (lambda ()
-                 (require 'org-journal)
-                 (org-journal--get-entry-path org-overriding-default-time)))
-         "
+         ("W" "GTD weekly review" entry
+          (file (lambda ()
+                  (require 'org-journal)
+                  (org-journal--get-entry-path org-overriding-default-time)))
+          "
 * NEXT %u GTD weekly review
 SCHEDULED: <%<%Y-%m-%d %a 13:00-14:00>>
 :PROPERTIES:
@@ -235,8 +235,8 @@ Checklist:
 #+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :tstart \"%(org-timestamp-add-days \"%<%F>\" -6)\" :tend \"%<%F>\" :link t :match \"-Google\" :narrow 60!
 #+END: clocktable
 " :time-prompt t :tree-type week :clock-in t :clock-resume t :jump-to-captured t)
-        ("p" "Link and Text" entry (file+headline org-default-notes-file "Links")
-         "
+         ("p" "Link and Text" entry (file+headline org-default-notes-file "Links")
+          "
 * %?REPLACE_ME
 Source: [[%:link][%:description]]
 #+BEGIN_SRC html
@@ -247,8 +247,8 @@ Source: [[%:link][%:description]]
 
 %U
 ")
-        ("L" "Link" entry (file+headline org-default-notes-file "Links")
-         "
+         ("L" "Link" entry (file+headline org-default-notes-file "Links")
+          "
 * %?[[%:link][%(transform-square-brackets-to-curly-ones \"%:description\")]]
   %U
 " :jump-to-captured t)))
@@ -306,28 +306,28 @@ headline under the headline at the current point."
       (calendar-absolute-from-gregorian cgreg))))
 
 (defun my-org-daily-log--find-daily-log ()
-   (re-search-forward
-    (rx-to-string
-     `(and
-       line-start
-       (repeat 4 "*")
-       " "
-       (0+ not-newline)
-       ,(let ((d (calendar-gregorian-from-absolute (org-today-overridden))))
+  (re-search-forward
+   (rx-to-string
+    `(and
+      line-start
+      (repeat 4 "*")
+      " "
+      (0+ not-newline)
+      ,(let ((d (calendar-gregorian-from-absolute (org-today-overridden))))
          (format "[%04d-%02d-%02d "
                  (calendar-extract-year d)
                  (calendar-extract-month d)
                  (calendar-extract-day d)))
-       (0+ not-newline)
-       "] Daily log"))))
+      (0+ not-newline)
+      "] Daily log"))))
 
 (defun my-org-daily-log--find-today ()
-   (re-search-forward
-    (rx-to-string
-     `(and
-       line-start
-       (repeat 3 "*")
-       ,(let ((d (calendar-gregorian-from-absolute (org-today-overridden))))
+  (re-search-forward
+   (rx-to-string
+    `(and
+      line-start
+      (repeat 3 "*")
+      ,(let ((d (calendar-gregorian-from-absolute (org-today-overridden))))
          (format " %04d-%02d-%02d "
                  (calendar-extract-year d)
                  (calendar-extract-month d)
@@ -335,15 +335,15 @@ headline under the headline at the current point."
 
 (defun my-org-daily-log--goto-daily-log-headline ()
   (condition-case nil
-    (save-excursion
-      (with-current-buffer (get-file-buffer org-daily-log-file)
-        (save-restriction
-          (widen)
-          (goto-char (point-min))
-          (my-org-daily-log--find-today)
-          (org-narrow-to-subtree)
-          (my-org-daily-log--find-daily-log)
-          (point-marker))))
+      (save-excursion
+        (with-current-buffer (get-file-buffer org-daily-log-file)
+          (save-restriction
+            (widen)
+            (goto-char (point-min))
+            (my-org-daily-log--find-today)
+            (org-narrow-to-subtree)
+            (my-org-daily-log--find-daily-log)
+            (point-marker))))
     (error nil)))
 
 (defun my-org-daily-log-goto-today ()
@@ -391,25 +391,25 @@ headline under the headline at the current point."
 
 ;;;** Todo settings
 (setq! org-todo-keywords
-      (quote ((sequence "TODO(t)" "NEXT(n@/!)" "|" "DONE(d)")
-              (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
+       (quote ((sequence "TODO(t)" "NEXT(n@/!)" "|" "DONE(d)")
+               (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
 (setq! org-todo-keyword-faces
-      (quote (("TODO" :foreground "red" :weight bold)
-              ("NEXT" :foreground "blue" :weight bold)
-              ("DONE" :foreground "forest green" :weight bold)
-              ("WAITING" :foreground "orange" :weight bold)
-              ("HOLD" :foreground "magenta" :weight bold)
-              ("CANCELLED" :foreground "forest green" :weight bold)
-              ("MEETING" :foreground "forest green" :weight bold)
-              ("PHONE" :foreground "forest green" :weight bold))))
+       (quote (("TODO" :foreground "red" :weight bold)
+               ("NEXT" :foreground "blue" :weight bold)
+               ("DONE" :foreground "forest green" :weight bold)
+               ("WAITING" :foreground "orange" :weight bold)
+               ("HOLD" :foreground "magenta" :weight bold)
+               ("CANCELLED" :foreground "forest green" :weight bold)
+               ("MEETING" :foreground "forest green" :weight bold)
+               ("PHONE" :foreground "forest green" :weight bold))))
 (setq! org-todo-state-tags-triggers
-      (quote (("CANCELLED" ("CANCELLED" . t))
-              ("WAITING" ("WAITING" . t))
-              ("HOLD" ("WAITING") ("HOLD" . t))
-              (done ("WAITING") ("HOLD"))
-              ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
-              ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
-              ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
+       (quote (("CANCELLED" ("CANCELLED" . t))
+               ("WAITING" ("WAITING" . t))
+               ("HOLD" ("WAITING") ("HOLD" . t))
+               (done ("WAITING") ("HOLD"))
+               ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
+               ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
+               ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
 ;;;** Agenda
 
 ;; Don't show tasks in agenda that are done
@@ -706,7 +706,7 @@ argument when called in `org-agenda-custom-commands'."
                ((org-agenda-write-buffer-name
                  "Ready projects (those with all children done)")
                 (org-agenda-exporter-settings
-                  my-org-agenda-export-options))
+                 my-org-agenda-export-options))
                "~/Downloads/agenda-P-export.pdf"))
 (add-to-list 'org-agenda-custom-commands
              `("U" "Loose TODOs (not part of projects)"
@@ -714,7 +714,7 @@ argument when called in `org-agenda-custom-commands'."
                ((org-agenda-write-buffer-name
                  "Loose TODOs (not part of projects)")
                 (org-agenda-exporter-settings
-                  my-org-agenda-export-options))
+                 my-org-agenda-export-options))
                "~/Downloads/agenda-U-export.pdf"))
 (add-to-list 'org-agenda-custom-commands
              '("u" "Tasks making projects stuck"
@@ -722,7 +722,7 @@ argument when called in `org-agenda-custom-commands'."
                ((org-agenda-write-buffer-name
                  "Tasks making projects stuck")
                 (org-agenda-exporter-settings
-                  my-org-agenda-export-options))
+                 my-org-agenda-export-options))
                "~/Downloads/agenda-u-export.pdf"))
 (add-to-list 'org-agenda-custom-commands
              `("n" "NEXT (active, grouped by parent, except scheduled for future)"
@@ -730,7 +730,7 @@ argument when called in `org-agenda-custom-commands'."
                ((org-agenda-write-buffer-name
                  "NEXT (active, grouped by parent, except scheduled for future)")
                 (org-agenda-exporter-settings
-                  my-org-agenda-export-options))
+                 my-org-agenda-export-options))
                "~/Downloads/agenda-n-export.pdf"))
 (add-to-list 'org-agenda-custom-commands
              '("A" "Archivable tasks"
@@ -780,12 +780,12 @@ argument when called in `org-agenda-custom-commands'."
   (clog/msg "Wrote %s" my-org-agenda-combined-output-file))
 
 (setq! org-stuck-projects
-      '("TODO={TODO\\|NEXT}-HOLD-CANCELLED-REFILE" ("NEXT" "HOLD") nil ""))
+       '("TODO={TODO\\|NEXT}-HOLD-CANCELLED-REFILE" ("NEXT" "HOLD") nil ""))
 
 (setq! org-columns-default-format "%60ITEM(Task) %10Effort(Effort){:} %10CLOCKSUM %10CLOCKSUM_T")
 (setq! org-global-properties
-      (quote (("Effort_ALL" . "0:05 0:10 0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 8:00")
-              ("SYTLE_ALL" . "habit"))))
+       (quote (("Effort_ALL" . "0:05 0:10 0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 8:00")
+               ("SYTLE_ALL" . "habit"))))
 
 ;;; Keybindings to jump to org agenda entries and narrow buffer.
 (defun org-agenda-switch-to-and-narrow (&optional delete-other-windows)
@@ -846,7 +846,7 @@ TITLE and MESSAGE are self-explanatory. GROUP, if present, is passed to
      (list "-group" group))))
 (when terminal-notifier-command
   (setq! org-show-notification-handler
-        (lambda (message) (terminal-notifier-notify "Org Mode" message))))
+         (lambda (message) (terminal-notifier-notify "Org Mode" message))))
 
 ;; Notify when Emacs wants to read from minibuffer.
 (setq! minibuffer-auto-raise t)
@@ -950,7 +950,7 @@ Iterates over all buffers in FRAME."
   (setq org-resize-inline-images--timer nil)
   (when (buffer-live-p buffer)
     (with-current-buffer buffer
-        (org-redisplay-inline-images))))
+      (org-redisplay-inline-images))))
 (defun org-resize-inline-images ()
   "Update Org-mode image size in current buffer after window is resized."
   (when
@@ -1472,8 +1472,8 @@ Org-mode properties drawer already, keep the headline and don’t insert
   :bind
   ("C-c n j" . org-journal-new-entry)
   (:map org-journal-mode-map
-    ("C-c n p" . org-journal-previous-entry)
-    ("C-c n n" . org-journal-next-entry))
+   ("C-c n p" . org-journal-previous-entry)
+   ("C-c n n" . org-journal-next-entry))
   :custom
   (org-journal-date-prefix "#+title: ")
   (org-journal-file-format "%Y-%m-%d.org")
@@ -1590,9 +1590,9 @@ efforts may be updated by this function."
                     ;; "body" whether a next sibling exists.
                     (while
                         (let ((x (my-org-update-heading-effort-from-children (point-marker))))
-                         (clog/msg "x = %S" x)
-                         (setq children-effort (+ children-effort (nth 0 x)))
-                         (org-get-next-sibling))))))
+                          (clog/msg "x = %S" x)
+                          (setq children-effort (+ children-effort (nth 0 x)))
+                          (org-get-next-sibling))))))
               (let ((children-effort-duration
                      (org-duration-from-minutes children-effort)))
                 (when (< current-effort children-effort)
@@ -2065,13 +2065,13 @@ sparse tree or with the help of occur.  The original buffer is not modified.
 Include a checkbox to force acknowledging the action provided before marking
 the item done."
   (when (string= org-log-note-state "NEXT")
-      (goto-char (point-max))
-      (insert "- [ ] The *very next* action to take")
-      (search-backward "The"))
+    (goto-char (point-max))
+    (insert "- [ ] The *very next* action to take")
+    (search-backward "The"))
   (when (string= org-log-note-state "WAITING")
-      (goto-char (point-max))
-      (insert "- [ ] What *exactly* am I waiting on?")
-      (search-backward "What")))
+    (goto-char (point-max))
+    (insert "- [ ] What *exactly* am I waiting on?")
+    (search-backward "What")))
 (add-hook 'org-log-buffer-setup-hook #'my-org-log-next-action)
 
 ;;; Week in review (https://emacs.stackexchange.com/a/7864)
