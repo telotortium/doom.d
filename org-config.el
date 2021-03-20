@@ -1543,16 +1543,39 @@ Org-mode properties drawer already, keep the headline and don’t insert
   "Export Org-clock data to Google Calendar with ID \
 ‘org-clock-csv-calendar-export-id'."
   (interactive)
-  (let ((csv-buffer (org-clock-csv nil 'no-switch)))
-    (save-excursion
-      (with-current-buffer csv-buffer
-        (call-process-region
-         nil nil
-         (expand-file-name "org_clock_csv_calendar_export.py" doom-private-dir)
-         nil (get-buffer-create "*org_clock_csv_calendar_export.py*") nil
-         "--org_clock_csv" "/dev/stdin"
-         "--calendar_id" org-clock-csv-calendar-export-id
-         "--logging_level" "DEBUG")))))
+  (require 's)
+  (require 'org)
+  (require 'org-clock-csv)
+  ;; Execute this in a separate process to avoid blocking Emacs - since
+  ;; ‘org-clock-csv’ uses ‘org-element’ to read the Org files, it is quite slow
+  ;; - I’ve had it take over 30 minutes with my Agenda.
+  (deferred:try
+    (deferred:process-shell
+      (format (concat "nice %s %s --batch --eval \"(progn (require 'org-clock-csv) (org-clock-csv-batch-and-exit))\" %s"
+                      "| nice %s --org_clock_csv /dev/stdin --calendar_id %s --logging_level DEBUG")
+              (shell-quote-argument (file-truename
+                                     (expand-file-name invocation-name
+                                                       invocation-directory)))
+              (s-join " "
+                      (mapcar
+                       (lambda (lib)
+                         (format "-L %s"
+                                 (shell-quote-argument
+                                  (file-name-directory
+                                   (locate-library lib)))))
+                       '("s" "org" "org-clock-csv")))
+              (s-join " "
+                      (mapcar #'shell-quote-argument
+                              (org-agenda-files)))
+              (shell-quote-argument
+               (expand-file-name "org_clock_csv_calendar_export.py"
+                                 doom-private-dir))
+              (shell-quote-argument
+               org-clock-csv-calendar-export-id)))
+    :finally
+    (lambda (_)
+      (org-notify "org-clock-csv-calendar-export finished"))))
+
 
 ;; Reset day at 4 AM, just like Anki.
 (setq! org-extend-today-until 4)
