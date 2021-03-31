@@ -143,17 +143,22 @@ If NO-LOCK is non-nil, don’t lock screen."
   (when my-org-pomodoro-inhibit-lock
     (cl-return-from my-org-pomodoro-finished-lock-screen))
   (message "Locking screen in 15 seconds - post calendar event from *scratch*")
-  (cond
-   ((eq system-type 'darwin)
-    (start-process "lock" nil "bash" "-c" "sleep 15; pmset displaysleepnow"))
-   ((and (executable-find "xset")
-         (not (s-blank-str? (getenv "DISPLAY"))))
-    (shell-command "xdotool search 'Chrome' key --window '%@' XF86AudioPlay")
-    (start-process "lock" nil "bash" "-c" "sleep 15; xset s activate"))
-   (t
-    (display-warning
-         'my-org-pomodoro-finished-lock-screen
-         "Can't lock screen"))))
+  (let ((current-state org-pomodoro-state))
+    (run-at-time 15 nil
+                 (lambda ()
+                   (when (and (not my-org-pomodoro-inhibit-lock)
+                              (eq org-pomodoro-state current-state))
+                     (cond
+                      ((eq system-type 'darwin)
+                       (start-process "lock" nil "bash" "-c" "pmset displaysleepnow"))
+                      ((and (executable-find "xset")
+                            (not (s-blank-str? (getenv "DISPLAY"))))
+                       (shell-command "xdotool search 'Chrome' key --window '%@' XF86AudioPlay")
+                       (start-process "lock" nil "bash" "-c" "xset s activate"))
+                      (t
+                       (display-warning
+                        'my-org-pomodoro-finished-lock-screen
+                        "Can't lock screen"))))))))
 (defun my-org-pomodoro-finished-caffeinate ()
   "Prevent system from idle sleeping during Pomodoro breaks."
   (let ((countdown
