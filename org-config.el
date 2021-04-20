@@ -1058,7 +1058,25 @@ TAG is chosen interactively from the global tags completion table."
   (setq! org-gcal-remove-api-cancelled-events nil)
   (setq! org-gcal-recurring-events-mode 'nested)
   (when (file-exists-p org-gcal-config-file)
-    (load org-gcal-config-file)))
+    (load org-gcal-config-file))
+  (defun my-org-gcal-set-effort (_calendar-id event _update-mode)
+    "Set Effort property based on EVENT if not already set."
+    (when-let* ((stime (plist-get (plist-get event :start)
+                             :dateTime))
+                (etime (plist-get (plist-get event :end)
+                                  :dateTime))
+                (diff (float-time
+                       (time-subtract (org-gcal--parse-calendar-time-string etime)
+                                      (org-gcal--parse-calendar-time-string stime))))
+                (minutes (floor (/ diff 60))))
+      (let ((effort (org-entry-get (point) org-effort-property)))
+        (unless effort
+          (message "need to set effort - minutes %S" minutes)
+          (org-entry-put (point)
+                         org-effort-property
+                         (apply #'format "%d:%02d" (cl-floor minutes 60)))))))
+
+  (add-hook 'org-gcal-after-update-entry-functions #'my-org-gcal-set-effort))
 
 (defvar org-gcal-debug nil)
 (defun org-gcal-toggle-debug ()
