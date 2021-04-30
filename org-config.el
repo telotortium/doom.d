@@ -2160,7 +2160,7 @@ Follows the same rules as `org-agenda-files'"
            (:name "Today"  ; Optionally specify section name
             :time-grid t  ; Items that appear on the time grid
             :todo "TODAY")  ; Items that have this TODO keyword
-           (:name "Important" :priority "A")
+           (:name "Important (max in-flight should be 3)" :priority "A")
            ;; Set order of multiple groups at once
            (:name "Habits" :habit t)
            (:name "Inbox" :tag "inbox")
