@@ -5,21 +5,30 @@
 (require 'async)
 (require 's)
 
-;; ;; Complice.co Less Wrong study hall
-;; ;; (https://complice.co/room/lesswrong/interstitial). Reference:
-;; ;; https://www.lesswrong.com/posts/hyeDFbg8ahYAu4ZJu/#586GQr5xjWBzXWda6
-;; (setq! org-pomodoro-length 32)
-;; (setq! org-pomodoro-short-break-length 8)
-;; (setq! org-pomodoro-long-break-length 30)
+(defun my-org-pomodoro-complice-config ()
+  "Set ‘org-pomodoro’ settings for Complice.co Less Wrong study hall.
 
-;; Guzey schedule
-;; https://guzey.com/productivity/#how-i-work-and-rest-how-my-system-is-different-from-all-the-others-and-why-i-like-it-so-much
-;; Adopt a Pomodoro schedule strictly by the clock - working from :00-:25 and
-;; :30-:55 and taking 5-minute breaks, with 35 minute breaks every 3 hours.
-(setq! org-pomodoro-length 25)
-(setq! org-pomodoro-short-break-length 5)
-(setq! org-pomodoro-long-break-length 35)
-(setq! org-pomodoro-long-break-frequency 5)
+https://complice.co/room/lesswrong/interstitial). Reference:
+https://www.lesswrong.com/posts/hyeDFbg8ahYAu4ZJu/#586GQr5xjWBzXWda6"
+  (interactive)
+  (setq! org-pomodoro-length 32)
+  (setq! org-pomodoro-short-break-length 8)
+  (setq! org-pomodoro-long-break-length 30)
+  (setq! org-pomodoro-long-break-frequency 4))
+
+(defun my-org-pomodoro-guzey-config ()
+  "Set ‘org-pomodoro’ settings for Guzey schedule.
+
+Guzey schedule
+ https://guzey.com/productivity/#how-i-work-and-rest-how-my-system-is-different-from-all-the-others-and-why-i-like-it-so-much
+ Adopt a Pomodoro schedule strictly by the clock - working from :00-:25 and
+ :30-:55 and taking 5-minute breaks, with 35 minute breaks every 3 hours."
+  (interactive)
+  (setq! org-pomodoro-length 25)
+  (setq! org-pomodoro-short-break-length 5)
+  (setq! org-pomodoro-long-break-length 35)
+  (setq! org-pomodoro-long-break-frequency 5))
+(my-org-pomodoro-complice-config)
 
 (defun my-org-pomodoro-terminal-notifier-notify (fn title message &rest r)
   "Override ‘org-pomodoro-notify’ to use ‘terminal-notifier-notify’."
