@@ -1075,8 +1075,16 @@ TAG is chosen interactively from the global tags completion table."
           (org-entry-put (point)
                          org-effort-property
                          (apply #'format "%d:%02d" (cl-floor minutes 60)))))))
+  (add-hook 'org-gcal-after-update-entry-functions #'my-org-gcal-set-effort)
 
-  (add-hook 'org-gcal-after-update-entry-functions #'my-org-gcal-set-effort))
+  (defun my-org-gcal-exclude-corp-personal-events (event)
+    "Remove events from corp calendar with summary \"*Personal*\."
+    (let* ((summary (or (plist-get event :summary)
+                        "busy"))
+           (include (not (string= summary "*Personal*"))))
+       include))
+  (add-hook 'org-gcal-fetch-event-filters
+            #'my-org-gcal-exclude-corp-personal-events))
 
 (defvar org-gcal-debug nil)
 (defun org-gcal-toggle-debug ()
