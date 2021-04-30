@@ -1523,6 +1523,7 @@ Org-mode properties drawer already, keep the headline and don’t insert
   :hook (dired-mode . org-download-enable)
   :custom
   (org-download-method 'attach)
+  (org-download-annotate-function #'org-download-annotate-default)
   (org-download-backend "curl \"%s\" -o \"%s\""))
 
 ;;;** norang configuration
