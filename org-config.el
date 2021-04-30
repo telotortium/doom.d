@@ -1413,37 +1413,56 @@ task and reschedule it."
   (require 'org-roam-protocol)
   (require 'org-roam-capture)
   (nconc (assoc "d" org-roam-capture-templates)
-         '(:immediate-finish t :jump-to-captured t))
+         '(:immediate-finish t :jump-to-captured t
+           :head "#+setupfile: common.setup\n\n* ${title}\n"))
   (nconc (assoc "r" org-roam-capture-ref-templates)
          '(:immediate-finish t :jump-to-captured t
            ;; Use headline to populate title for org-roam bookmark instead of
            ;; #+title file-level property so that I can easily run
            ;; ‘org-drill-type-inbox-init’ to defer the task.
-           :head "#+roam_key: ${ref}\n\n* ${title}\n:PROPERTIES:\n:link: [[${ref}][${title}]]\n:END:")))
+           :head "#+roam_key: ${ref}\n#+setupfile: common.setup\n\n* ${title}\n:PROPERTIES:\n:link: [[${ref}][${title}]]\n:END:")))
 
 
-(defun org-roam-create-note-from-headline ()
+(defun org-roam-create-note-from-headline (no-link)
   "Create an Org-roam note from the current headline and jump to it.
 
-Normally, insert the headline’s title using the ’#title:’ file-level property
-and delete the Org-mode headline. However, if the current headline has a
-Org-mode properties drawer already, keep the headline and don’t insert
-‘#+title:'. Org-roam can extract the title from both kinds of notes, but using
-‘#+title:’ is a bit cleaner for a short note, which Org-roam encourages."
-  (interactive)
+If called with a prefix or NO-LINK non-nil, don’t
+
+Since I’ve decided to just use the first headline to extract the title (see
+‘org-roam-capture-templates'), this just cuts the subtree to a new file and
+cleans up the file a bit. For earlier versions of this function that can also
+handle files that use the \"#+title\" file property, see the Git history."
+  (interactive "P")
   (let ((title (nth 4 (org-heading-components)))
-        (has-properties (org-get-property-block)))
-    (org-cut-subtree)
-    (org-roam-find-file title nil nil 'no-confirm)
-    (org-paste-subtree)
-    (unless has-properties
+        id)
+    (org-copy-subtree)
+    (org-with-point-at (point)
+      ;; Create file and clean it up.
+      (org-roam-find-file title nil nil 'no-confirm)
+      (org-paste-subtree)
+      (goto-char (point-max))
+      (forward-line -1)
+      (beginning-of-line)
       (kill-line)
-      (while (outline-next-heading)
-        (org-promote)))
-    (goto-char (point-min))
-    (when has-properties
-      (kill-line)
-      (kill-line))))
+      ;; Get the ID for the first heading, newly created if necessary.
+      (goto-char (point-min))
+      (when (org-before-first-heading-p)
+        (outline-next-heading))
+      (setq id (org-id-get-create)))
+    (org-back-to-heading)
+    (atomic-change-group
+      (if no-link
+          (org-cut-subtree)
+        (let ((subtree-end
+               (save-excursion
+                 (org-end-of-subtree 'invisible-ok)
+                 (point))))
+          (forward-line 1)
+          (kill-region (point) subtree-end)
+          (org-insert-link nil
+                           (concat "id:" id)
+                           "(moved)"))))
+    (org-id-goto id)))
 
 (defcustom my-org-roam-directories (list org-roam-directory)
   "List of org-roam directories to examine in ‘my-org-roam-agenda-file-hook’.")
