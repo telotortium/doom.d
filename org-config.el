@@ -2144,7 +2144,19 @@ Follows the same rules as `org-agenda-files'"
 (use-package! org-super-agenda
   :config
   (setq! org-super-agenda-groups
-         '(;; Each group has an implicit boolean OR operator between its selectors.
+         ;; Each group has an implicit boolean OR operator between its selectors.
+         '(
+           ;; Discard top-level recurring events fetched by org-gcal unless I’ve
+           ;; done something to indicate I’m using them.
+           (:discard
+            (:and
+             (
+               ;; TODO: replace with ~:property "recurrence"~ once I upgrade to
+               ;; ‘org-super-agenda' 1.3.
+               :regexp "^[ \t]*:recurrence:"
+               :not (:todo t)
+               :not (:log t)
+               :not (:habit t))))
            (:name "Today"  ; Optionally specify section name
             :time-grid t  ; Items that appear on the time grid
             :todo "TODAY")  ; Items that have this TODO keyword
