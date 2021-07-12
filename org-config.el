@@ -1978,7 +1978,11 @@ FIND-DONE has the same meaning "
     (org-archive-subtree find-done))))
 (setq! org-archive-default-command #'my-org-archive-dwim)
 (after! org-agenda
-  (org-defkey org-agenda-mode-map "$" #'org-agenda-archive-default))
+  (org-defkey org-agenda-mode-map "$" #'org-agenda-archive-default)
+  ;; My normal binding for "Q", #’kill-this-buffer, will sometimes cause a
+  ;; "Selecting deleted buffer" error - see
+  ;; https://github.com/hlissner/doom-emacs/issues/4468
+  (org-defkey org-agenda-mode-map "Q" #'org-agenda-Quit))
 
 ;;; Find all inactive timestamps in tree, buffer, or all org buffers
 ;;; https://lists.gnu.org/archive/html/emacs-orgmode/2011-07/msg01228.html
