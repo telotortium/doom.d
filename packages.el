@@ -112,5 +112,7 @@
 (package! hl-line+)
 (package! evil-visual-mark-mode)
 
+(package! parinfer-mode :recipe (:host github :repo "Wagk/parinfer-mode" :branch "patch-1"))
+
 (package! explain-pause-mode
   :recipe (:host github :repo "lastquestion/explain-pause-mode"))
