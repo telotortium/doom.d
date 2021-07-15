@@ -285,6 +285,11 @@ near the edge of the frame, so it may be a culprit. Work around this by using
   "Format encoded TIME to ISO8601 time string (with local time zone)."
   (format-time-string "%FT%T%z" time))
 
+;; Stop ‘magit-previous-line' from throwing errors about undefined variable
+;; ‘project-switch-commands’.
+(after! magit-extras
+  (require 'project))
+
 ;;;* Local configuration
 
 ;;; Allow users to provide an optional "init-local" containing personal settings
