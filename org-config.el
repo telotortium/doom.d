@@ -683,10 +683,17 @@ argument when called in `org-agenda-custom-commands'."
 (after! org-agenda
   (setq! org-agenda-confirm-kill nil)
   (org-defkey org-agenda-mode-map "\C-k" #'org-agenda-kill-or-down)
-  (org-defkey org-agenda-mode-map "$" #'org-agenda-archive-default-or-down))
+  (org-defkey org-agenda-mode-map "$" #'org-agenda-archive-default-or-down)
+  ;; My normal binding for "Q", #’kill-this-buffer, will sometimes cause a
+  ;; "Selecting deleted buffer" error - see
+  ;; https://github.com/hlissner/doom-emacs/issues/4468
+  (org-defkey org-agenda-mode-map "Q" #'org-agenda-Quit))
+;; Copy keybindings from above.
 (after! org-super-agenda
   (org-defkey org-super-agenda-header-map "$"
-              #'org-agenda-archive-default-or-down))
+              #'org-agenda-archive-default-or-down)
+  (org-defkey org-super-agenda-header-map "\C-k" #'org-agenda-kill-or-down)
+  (org-defkey org-super-agenda-header-map "Q" #'org-agenda-Quit))
 
 
 (setq! org-agenda-span 1)
@@ -1977,12 +1984,6 @@ FIND-DONE has the same meaning "
    (t
     (org-archive-subtree find-done))))
 (setq! org-archive-default-command #'my-org-archive-dwim)
-(after! org-agenda
-  (org-defkey org-agenda-mode-map "$" #'org-agenda-archive-default)
-  ;; My normal binding for "Q", #’kill-this-buffer, will sometimes cause a
-  ;; "Selecting deleted buffer" error - see
-  ;; https://github.com/hlissner/doom-emacs/issues/4468
-  (org-defkey org-agenda-mode-map "Q" #'org-agenda-Quit))
 
 ;;; Find all inactive timestamps in tree, buffer, or all org buffers
 ;;; https://lists.gnu.org/archive/html/emacs-orgmode/2011-07/msg01228.html
