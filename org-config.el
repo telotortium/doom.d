@@ -618,6 +618,7 @@ ill effect.
 
 Use ‘org-ql-search' to search."
   (interactive)
+  (require 'org-gcal)
   (org-ql-search
     (org-agenda-files t t)
     `(and
