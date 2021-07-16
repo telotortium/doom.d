@@ -286,9 +286,10 @@ near the edge of the frame, so it may be a culprit. Work around this by using
   (format-time-string "%FT%T%z" time))
 
 ;; Stop ‘magit-previous-line' from throwing errors about undefined variable
-;; ‘project-switch-commands’.
+;; ‘project-switch-commands’ by forcing an autoload.
 (after! magit-extras
-  (require 'project))
+  (load "project")
+  nil)
 
 ;;;* Local configuration
 
