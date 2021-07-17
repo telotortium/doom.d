@@ -622,12 +622,14 @@ Use ‘org-ql-search' to search."
   (org-ql-search
     (org-agenda-files t t)
     `(and
+      (ts :to -90)
       (not (ts :from -90))
       (property ,org-gcal-calendar-id-property)
       (not (property "recurrence"))     ; Exclude parents of recurring events
       (not (property "ID"))             ; Exclude events that might be linked to
       (not (property "CUSTOM_ID"))
       (not (clocked))
+      (not (closed))
       (not (children)))
     :buffer (or buffer org-ql-view-buffer)
     :super-groups '((:auto-ts))
