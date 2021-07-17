@@ -177,10 +177,10 @@ If NO-LOCK is non-nil, don’t lock screen."
            (t 0))))
     (when (> countdown 0)
       (cond
-       ((eq system-type 'darwin)
-        (async-start-process "my-org-pomodoro-finished-caffeinate"
+       ((executable-find "caffeinate")
+        (async-start-process "my-org-pomodoro-finished-caffeinate" ;
                              "caffeinate" 'ignore
-                             "-t" (number-to-string countdown)))
+                             "sleep" (number-to-string countdown)))
        (t
         (display-warning
          'my-org-pomodoro-finished-caffeinate
