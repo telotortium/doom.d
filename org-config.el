@@ -1200,6 +1200,104 @@ Default suggestions (in the absence of existing data in the entry):
   (org-schedule nil (format-time-string ". %H:%M"))
   (call-interactively #'my-org-gcal-schedule))
 
+;; Functions to move org-gcal timestamp between SCHEDULED propeerty and org-gcal drawer
+(defun my-org-gcal-toggle-timestamp (&optional point)
+  "Move org-gcal timestamp between SCHEDULED property and org-gcal drawer."
+  (interactive)
+  (let ((pt (or point (point))))
+    (cond ((org-entry-get pt "SCHEDULED")
+           (my-org-gcal-unschedule-timestamp pt))
+          ((my-org-gcal--has-unscheduled-timestamp pt)
+           (my-org-gcal-schedule-timestamp pt))
+          (t
+           (org-with-point-at pt
+             (user-error "Not an org-gcal entry at %S")
+             (point-marker))))))
+(defun my-org-gcal-unschedule-timestamp (&optional point)
+  "Move org-gcal timestamp from SCHEDULED property to org-gcal drawer."
+  (interactive)
+  (require 'org-gcal)
+  (org-with-point-at (or point (point))
+    (org-back-to-heading)
+    (org-narrow-to-element)
+    (if-let* ((scheduled-timestamp (org-entry-get (point) "SCHEDULED"))
+              (drawer-point
+               (re-search-forward
+                (format "^[ \t]*:%s:[ \t]*$" org-gcal-drawer-name)
+                (point-max)
+                'noerror)))
+        (progn
+          (goto-char drawer-point)
+          (newline)
+          (insert scheduled-timestamp)
+          (forward-line 1)
+          (message "%s" (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
+          (unless
+              (re-search-forward
+               "^[ \t]*:END:[ \t]*$"
+               (point-at-eol)
+               'noerror)
+            (forward-line 0)
+            (newline))
+          (org-schedule '(4)))           ; Unschedule - do this last to preserve drawer-point
+      (org-with-point-at (point)
+        (user-error "Not an org-gcal entry with a SCHEDULED timestamp at %S"
+                    (point-marker))))))
+(defun my-org-gcal-schedule-timestamp (&optional point)
+  "Move org-gcal timestamp from org-gcal drawer to SCHEDULED property."
+  (interactive)
+  (require 'org-gcal)
+  (org-with-point-at (or point (point))
+    (org-back-to-heading)
+    (org-narrow-to-element)
+    (if-let* ((pt (my-org-gcal--has-unscheduled-timestamp (point)))
+              (md (match-data 'integer))
+              (ts (buffer-substring-no-properties (nth 2 md) (nth 3 md))))
+        (progn
+          ;; Delete timestamp line
+          (goto-char pt)
+          (forward-line 0)
+          (kill-whole-line)
+          ;; Delete following blank line if present
+          (when (eolp) (kill-whole-line))
+          (org-schedule nil ts))
+       (org-with-point-at (point)
+         (user-error "Not an org-gcal entry with a timestamp in org-gcal drawer at %S"
+                     (point-marker))))))
+(defun my-org-gcal--has-unscheduled-timestamp (&optional point)
+  "Is entry an org-gcal entry with an unscheduled timestamp?
+
+If it is, returns the point at the *end* of the timestamp, and sets match
+data for the timestamp according to ‘org-element--timestamp-regexp’.
+In general, does *not* preserve point or match data."
+  (require 'org-gcal)
+  (org-with-point-at (or point (point))
+    (org-back-to-heading)
+    (org-narrow-to-element)
+    (when-let* ((drawer-point
+                 (re-search-forward
+                  (format "^[ \t]*:%s:[ \t]*$" org-gcal-drawer-name)
+                  (point-max)
+                  'noerror)))
+      (forward-line 1)
+      (re-search-forward org-element--timestamp-regexp (point-at-eol) 'noerror))))
+(defun my-org-gcal-unscheduled-toggle-timestamp (fn arg &rest r)
+  "Move timestamp to org-gcal drawer when unscheduling a org-gcal event."
+  (if-let* ((interactive? (called-interactively-p 'any))
+            (unscheduling? (equal arg '(4)))
+            (scheduled? (org-entry-get (point) "SCHEDULED"))
+            (drawer-point
+             (org-with-point-at (point)
+               (org-back-to-heading)
+               (org-narrow-to-element)
+               (re-search-forward
+                    (format "^[ \t]*:%s:[ \t]*$" org-gcal-drawer-name)
+                    (point-max)
+                    'noerror))))
+      (my-org-gcal-unschedule-timestamp)
+    (apply fn arg r)))
+(advice-add #'org-schedule :around #'my-org-gcal-unscheduled-toggle-timestamp)
+
 ;;;** Org-drill
 (use-package! org-drill
   :commands (org-drill)
