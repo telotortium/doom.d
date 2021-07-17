@@ -6,6 +6,8 @@
 import argparse
 import sys
 
+# To install these run
+#   pip3 install --user --ignore-installed oauth2client google-api-python-client
 from oauth2client import client
 from googleapiclient import sample_tools
 
