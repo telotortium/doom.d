@@ -38,6 +38,21 @@ Guzey schedule
 (advice-add #'org-pomodoro-notify
             :around #'my-org-pomodoro-terminal-notifier-notify)
 
+(defun my-org-pomodoro-start-half ()
+  "Start or set time for ‘org-pomodoro' for half of ‘org-pomodoro-length’."
+  (interactive)
+  (org-pomodoro-end-in (/ org-pomodoro-length 2)))
+(defun my-org-pomodoro-half-on-expiry (fn &rest r)
+  "Start a half-pomodoro when ‘org-pomodoro’ would prompt to reset count."
+  (let ((half-p
+         (and org-pomodoro-last-clock-in
+              org-pomodoro-expiry-time
+              (org-pomodoro-expires-p))))
+    (apply fn r)
+    (when half-p
+      (my-org-pomodoro-start-half))))
+(advice-add #'org-pomodoro :around #'my-org-pomodoro-half-on-expiry)
+
 ;; Simulate
 ;;
 ;; (setq! org-pomodoro-ticking-sound-p t)
