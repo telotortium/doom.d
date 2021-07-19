@@ -293,8 +293,8 @@ near the edge of the frame, so it may be a culprit. Work around this by using
 
 ;;;* Local configuration
 
-;;; Allow users to provide an optional "init-local" containing personal settings
-(load! "init-local.el")
+;;; Allow users to provide an optional "config-local" containing personal settings
+(load! "config-local.el")
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
