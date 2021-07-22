@@ -545,6 +545,7 @@ current ‘my-org-pomodoro-log-event-titles'."
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-create-log-event)
 (add-hook 'org-clock-in-hook #'my-org-pomodoro-update-log-event-titles)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-ended-update-log-event)
+(add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-remove-alarm)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-ended-update-log-event)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-notify-hook)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-lock-screen)
