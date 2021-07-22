@@ -200,6 +200,16 @@ If NO-LOCK is non-nil, don’t lock screen."
         (display-warning
          'my-org-pomodoro-finished-caffeinate
          "Can't prevent system from sleeping"))))))
+(defun my-org-pomodoro-finished-pause-music ()
+  "Pause music when Pomodoro is finished."
+  (cond ((executable-find "playerctl")
+         (async-start-process "my-org-pomodoro-finished-pause-music"
+                              "playerctl" 'ignore
+                              "--all-players" "pause"))
+        (t
+         (display-warning
+          'my-org-pomodoro-finished-pause-music
+          "Can’t pause music"))))
 (defun my-org-pomodoro-started-notify-hook ()
   (org-pomodoro-notify "Pomodoro started"
                        "Snooze notifications in Hangouts Chat."))
@@ -525,6 +535,7 @@ current ‘my-org-pomodoro-log-event-titles'."
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-notify-hook)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-lock-screen)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-caffeinate)
+(add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-pause-music)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-clock-in-break-hook)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-create-break-end-alarm)
 (add-hook 'org-pomodoro-tick-hook #'my-org-pomodoro-tick-current-task-reminder)
