@@ -342,6 +342,7 @@ The variables will be updated asynchronously."
         "--end_timestamp" (format-time-string "%FT%T%z" (current-time)))))))
 (defun my-org-agenda-pomodoro-info ()
   "Add Org Pomodoro Count and Time to agenda."
+  (require 'org-timer)
   (save-restriction
     (widen)
     (save-excursion
