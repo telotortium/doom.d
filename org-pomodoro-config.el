@@ -177,7 +177,6 @@ If NO-LOCK is non-nil, don’t lock screen."
                        (start-process "lock" nil "bash" "-c" "pmset displaysleepnow"))
                       ((and (executable-find "xset")
                             (not (s-blank-str? (getenv "DISPLAY"))))
-                       (shell-command "xdotool search 'Chrome' key --window '%@' XF86AudioPlay")
                        (start-process "lock" nil "bash" "-c" "xset s activate"))
                       (t
                        (display-warning
