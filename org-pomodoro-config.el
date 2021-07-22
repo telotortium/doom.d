@@ -290,58 +290,56 @@ activate application (path to frontmost application as text)
   :type 'number)
 
 ;; Update agenda to log count and time of pomodoros elapsed today.
-(defvar my-org-pomodoro-start-time nil
-  "Start time of current pomodoro.")
+(defvar my-org-pomodoro-count-today-var 0
+  "Number of pomodoros today.")
 (defvar my-org-pomodoro-time-today-var 0
-  "Amount of time spent in pomodoro today.
-DO NOT USE - contains only time logged outside of the current pomodoro.
-Call ‘my-org-pomodoro-time-today' instead.")
-(defun my-org-pomodoro-time-today ()
-  "Return amount of time spent in pomodoro today, as a floating-point
-number of seconds."
-  (+ my-org-pomodoro-time-today-var
-     (if (eq org-pomodoro-state :pomodoro)
-         (float-time (time-subtract (current-time)
-                                    my-org-pomodoro-start-time))
-       0)))
-(defun my-org-pomodoro-time-today-set ()
-  "Manually prompt for elapsed pomodoro time for today to set."
-  (interactive)
-  (require 'call-log)
-  (let* ((input
-          (read-from-minibuffer "Org Pomodoro Time Elapsed Today: ")))
-    (message "Setting elapsed time to %s" input)
-    (setq my-org-pomodoro-time-today-var
-          (* 60 (org-duration-to-minutes input)))))
-(defun my-org-pomodoro-reset-today (&optional arg)
-  "Resets daily org-pomodoro variables every day"
-  (if (null org-pomodoro-last-clock-in)
-      (setq my-org-pomodoro-time-today-var 0)
-    (let* ((effective-midnight
-            `(0 0 0 . ,(nthcdr 3 (decode-time (current-time))))))
-      (when
-          (and (<= 0
-                   (float-time
-                    (time-subtract (current-time)
-                                   effective-midnight)))
-               (>= 0
-                   (float-time
-                    (time-subtract org-pomodoro-last-clock-in
-                                   effective-midnight))))
-        (setq my-org-pomodoro-time-today-var 0)))))
-(advice-add #'org-pomodoro :before #'my-org-pomodoro-reset-today)
-(defun my-org-pomodoro-set-start-time ()
-  "Sets start time for use by my-org-pomodoro-time-today."
-  (setq my-org-pomodoro-start-time (current-time)))
-(add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-set-start-time)
-(defun my-org-pomodoro-finished-update-time-today ()
-  "Updates stored variable for my-org-pomodoro-time-today."
-  (setq my-org-pomodoro-time-today-var
-        (+ my-org-pomodoro-time-today-var
-           (float-time (time-subtract (current-time)
-                                      my-org-pomodoro-start-time)))))
-(add-hook 'org-pomodoro-finished-hook
-          #'my-org-pomodoro-finished-update-time-today)
+  "Amount of time spent in pomodoro today, in seconds.")
+(defun my-org-pomodoro-reset-today-schedule ()
+  "Schedule next run of ‘my-org-pomodoro-reset-today’."
+  (run-at-time
+   ;; Start tomorrow at ‘org-extend-today-until’ hours past midnight.
+   (let* ((today-start
+              (append `(0 0 ,(or org-extend-today-until 0))
+                     (nthcdr 3 (decode-time (org-current-effective-time)))))
+          (tomorrow-start
+           (decoded-time-add today-start '(nil nil nil 1))))
+        (encode-time tomorrow-start))
+   nil
+   #'my-org-pomodoro-reset-today))
+(defun my-org-pomodoro-reset-today ()
+  "Resets daily org-pomodoro variables."
+  (setq my-org-pomodoro-count-today-var 0
+        my-org-pomodoro-time-today-var 0))
+(my-org-pomodoro-reset-today-schedule)
+(defun my-org-agenda-start-pomodoro-info-update (&rest _r)
+  "Start updating variables used by ‘my-org-agenda-pomodoro-info’.
+
+The variables will be updated asynchronously."
+  (apply
+   #'async-start-process
+   "org_pomodoro_calendar_log_sum.py"
+   (expand-file-name "org_pomodoro_calendar_log_sum.py" doom-private-dir)
+   (lambda (proc)
+     (when (= 0 (process-exit-status proc))
+       (with-current-buffer (process-buffer proc)
+         (let* ((out
+                 (string-trim (buffer-substring-no-properties
+                               (point-min) (point-max))))
+                (result-list (s-split "," out)))
+           (setq my-org-pomodoro-count-today-var
+                 (string-to-number (nth 0 result-list))
+                 my-org-pomodoro-time-today-var
+                 (string-to-number (nth 1 result-list)))))))
+   (let* ((today-start
+           (append `(0 0 ,(or org-extend-today-until 0))
+                   (nthcdr 3 (decode-time (org-current-effective-time))))))
+     (append
+       (list
+        "--calendar_id" my-org-pomodoro-log-gcal-calendar-id
+        "--state" ":pomodoro"
+        "--start_timestamp" (format-time-string "%FT%T%z"
+                                             (encode-time today-start))
+        "--end_timestamp" (format-time-string "%FT%T%z" (current-time)))))))
 (defun my-org-agenda-pomodoro-info ()
   "Add Org Pomodoro Count and Time to agenda."
   (save-restriction
@@ -359,12 +357,13 @@ number of seconds."
             (newline)))
         (insert
          (format "Org Pomodoro - Count: %2d, Time: %s"
-                 org-pomodoro-count
+                 my-org-pomodoro-count-today-var
                  (org-timer-secs-to-hms
-                         (round (my-org-pomodoro-time-today)))))
+                         (round my-org-pomodoro-time-today-var))))
         (newline)
         ;; Add spaces to align with line above
         (insert "Try to get above                3:30:00")))))
+(advice-add #'org-agenda-list :before #'my-org-agenda-start-pomodoro-info-update)
 (add-hook 'org-agenda-finalize-hook 'my-org-agenda-pomodoro-info 'append)
 
 (defun my-org-pomodoro-today-tick-hook ())
