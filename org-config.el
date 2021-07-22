@@ -550,6 +550,7 @@ Use `org-ql-search' to search."
     (org-agenda-files)
     `(and
       (not (tags "REFILE" "dailylog" "ARCHIVE"))
+      (ts :to -30)
       (not (ts :from -30))
       (not (property "recurrence"))     ; Exclude parents of recurring events
       (or (done)
@@ -560,6 +561,7 @@ Use `org-ql-search' to search."
       (or (not (children))
           (descendants
            (and (not (todo))
+                (ts :to -30)
                 (not (ts :from -30))))))
     :buffer (or buffer org-ql-view-buffer)
     :super-groups '((:auto-map my-org-super-agenda-group-by-project-or-task-group))
@@ -589,6 +591,7 @@ Use `org-ql-search' to search."
     (org-agenda-files)
     `(and
       (not (tags "REFILE" "dailylog" "ARCHIVE"))
+      (ts :to -30)
       (not (ts :from -30))
       (not (property "recurrence"))     ; Exclude parents of recurring events
       (or (done)
@@ -599,6 +602,7 @@ Use `org-ql-search' to search."
       (or (not (children))
           (descendants
            (and (not (todo))
+                (ts :to -30)
                 (not (ts :from -30))))))
     :buffer (or buffer org-ql-view-buffer)
     :super-groups '((:auto-map my-org-super-agenda-group-by-project-or-task-group))
