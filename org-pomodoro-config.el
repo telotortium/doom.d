@@ -206,6 +206,20 @@ If NO-LOCK is non-nil, don’t lock screen."
          (async-start-process "my-org-pomodoro-finished-pause-music"
                               "playerctl" 'ignore
                               "--all-players" "pause"))
+        ((eq system-type 'darwin)
+         ;; For whatever reason (probably because it involves the GUI session),
+         ;; I need to invoke macos_mediakeys.py via a terminal spawned from the
+         ;; GUI, rather than just executing a command. That’s why I’m telling
+         ;; the Terminal app via Applescript to run the command.
+         (async-start-process "macos_mediakeys.py"
+                              "osascript"
+                              'ignore
+                              "-e"
+                              (concat
+                               "tell application \"Terminal\" to do script \""
+                               (shell-quote-argument
+                                (expand-file-name "macos_mediakeys.py" doom-private-dir))
+                               " playpause; exit\"")))
         (t
          (display-warning
           'my-org-pomodoro-finished-pause-music
