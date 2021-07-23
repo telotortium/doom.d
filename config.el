@@ -280,6 +280,10 @@ near the edge of the frame, so it may be a culprit. Work around this by using
   (when (active-minibuffer-window)
     (select-frame-set-input-focus (window-frame (active-minibuffer-window)))
     (select-window (active-minibuffer-window))))
+;; Bind to SPC b .
+(map! :leader
+      :desc "switch to minibuffer"
+      "b ." #'switch-to-minibuffer-window)
 
 (defun my-format-iso8601-time-string (time)
   "Format encoded TIME to ISO8601 time string (with local time zone)."
