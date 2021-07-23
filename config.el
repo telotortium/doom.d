@@ -158,6 +158,9 @@ near the edge of the frame, so it may be a culprit. Work around this by using
 (line-number-mode 1)
 (column-number-mode 1)
 
+(setq! visual-fill-column-width 120)
+(add-hook 'text-mode-hook #'visual-fill-column-mode)
+
 (use-package! rg
   :commands (rg rg-org rg-project rg-dwim)
   :config
