@@ -1425,6 +1425,20 @@ don't support wrapping."
                (name (car (org-roam--extract-titles))))
       (rename-buffer name)))
   (add-hook 'find-file-hook #'my-org-roam-set-buffer-name-hook)
+  (defun my-org-roam-update-title-prop-hook ()
+    "Sync #+TITLE of org-roam files from first headline."
+    (when-let (((org-roam--org-roam-file-p))
+               (name (car (org-roam--extract-titles-headline)))
+               ((save-excursion
+                  (goto-char (point-min))
+                  (re-search-forward org-outline-regexp-bol nil t)
+                  (org-entry-get nil "org-roam-sync-to-title"))))
+      (org-roam--set-global-prop "TITLE" name)))
+  (defun my-org-roam-update-title-prop-find-file-hook ()
+    "Add ‘my-org-roam-update-title-prop-hook’ in org-roam buffers."
+    (when (org-roam--org-roam-file-p)
+      (add-hook 'before-save-hook #'my-org-roam-update-title-prop-hook nil 'local)))
+  (add-hook 'find-file-hook #'my-org-roam-update-title-prop-find-file-hook)
   (require 'org-roam-protocol)
   (require 'org-roam-capture)
   (nconc (assoc "d" org-roam-capture-templates)
@@ -1435,7 +1449,7 @@ don't support wrapping."
            ;; Use headline to populate title for org-roam bookmark instead of
            ;; #+title file-level property so that I can easily run
            ;; ‘org-drill-type-inbox-init’ to defer the task.
-           :head "#+roam_key: ${ref}\n#+setupfile: common.setup\n\n* ${title}\n:PROPERTIES:\n:link: [[${ref}][${title}]]\n:END:")))
+           :head "#+roam_key: ${ref}\n#+setupfile: common.setup\n\n* ${title}\n:PROPERTIES:\n:link: [[${ref}][${title}]]\n:org-roam-sync-to-title: t\n:END:")))
 
 
 (defun org-roam-create-note-from-headline (no-link)
