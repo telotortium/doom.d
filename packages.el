@@ -102,7 +102,7 @@
 (package! org-super-agenda)
 (package! org-download)
 (package! org-cliplink)
-(package! ox-hugo)
+(package! ox-hugo :pin "8345ceb90ff1314d598c6b67ba6ee7616e2b0bc4")
 (package! pocket-reader)
 
 (package! hl-line :disable t)
