@@ -256,10 +256,9 @@ If NO-LOCK is non-nil, don’t lock screen."
 (defun my-org-pomodoro-start-lunch ()
   (interactive)
   (org-pomodoro-notify "Going to lunch now" "")
-  (setq org-pomodoro-count 0)
-  (org-pomodoro-start :long-break)
-  (my-org-pomodoro-start-break)
-  (my-org-pomodoro-finished-lock-screen))
+  (setq org-pomodoro-count -1)
+  (org-pomodoro-start :pomodoro)
+  (org-pomodoro-end-in 0))
 (defun my-org-pomodoro-finished-clock-in-break-hook ()
   "Clock into task with ID my-org-pomodoro-break-id during breaks if set."
   (require 'call-log)
