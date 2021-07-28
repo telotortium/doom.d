@@ -161,6 +161,18 @@ If NO-LOCK is non-nil, don’t lock screen."
 (defcustom my-org-pomodoro-break-id nil
   "Task ID of task to clock into during Pomodoro breaks. Must specify manually."
   :type 'string)
+(defun my-org-agenda-skip-pomodoro-break ()
+  "Skip break in agenda."
+  (when (and my-org-pomodoro-break-id
+             (string= my-org-pomodoro-break-id
+                      (org-entry-get (point) "ID")))
+    (save-excursion
+      (or
+       (ignore-errors (org-forward-element)
+                      (point))
+       (point-max)))))
+(setq org-agenda-skip-function-global #'my-org-agenda-skip-pomodoro-break)
+
 (defvar my-org-pomodoro-inhibit-lock nil)
 (cl-defun my-org-pomodoro-finished-lock-screen ()
   "Lock screen at the end of each Pomodoro work session."
