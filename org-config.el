@@ -899,6 +899,56 @@ TITLE and MESSAGE are self-explanatory. GROUP, if present, is passed to
         "Japanese Temple Bell Small-SoundBible.com-113624364.wav"
         doom-private-dir))
 
+(defvar my-org-clock-nag-after-expiry--timer nil
+  "Used by ‘my-org-clock-nag-after-expiry’, for which see.")
+(defun my-org-clock-nag-after-expiry (&rest _r)
+  "Nag org-clock notifications repeated after expiry.
+
+Normally, ‘org-clock-notify-once-if-expired’ ensures that notifications for
+clocking more than the effort on the task will fire only once. For certain tasks
+(distractions, for exgmple), I want the clock to nag me repeatedly. This advice
+will implement that functionality.
+
+To use this, set the property ‘org-clock-nag-after-expiry’ on the headline in
+question to a number of minutes after which the notification should re-fire.
+This property is inherited - you can set it to the string “nil” to turn this
+off if the property is inherited."
+  (when-let* (((and org-clock-notification-was-shown
+                    org-clock-marker
+                    (null my-org-clock-nag-after-expiry--timer)))
+              (nag-prop (org-entry-get org-clock-marker
+                                       "org-clock-nag-after-expiry"
+                                       'inherit))
+              ((string-match "^[0-9][0-9]*$" nag-prop))
+              (nag-minutes (string-to-number nag-prop)))
+    (setq my-org-clock-nag-after-expiry--timer
+          (run-at-time
+                ;; Subtract 1 from nag-minutes because the clock time is checked
+                ;; by default every 60 seconds (see ‘org-clock-update-period’).
+                (* 60 (max 0 (- nag-minutes 1)))
+                nil
+                #'my-org-clock-nag-after-expiry--reset
+                (copy-marker org-clock-marker)))))
+(defun my-org-clock-nag-after-expiry--reset (clock-marker)
+  "Function called by timer set up in ‘my-org-clock-nag-after-expiry'.
+
+CLOCK-MARKER was the value of ‘org-clock-marker’ when the timer was set."
+  (message "in my-org-clock-nag-after-expiry--reset")
+  (message "clock-marker: %S; org-clock-marker: %S" clock-marker org-clock-marker)
+  (cancel-timer my-org-clock-nag-after-expiry--timer)
+  (setq my-org-clock-nag-after-expiry--timer nil)
+  (when (and
+         org-clock-marker
+         (eq (marker-buffer clock-marker)
+             (marker-buffer org-clock-marker))
+         (= (marker-position clock-marker)
+            (marker-position org-clock-marker)))
+    (setq org-clock-notification-was-shown nil)))
+(advice-add #'org-clock-notify-once-if-expired
+            :after #'my-org-clock-nag-after-expiry)
+
+
+
 ;;;; org-refile settings:
 ;;;;
 ;;;; Based on http://doc.norang.ca/org-mode.html#Refiling and
