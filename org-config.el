@@ -1493,7 +1493,7 @@ don't support wrapping."
   (require 'org-roam-capture)
   (nconc (assoc "d" org-roam-capture-templates)
          '(:immediate-finish t :jump-to-captured t
-           :head "#+setupfile: common.setup\n\n* ${title}\n"))
+           :head "#+setupfile: common.setup\n\n* ${title}\n:PROPERTIES:\n:org-roam-sync-to-title: t\n:END:"))
   (nconc (assoc "r" org-roam-capture-ref-templates)
          '(:immediate-finish t :jump-to-captured t
            ;; Use headline to populate title for org-roam bookmark instead of
