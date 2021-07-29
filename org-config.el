@@ -141,6 +141,7 @@ Examples:
 * %u Daily log
 :PROPERTIES:
 :Effort: 0:05
+:org-roam-sync-to-title: t
 :END:
 ** Summary
 ** Problem
@@ -166,6 +167,7 @@ Examples:
 SCHEDULED: <%<%Y-%m-%d %a 13:00-14:00>>
 :PROPERTIES:
 :Effort:   1:00
+:org-roam-sync-to-title: t
 :END:
 Follow:
 
