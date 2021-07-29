@@ -1482,7 +1482,9 @@ don't support wrapping."
                ((save-excursion
                   (goto-char (point-min))
                   (re-search-forward org-outline-regexp-bol nil t)
-                  (org-entry-get nil "org-roam-sync-to-title"))))
+                  (org-entry-get (point)
+                                 "org-roam-sync-to-title"
+                                 'inherit))))
       (org-roam--set-global-prop "TITLE" name)))
   (defun my-org-roam-update-title-prop-find-file-hook ()
     "Add ‘my-org-roam-update-title-prop-hook’ in org-roam buffers."
