@@ -935,8 +935,6 @@ off if the property is inherited."
   "Function called by timer set up in ‘my-org-clock-nag-after-expiry'.
 
 CLOCK-MARKER was the value of ‘org-clock-marker’ when the timer was set."
-  (message "in my-org-clock-nag-after-expiry--reset")
-  (message "clock-marker: %S; org-clock-marker: %S" clock-marker org-clock-marker)
   (cancel-timer my-org-clock-nag-after-expiry--timer)
   (setq my-org-clock-nag-after-expiry--timer nil)
   (when (and
