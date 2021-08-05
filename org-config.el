@@ -1498,15 +1498,37 @@ don't support wrapping."
   (add-hook 'find-file-hook #'my-org-roam-update-title-prop-find-file-hook)
   (require 'org-roam-protocol)
   (require 'org-roam-capture)
-  (nconc (assoc "d" org-roam-capture-templates)
-         '(:immediate-finish t :jump-to-captured t
-           :head "#+setupfile: common.setup\n\n* ${title}\n:PROPERTIES:\n:org-roam-sync-to-title: t\n:END:"))
-  (nconc (assoc "r" org-roam-capture-ref-templates)
-         '(:immediate-finish t :jump-to-captured t
-           ;; Use headline to populate title for org-roam bookmark instead of
-           ;; #+title file-level property so that I can easily run
-           ;; ‘org-drill-type-inbox-init’ to defer the task.
-           :head "#+roam_key: ${ref}\n#+setupfile: common.setup\n\n* ${title}\n:PROPERTIES:\n:link: [[${ref}][${title}]]\n:org-roam-sync-to-title: t\n:END:")))
+  (plist-put! (nthcdr 5 (assoc "d" org-roam-capture-templates))
+         :immediate-finish t :jump-to-captured t
+         :head "#+setupfile: common.setup\n\n* ${title}\n:PROPERTIES:\n:org-roam-sync-to-title: t\n:END:")
+  (plist-put! (nthcdr 5 (assoc "r" org-roam-capture-ref-templates))
+              :immediate-finish t :jump-to-captured t
+              ;; Use headline to populate title for org-roam bookmark instead of
+              ;; #+title file-level property so that I can easily run
+              ;; ‘org-drill-type-inbox-init’ to defer the task.
+              :head "#+roam_key: ${ref}\n#+setupfile: common.setup\n\n* ${title}\n:PROPERTIES:\n:link: [[${ref}][${title}]]\n:org-roam-sync-to-title: t\n:END:")
+  ;; "R" is like "r" but also runs ‘org-drill-type-inbox-init'.
+  (require 'cl-lib)
+  (setf (alist-get "R" org-roam-capture-ref-templates nil nil #'equal)
+        (cl-copy-list (alist-get "r" org-roam-capture-ref-templates nil nil #'equal)))
+  (let* ((rval (nthcdr 5 (assoc "R" org-roam-capture-ref-templates)))
+         (head (plist-get rval :head)))
+    (plist-put! rval
+                :immediate-finish nil   ; ‘org-capture-finalize’ called by template.
+                :jump-to-captured t
+                :head (concat head "\
+%(progn
+  ;; Assume we focus the capture buffer in the active window. We have to
+  ;; wait a bit to ensure we’ve jumped to the destination buffer.
+  (run-at-time 0.5 nil
+    (lambda ()
+     (save-excursion
+       (with-current-buffer (window-buffer (selected-window))
+        (org-back-to-heading)
+        (call-interactively #'my-org-capture-defer-task))
+       nil)))
+  nil)")))
+  nil)                                  ; To make eval-region on previous block easier
 
 
 (defun org-roam-create-note-from-headline (no-link)
