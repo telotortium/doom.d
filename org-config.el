@@ -2306,6 +2306,15 @@ with empty todo checkboxes."
   (ignore-errors
     (base64-decode-string link)))
 
+(defun my-disable-after-save-hook-for-counsel-rg-org (fn &rest _args)
+  "Disable the after-save hook named by FN when save comes from ‘counsel-rg-org'."
+  (unless (eq real-this-command 'counsel-rg-org)
+    (apply fn _args)))
+(advice-add #'org-hugo-export-wim-to-md-after-save
+            :around #'my-disable-after-save-hook-for-counsel-rg-org)
+(advice-add #'gac-after-save-func
+            :around #'my-disable-after-save-hook-for-counsel-rg-org)
+
 ;;; Local Variables:
 ;;; outline-regexp: ";;;\\*+\\|\\`"
 ;;; End:
