@@ -1078,8 +1078,8 @@ TAG is chosen interactively from the global tags completion table."
                 (if (derived-mode-p 'org-mode)
                     (org-uniquify
                      (delq nil (append (org-get-buffer-tags)
-                                       (org-global-tags-completion-table))))
-                  (org-global-tags-completion-table))))
+                                       (air-org-global-tags-completion-table))))
+                  (air-org-global-tags-completion-table))))
            (org-icompleting-read
             "Tag: " 'org-tags-completion-function nil nil nil
             'org-tags-history))))
@@ -1092,6 +1092,35 @@ TAG is chosen interactively from the global tags completion table."
          (new (if (> (length new-tags) 1) (concat " :" new-tags ":")
                 nil)))
     (air--org-swap-tags new)))
+(defun air-org-global-tags-completion-table (&optional files)
+  "Like ‘org-global-tags-completion-table’, but faster.
+
+Call ‘find-file-noselect' only if the file is not already being visited.  This
+prevents calling potentially expensive operations, especially reverting the
+file, unless the file is not being visited at all - I sync my files fairly often
+with Git, so they tend to have their mtime updated, but my set of tags doesn’t
+change often enough that I want to revert all the time. I always have
+‘org-revert-all-org-buffers’ if needed.
+
+Optional FILES argument is a list of files which can be used
+instead of the agenda files."
+  (save-excursion
+    (org-uniquify
+     (delq nil
+           (apply #'append
+                  (mapcar
+                   (lambda (file)
+                     (set-buffer
+                      (or (org-find-base-buffer-visiting file)
+                          (find-file-noselect file)))
+                     (org--tag-add-to-alist
+                      (org-get-buffer-tags)
+                      (mapcar (lambda (x)
+                                (and (stringp (car-safe x))
+                                     (list (car-safe x))))
+                              org-current-tag-alist)))
+                   (if (car-safe files) files
+                     (org-agenda-files))))))))
 (defun air-org-set-tags-ctrl-c-ctrl-c-hook ()
   (let* ((context (org-element-context))
          (type (org-element-type context)))
