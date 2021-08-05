@@ -1426,6 +1426,11 @@ don't support wrapping."
      (cl-remove-duplicates
       (cons "inbox" (org-get-tags nil 'local))
       :test #'string=))))
+(defun my-org-capture-defer-task ()
+  "Defer the task at point to a later time."
+  (interactive)
+  (org-drill-type-inbox-init)
+  (org-capture-finalize))
 (defun org-drill-type-inbox-remove ()
   "Remove all inbox-related data from headline at point."
   (interactive)
