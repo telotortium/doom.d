@@ -161,23 +161,20 @@ near the edge of the frame, so it may be a culprit. Work around this by using
 (setq! visual-fill-column-width 120)
 (add-hook 'text-mode-hook #'visual-fill-column-mode)
 
-(use-package! rg
-  :commands (rg rg-org rg-project rg-dwim)
-  :config
-  (setq! rg-custom-type-aliases
-         '(("org" . "*.org *.org_archive")))
-  (rg-define-search rg-org
-    "Run rg on my Org files"
-    :query ask
-    :files "org"
-    :dir "~/Documents/org"
-    :confirm prefix
-    :flags ("--smart-case")             ; Emacs default search is smart case
-    :menu ("Custom" "o" "Org-mode files"))
-  (defun rg-org-save-files (&rest unused)
-    "Run ‘org-save-all-org-buffers’ so ‘rg-org’ searches all file contents."
-    (org-save-all-org-buffers))
-  (advice-add 'rg-org :before #'rg-org-save-files))
+(setq! rg-custom-type-aliases
+       '(("org" . "*.org *.org_archive")))
+(rg-define-search rg-org
+  "Run rg on my Org files"
+  :query ask
+  :files "org"
+  :dir "~/Documents/org"
+  :confirm prefix
+  :flags '("--smart-case")             ; Emacs default search is smart case
+  :menu '("Custom" "o" "Org-mode files"))
+(defun rg-org-save-files (&rest _unused)
+  "Run ‘org-save-all-org-buffers’ so ‘rg-org’ searches all file contents."
+  (org-save-all-org-buffers))
+(advice-add 'rg-org :before #'rg-org-save-files)
 
 ;; Allow creating org-roam files that are a prefix of existing file names
 ;; (see https://www.orgroam.com/manual/How-do-I-create-a-note-whose-title-already-matches-one-of-the-candidates_003f.html#How-do-I-create-a-note-whose-title-already-matches-one-of-the-candidates_003f)
@@ -238,20 +235,20 @@ near the edge of the frame, so it may be a culprit. Work around this by using
   (add-to-list 'pocket-reader-url-open-fn-map
                '(archive-is-browse-url-default-browser
                  "\\(.*\\.\\)?medium.com" "bloomberg.com" "nytimes.com"))
-  (cl-defun pocket-reader-roam-capture ()
-      "Open URL of current item with default function."
-      (interactive)
-      (require 'org-roam-protocol)
-      (pocket-reader--at-marked-or-current-items
-        (let* ((id (tabulated-list-get-id))
-               (item (ht-get pocket-reader-items id))
-               (url (pocket-reader--get-url item))
-               (title (pocket-reader--not-empty-string
-                       (pocket-reader--or-string-not-blank
-                        (ht-get item 'resolved_title)
-                        (ht-get item 'given_title)
-                        "[untitled]"))))
-          (org-roam-protocol-open-ref (list :template "r" :ref url :title title)))))
+  (defun pocket-reader-roam-capture ()
+    "Open URL of current item with default function."
+    (interactive)
+    (require 'org-roam-protocol)
+    (pocket-reader--at-marked-or-current-items
+     (let* ((id (tabulated-list-get-id))
+            (item (ht-get pocket-reader-items id))
+            (url (pocket-reader--get-url item))
+            (title (pocket-reader--not-empty-string
+                    (pocket-reader--or-string-not-blank
+                     (ht-get item 'resolved_title)
+                     (ht-get item 'given_title)
+                     "[untitled]"))))
+       (org-roam-protocol-open-ref (list :template "r" :ref url :title title)))))
   (map! :mode pocket-reader-mode "x" #'pocket-reader-roam-capture))
 
 ;;; Enable commands disabled by default
