@@ -2239,6 +2239,62 @@ the item done."
     (search-backward "What")))
 (add-hook 'org-log-buffer-setup-hook #'my-org-log-next-action)
 
+(setq! org-log-state-notes-insert-after-drawers t)
+(defun org-state-notes-convert-to-headings ()
+  "Convert all state notes in current entry to headings.
+
+Works best when ‘org-log-state-notes-insert-after-drawers’ is non-nil, so that
+you can run this command over and over again as you insert state notes."
+  (interactive)
+  (save-excursion
+    (org-back-to-heading)
+    (when (re-search-forward (org-item-re))
+      ;; Search for last top-level list item.
+      (while
+          (condition-case nil
+              (progn (org-next-item) t)
+            (error nil)))
+      (let ((inhibit-redisplay t))
+        (with-undo-collapse
+          (while
+                (condition-case nil
+                      (progn (org-previous-item) t)
+                    (error nil))
+              (save-excursion
+                  (org-next-item)
+                  (org-toggle-heading)
+                  ;; Replace item fold characters \\
+                  (replace-regexp
+                     (rx-to-string '(seq (1+ " ") "\\\\" eol)) "" nil
+                     (point-at-bol) (+ 1 (point-at-eol)))))
+          (org-toggle-heading)
+          ;; Replace item fold characters \\
+          (replace-regexp
+             (rx-to-string '(seq (1+ " ") "\\\\" eol)) "" nil
+             (point-at-bol) (+ 1 (point-at-eol))))))))
+;; From https://emacs.stackexchange.com/a/54411/17182
+(defmacro with-undo-collapse (&rest body)
+  "Like `progn' but perform BODY with undo collapsed."
+  (declare (indent 0) (debug t))
+  (let ((handle (make-symbol "--change-group-handle--"))
+        (success (make-symbol "--change-group-success--")))
+    `(let ((,handle (prepare-change-group))
+            ;; Don't truncate any undo data in the middle of this.
+            (undo-outer-limit nil)
+            (undo-limit most-positive-fixnum)
+            (undo-strong-limit most-positive-fixnum)
+            (,success nil))
+       (unwind-protect
+         (progn
+           (activate-change-group ,handle)
+           (prog1 ,(macroexp-progn body)
+             (setq ,success t)))
+         (if ,success
+           (progn
+             (accept-change-group ,handle)
+             (undo-amalgamate-change-group ,handle))
+           (cancel-change-group ,handle))))))
+
 ;;; Week in review (https://emacs.stackexchange.com/a/7864)
 (defcustom org-timeline-files nil
   "The files to be included in `org-timeline-all-files'.
