@@ -101,43 +101,66 @@ Examples:
   "The path to Org file in which daily log entries are captured."
   :type 'file)
 
-(setq! org-capture-templates
-       `(("t" "Task" entry (file (lambda () (concat org-directory "/inbox.org")))
-          "
+(defun org-capture-templates-put-entry (templates entry)
+  "Put ENTRY into TEMPLATES, a variable in the format of ‘org-capture-templates’.
+
+ENTRY is a list with its first element the keys used to invoke the templates. If
+an entry with those keys exists, replace it with the contents of ENTRY (which
+are copied so that TEMPLATES can be mutated later without affecting ENTRY).
+Otherwise, add ENTRY to TEMPLATE."
+  (require 'cl-lib)
+  (setf (alist-get (car entry) templates nil nil #'equal)
+        (cl-copy-list (cdr entry))))
+(org-capture-templates-put-entry
+ org-capture-templates
+ `("t" "Task" entry (file (lambda () (concat org-directory "/inbox.org")))
+   "
 * TODO %?%^{Title}
 %u
-" :clock-in t :clock-resume t :jump-to-captured t)
-         ("n" "Note" entry (file (lambda () (concat org-directory "/inbox.org")))
-          "
+" :clock-in t :clock-resume t :jump-to-captured t))
+(org-capture-templates-put-entry
+ org-capture-templates
+ `("n" "Note" entry (file (lambda () (concat org-directory "/inbox.org")))
+   "
 * %u %?
-" :jump-to-captured t)
-         ("i" "Idea" entry (file (lambda () (concat org-directory "/inbox.org")))
-          "
+" :jump-to-captured t))
+(org-capture-templates-put-entry
+ org-capture-templates
+ `("i" "Idea" entry (file (lambda () (concat org-directory "/inbox.org")))
+   "
 * %u %?REPLACE_ME                      :IDEA:
-" :clock-in t :clock-resume t)
-         ("j" "Journal" plain (file+weektree (lambda () (concat org-directory "/journal.org")))
-          "
+" :clock-in t :clock-resume t))
+(org-capture-templates-put-entry
+ org-capture-templates
+ `("j" "Journal" plain (file+weektree (lambda () (concat org-directory "/journal.org")))
+   "
 * %U %^{Title}                 :journal:
 :PROPERTIES:
 :Effort: 9999:00
 :END:
 
 %?
-" :clock-in t :clock-resume t)
-         ("d" "Drill" entry (file+headline org-default-notes-file "Drill")
-          "
+" :clock-in t :clock-resume t))
+(org-capture-templates-put-entry
+ org-capture-templates
+ `("d" "Drill" entry (file+headline org-default-notes-file "Drill")
+   "
 * Drill entry        :drill:
 :PROPERTIES:
 :DRILL_CARD_TYPE: hide1cloze
 :Effort: 0:02
 :END:
 %?!|2 + 2|! equals !|4|!.
-" :clock-in t :clock-resume t :jump-to-captured t)
-         ("D" "Daily Log" entry
-          (file (lambda ()
-                  (require 'org-journal)
-                  (org-journal--get-entry-path org-overriding-default-time)))
-          "
+" :clock-in t :clock-resume t :jump-to-captured t))
+(org-capture-templates-put-entry
+ org-capture-templates
+ `("D" "Daily Log" plain
+   (file (lambda ()
+           (require 'org-journal)
+           (org-journal--get-entry-path org-overriding-default-time)))
+   "\
+#+SETUPFILE: common.setup
+
 * %u Daily log
 :PROPERTIES:
 :Effort: 0:05
@@ -157,12 +180,16 @@ Examples:
 
 #+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"-Google-break\" :narrow 60!
 #+END: clocktable
-" :time-prompt t :clock-in t :clock-resume t :jump-to-captured t)
-         ("W" "GTD weekly review" entry
-          (file (lambda ()
-                  (require 'org-journal)
-                  (org-journal--get-entry-path org-overriding-default-time)))
-          "
+" :time-prompt t :clock-in t :clock-resume t :jump-to-captured t))
+(org-capture-templates-put-entry
+ org-capture-templates
+ `("W" "GTD weekly review" plain
+   (file (lambda ()
+           (require 'org-journal)
+           (org-journal--get-entry-path org-overriding-default-time)))
+   "\
+#+SETUPFILE: common.setup
+
 * NEXT %u GTD weekly review
 SCHEDULED: <%<%Y-%m-%d %a 13:00-14:00>>
 :PROPERTIES:
@@ -236,9 +263,11 @@ Checklist:
 
 #+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :tstart \"%(org-timestamp-add-days \"%<%F>\" -6)\" :tend \"%<%F>\" :link t :match \"-Google-break\" :narrow 60!
 #+END: clocktable
-" :time-prompt t :tree-type week :clock-in t :clock-resume t :jump-to-captured t)
-         ("p" "Link and Text" entry (file+headline org-default-notes-file "Links")
-          "
+" :time-prompt t :tree-type week :clock-in t :clock-resume t :jump-to-captured t))
+(org-capture-templates-put-entry
+ org-capture-templates
+ `("p" "Link and Text" entry (file+headline org-default-notes-file "Links")
+   "
 * %?REPLACE_ME
 Source: [[%:link][%:description]]
 #+BEGIN_SRC html
@@ -248,12 +277,14 @@ Source: [[%:link][%:description]]
 #+END_SRC
 
 %U
-")
-         ("L" "Link" entry (file+headline org-default-notes-file "Links")
-          "
+"))
+(org-capture-templates-put-entry
+ org-capture-templates
+ `("L" "Link" entry (file+headline org-default-notes-file "Links")
+   "
 * %?[[%:link][%(transform-square-brackets-to-curly-ones \"%:description\")]]
   %U
-" :jump-to-captured t)))
+" :jump-to-captured t))
 
 ;; Create ‘C-u 2 M-x org-capture’ command to refile org-capture template under
 ;; headline at point.
