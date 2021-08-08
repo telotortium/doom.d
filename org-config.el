@@ -2311,10 +2311,10 @@ you can run this command over and over again as you insert state notes."
         (success (make-symbol "--change-group-success--")))
     `(let ((,handle (prepare-change-group))
             ;; Don't truncate any undo data in the middle of this.
-            (undo-outer-limit nil)
-            (undo-limit most-positive-fixnum)
-            (undo-strong-limit most-positive-fixnum)
-            (,success nil))
+           (undo-outer-limit nil)
+           (undo-limit most-positive-fixnum)
+           (undo-strong-limit most-positive-fixnum)
+           (,success nil))
        (unwind-protect
          (progn
            (activate-change-group ,handle)
