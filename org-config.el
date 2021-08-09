@@ -164,7 +164,6 @@ Otherwise, add ENTRY to TEMPLATE."
 * %u Daily log
 :PROPERTIES:
 :Effort: 0:05
-:org-roam-sync-to-title: t
 :END:
 ** Summary
 ** Problem
@@ -194,7 +193,6 @@ Otherwise, add ENTRY to TEMPLATE."
 SCHEDULED: <%<%Y-%m-%d %a 13:00-14:00>>
 :PROPERTIES:
 :Effort:   1:00
-:org-roam-sync-to-title: t
 :END:
 Follow:
 
@@ -1483,69 +1481,113 @@ don't support wrapping."
 
 ;;;* Org-roam
 (use-package! org-roam
-  :hook (after-init . org-roam-mode)
+  :hook (after-init . org-roam-setup)
   :bind
-  (:map org-roam-mode-map
-   (("C-c n l" . org-roam)
-    ("C-c n t" . org-roam-dailies-today)
-    ("C-c n f" . org-roam-find-file)
-    ("C-c n g" . org-roam-show-graph))
-   (:map org-mode-map
-    ("C-c n i" . org-roam-insert)
-    ("C-c n u" . org-roam-unlinked-references))))
-(after! org-roam
-  (require 'org-roam-compat)
+  ("C-c n l" . org-roam-buffer-list)
+  ("C-c n t" . org-roam-dailies-today)
+  ("C-c n f" . org-roam-node-find)
+  ("C-c n g" . org-roam-show-graph)
+  (:map org-mode-map
+   ("C-c n i" . org-roam-node-insert)
+   ("C-c n u" . org-roam-unlinked-references))
+  :init
   (setq! org-roam-directory "~/Documents/org/home-org/roam")
   (setq! org-roam-link-title-format "§%s")
   (setq! org-roam-completion-system 'ivy)
-  (defun my-org-roam-capture-split-window (&rest _args)
-    "Split current window and select new window."
-    (unless (eq org-roam-capture--context 'ref)
-      (select-window (split-window))))
-  (advice-add 'org-roam--capture :before #'my-org-roam-capture-split-window)
+  (setq! org-roam-db-node-include-function (lambda () t))
+  ;; (setq! org-roam-db-node-include-function
+  ;;        (lambda ()
+  ;;         (not (member "drill" (org-get-tags)))))
+  nil)
+(after! org-roam
+  (require 'org-roam-compat)
+  ;; (defun my-org-roam-capture-split-window (&rest _args)
+  ;;   "Split current window and select new window."
+  ;;   (unless (eq org-roam-capture--context 'ref)
+  ;;     (select-window (split-window))))
+  ;; (advice-add 'org-roam--capture :before #'my-org-roam-capture-split-window)
+  (defun my-org-roam-get-first-node-title ()
+    "Get title from #+title, or from first node in Org-roam file."
+    (unless (org-roam-file-p)
+      (user-error "Must be called from inside an Org-roam file"))
+    (save-excursion
+      (goto-char (point-min))
+      (when (re-search-forward org-outline-regexp-bol nil t)
+        (let* ((node (org-roam-node-at-point))
+               (file-title (org-roam-get-keyword "TITLE")))
+          (if (and file-title (not (string= "" file-title)))
+              file-title
+            (org-roam-node-title node))))))
   (defun my-org-roam-set-buffer-name-hook ()
     "Set buffer name of org-roam files."
-    (when-let (((org-roam--org-roam-file-p))
-               (name (car (org-roam--extract-titles))))
-      (rename-buffer name)))
+    (when-let (((org-roam-file-p))
+               (title (my-org-roam-get-first-node-title)))
+      (rename-buffer title)))
   (add-hook 'find-file-hook #'my-org-roam-set-buffer-name-hook)
-  (defun my-org-roam-update-title-prop-hook ()
-    "Sync #+TITLE of org-roam files from first headline."
-    (when-let (((org-roam--org-roam-file-p))
-               (name (car (org-roam--extract-titles-headline)))
-               ((save-excursion
-                  (goto-char (point-min))
-                  (re-search-forward org-outline-regexp-bol nil t)
-                  (org-entry-get (point)
-                                 "org-roam-sync-to-title"
-                                 'inherit))))
-      (org-roam--set-global-prop "TITLE" name)))
-  (defun my-org-roam-update-title-prop-find-file-hook ()
-    "Add ‘my-org-roam-update-title-prop-hook’ in org-roam buffers."
-    (when (org-roam--org-roam-file-p)
-      (add-hook 'before-save-hook #'my-org-roam-update-title-prop-hook nil 'local)))
-  (add-hook 'find-file-hook #'my-org-roam-update-title-prop-find-file-hook)
+  (defun my-org-hugo-get-roam-title (fn &optional backend subtreep ext-plist)
+    "Set title for ‘org-export’ according to ‘my-org-roam-get-first-node-title’."
+    (let ((info (funcall fn backend subtreep ext-plist)))
+      (if-let* (((org-roam-file-p))
+                ((null (plist-get info :title)))
+                (title (my-org-roam-get-first-node-title)))
+          (org-combine-plists info `(:title ,title))
+        info)))
+  (advice-add #'org-export-get-environment :around #'my-org-hugo-get-roam-title)
+  (defun my-org-roam-relocate-property-drawer-after-capture ()
+    "Relocate PROPERTIES drawer to first node after capture."
+    (save-excursion
+      (goto-char (point-min))
+      (when-let* (((org-at-property-drawer-p))
+                  ((re-search-forward org-property-drawer-re nil t))
+                  (start (match-beginning 0))
+                  (end (match-end 0))
+                  ((equal (point-min) start))
+                  (drawer (buffer-substring start (+ end 1))))
+        (message "drawer %S" drawer)
+        (with-undo-collapse
+          (kill-region start (+ end 1))
+          (re-search-forward org-outline-regexp-bol)
+          (end-of-line)
+          (newline)
+          (insert drawer)))))
+  (add-hook 'org-roam-capture-new-node-hook
+            #'my-org-roam-relocate-property-drawer-after-capture
+            100)
   (require 'org-roam-protocol)
   (require 'org-roam-capture)
-  (plist-put! (nthcdr 5 (assoc "d" org-roam-capture-templates))
-         :immediate-finish t :jump-to-captured t
-         :head "#+setupfile: common.setup\n\n* ${title}\n:PROPERTIES:\n:org-roam-sync-to-title: t\n:END:")
-  (plist-put! (nthcdr 5 (assoc "r" org-roam-capture-ref-templates))
-              :immediate-finish t :jump-to-captured t
-              ;; Use headline to populate title for org-roam bookmark instead of
-              ;; #+title file-level property so that I can easily run
-              ;; ‘org-drill-type-inbox-init’ to defer the task.
-              :head "#+roam_key: ${ref}\n#+setupfile: common.setup\n\n* ${title}\n:PROPERTIES:\n:link: [[${ref}][${title}]]\n:org-roam-sync-to-title: t\n:END:")
-  ;; "R" is like "r" but also runs ‘org-drill-type-inbox-init'.
   (require 'cl-lib)
+  (setq! org-roam-capture-templates
+         (cl-copy-list org-roam-capture-templates))
+  (plist-put! (nthcdr 4 (assoc "d" org-roam-capture-templates))
+              :immediate-finish t :jump-to-captured t
+              :if-new
+              '(file+head
+                "${slug}.org"
+                "#+setupfile: common.setup\n\n* ${title}\n"))
+  (setq! org-roam-capture-ref-templates
+   (cl-copy-list org-roam-capture-ref-templates))
+  (plist-put! (nthcdr 4 (assoc "r" org-roam-capture-ref-templates))
+              :immediate-finish t :jump-to-captured t
+              :if-new
+              '(file+head
+                "${slug}.org"
+                ;; Use headline to populate title for org-roam bookmark instead of
+                ;; #+title file-level property so that I can easily run
+                ;; ‘org-drill-type-inbox-init’ to defer the task.
+                "#+setupfile: common.setup\n\n* ${title}"))
+  ;; "R" is like "r" but also runs ‘org-drill-type-inbox-init'.
   (setf (alist-get "R" org-roam-capture-ref-templates nil nil #'equal)
         (cl-copy-list (alist-get "r" org-roam-capture-ref-templates nil nil #'equal)))
-  (let* ((rval (nthcdr 5 (assoc "R" org-roam-capture-ref-templates)))
-         (head (plist-get rval :head)))
+  (let* ((rval (nthcdr 4 (assoc "R" org-roam-capture-ref-templates)))
+         (if-new (plist-get rval :if-new)))
     (plist-put! rval
                 :immediate-finish nil   ; ‘org-capture-finalize’ called by template.
                 :jump-to-captured t
-                :head (concat head "\
+                :if-new
+                (list
+                 'file+head
+                 (nth 1 if-new)
+                 (concat (nth 2 if-new) "\
 %(progn
   ;; Assume we focus the capture buffer in the active window. We have to
   ;; wait a bit to ensure we’ve jumped to the destination buffer.
@@ -1553,10 +1595,11 @@ don't support wrapping."
     (lambda ()
      (save-excursion
        (with-current-buffer (window-buffer (selected-window))
-        (org-back-to-heading)
+        (goto-char (point-min))
+        (re-search-forward org-outline-regexp-bol)
         (call-interactively #'my-org-capture-defer-task))
        nil)))
-  nil)")))
+  nil)"))))
   nil)                                  ; To make eval-region on previous block easier
 
 
