@@ -295,6 +295,8 @@ near the edge of the frame, so it may be a culprit. Work around this by using
   (load "project")
   nil)
 
+(setq! parinfer-rust-preferred-mode "paren")
+
 ;;;* Local configuration
 
 ;;; Allow users to provide an optional "config-local" containing personal settings
