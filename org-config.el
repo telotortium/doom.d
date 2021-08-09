@@ -101,16 +101,17 @@ Examples:
   "The path to Org file in which daily log entries are captured."
   :type 'file)
 
-(defun org-capture-templates-put-entry (templates entry)
+(defmacro org-capture-templates-put-entry (templates entry)
   "Put ENTRY into TEMPLATES, a variable in the format of ‘org-capture-templates’.
 
 ENTRY is a list with its first element the keys used to invoke the templates. If
 an entry with those keys exists, replace it with the contents of ENTRY (which
 are copied so that TEMPLATES can be mutated later without affecting ENTRY).
 Otherwise, add ENTRY to TEMPLATE."
-  (require 'cl-lib)
-  (setf (alist-get (car entry) templates nil nil #'equal)
-        (cl-copy-list (cdr entry))))
+  `(progn
+    (require 'cl-lib)
+    (setf (alist-get (car ,entry) ,templates nil nil #'equal)
+          (cl-copy-list (cdr ,entry)))))
 (org-capture-templates-put-entry
  org-capture-templates
  `("t" "Task" entry (file (lambda () (concat org-directory "/inbox.org")))
