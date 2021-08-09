@@ -1574,7 +1574,7 @@ don't support wrapping."
                 ;; Use headline to populate title for org-roam bookmark instead of
                 ;; #+title file-level property so that I can easily run
                 ;; ‘org-drill-type-inbox-init’ to defer the task.
-                "#+setupfile: common.setup\n\n* ${title}"))
+                "#+setupfile: common.setup\n\n* ${title}\n#+begin_quote\n${body}\n#+end_quote"))
   ;; "R" is like "r" but also runs ‘org-drill-type-inbox-init'.
   (setf (alist-get "R" org-roam-capture-ref-templates nil nil #'equal)
         (cl-copy-list (alist-get "r" org-roam-capture-ref-templates nil nil #'equal)))
