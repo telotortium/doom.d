@@ -931,6 +931,28 @@ TITLE and MESSAGE are self-explanatory. GROUP, if present, is passed to
         "Japanese Temple Bell Small-SoundBible.com-113624364.wav"
         doom-private-dir))
 
+(defun org-clock-notify-once-if-expired ()
+  "Show notification if we spent more time than we estimated before.
+Notification is shown only once.
+
+Overrides built-in version in order to also show clocked time."
+  (when (org-clocking-p)
+    (let ((effort-in-minutes (org-duration-to-minutes org-clock-effort))
+          (clocked-time (org-clock-get-clocked-time)))
+      (if (setq org-clock-task-overrun
+                (if (or (null effort-in-minutes) (zerop effort-in-minutes))
+                    nil
+                 (>= clocked-time effort-in-minutes)))
+          (unless org-clock-notification-was-shown
+               (setq org-clock-notification-was-shown t)
+               (org-notify
+                 (format-message "Task `%s' should be finished by now. (%s/%s)"
+                                org-clock-heading
+                                (apply #'format "%d:%d"
+                                       (cl-floor clocked-time 60))
+                                org-clock-effort)
+                 org-clock-sound))
+        (setq org-clock-notification-was-shown nil)))))
 (defvar my-org-clock-nag-after-expiry--timer nil
   "Used by ‘my-org-clock-nag-after-expiry’, for which see.")
 (defun my-org-clock-nag-after-expiry (&rest _r)
