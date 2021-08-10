@@ -1222,6 +1222,15 @@ instead of the agenda files."
                          (apply #'format "%d:%02d" (cl-floor minutes 60)))))))
   (add-hook 'org-gcal-after-update-entry-functions #'my-org-gcal-set-effort)
 
+  (defun my-org-gcal-set-next (_calendar-id event _update-mode)
+    "Set NEXT on certain headlines."
+    (when-let* ((title (plist-get event :summary))
+                ((or (string= title "Plan tasks for workday")
+                     (string= title "Check inbox"))))
+      (let ((org-inhibit-logging t))
+        (org-todo "NEXT"))))
+  (add-hook 'org-gcal-after-update-entry-functions #'my-org-gcal-set-next)
+
   (defun my-org-gcal-exclude-corp-personal-events (event)
     "Remove events from corp calendar with summary \"*Personal*\."
     (let* ((summary (or (plist-get event :summary)
