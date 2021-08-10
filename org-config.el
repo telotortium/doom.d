@@ -1823,7 +1823,13 @@ efforts may be updated by this function."
                 ((current-effort
                   (org-duration-to-minutes
                    (or (org-entry-get marker org-effort-property) 0)))
+                 (no-update (org-entry-get marker "effort-no-update-from-children"))
                  (children-effort 0))
+              (when no-update
+                (clog/msg "Not updating effort at %S due to set property “effort-no-update-from-children”"
+                          marker)
+                (setq abort-at-marker marker)
+                (throw 'break 'abort-at-marker))
               (save-excursion
                 (save-restriction
                   (when (org-goto-first-child)
