@@ -169,7 +169,8 @@ Otherwise, add ENTRY to TEMPLATE."
 ** Summary
 ** Problem
 ** Insight
-** NEXT [#A] Three things for the day <%(org-timestamp-add-days \"%<%F>\" +1) 06:00>
+** TODO [#A] Three things for the day <%(org-timestamp-add-days \"%<%F>\" +1) 06:00>
+Advance to NEXT once filled out
 ** Clocktables
 
 #+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"Google/-MEETING\" :narrow 60!
