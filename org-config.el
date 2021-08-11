@@ -1596,7 +1596,7 @@ don't support wrapping."
               :if-new
               '(file+head
                 "${slug}.org"
-                "#+setupfile: common.setup\n\n* ${title}\n"))
+                "#+setupfile: common.setup\n#+date: %U\n\n* ${title}\n"))
   (setq! org-roam-capture-ref-templates
    (cl-copy-list org-roam-capture-ref-templates))
   (plist-put! (nthcdr 4 (assoc "r" org-roam-capture-ref-templates))
@@ -1607,7 +1607,7 @@ don't support wrapping."
                 ;; Use headline to populate title for org-roam bookmark instead of
                 ;; #+title file-level property so that I can easily run
                 ;; ‘org-drill-type-inbox-init’ to defer the task.
-                "#+setupfile: common.setup\n\n* ${title}\n#+begin_quote\n${body}\n#+end_quote"))
+                "#+setupfile: common.setup\n#+date: %U\n\n* ${title}\n#+begin_quote\n${body}\n#+end_quote"))
   ;; "R" is like "r" but also runs ‘org-drill-type-inbox-init'.
   (setf (alist-get "R" org-roam-capture-ref-templates nil nil #'equal)
         (cl-copy-list (alist-get "r" org-roam-capture-ref-templates nil nil #'equal)))
@@ -1682,39 +1682,29 @@ handle files that use the \"#+title\" file property, see the Git history."
 (defun my-org-roam-agenda-file-hook ()
   "Add recently-modified org-roam files to ‘org-agenda-files’."
   (interactive)
-  (let* ((since
-          (format-time-string
-           "%Y-%m-%d"
-           (encode-time (decoded-time-add (decode-time nil)
-                                          (make-decoded-time :day -60))))))
-    (async-start-process
-     "org-roam-agenda-update"
-     "sh"
-     (lambda (proc)
-       (let ((lines
-              (split-string
-               (with-current-buffer (process-buffer proc)
-                 (buffer-string))
-               "\n" t)))
-         (setq!
-          org-agenda-files
-          (append (org-agenda-expand-files-name) lines))))
-     "-c"
-     (string-join
-      `("for dir in"
-        ,(string-join (mapcar (lambda (x)
-                                (shell-quote-argument (expand-file-name x)))
-                              my-org-roam-directories)
-                      " ")
-        "; do cd \"$dir\";"
-        "git log --after" ,since "--oneline | awk '{print $1}' |"
-        "xargs -n1 sh -c 'git diff --name-only \"$0\" \"${0}~1\"' |"
-        "sort | uniq | grep ^roam/ | grep '\.org$' |"
-        "grep -v ^roam/andy-matuschak-notes | tr '\\n' '\\0' |"
-        "xargs -0 -n1 sh -c"
-        "'printf \"%s\\n\" \"$(git rev-parse --show-toplevel)/$0\"';"
-        "done")
-      " "))))
+  (async-start
+   `(lambda ()
+      ,(async-inject-variables "^\\(load-path\\|my-org-roam-directories\\)$")
+      (require 'cl-lib)
+      (require 'org-ql)
+      (require 'f)
+      (require 's)
+      (cl-loop for dir in my-org-roam-directories
+               append
+               (delete-dups
+                (org-ql-select
+                  (f-files dir (lambda (f) (s-ends-with? ".org" f))
+                           'recursive)
+                  `(or
+                    (ts :from -60)
+                    (tags-local "inbox" "drill"))
+                  :action
+                  (lambda () (buffer-file-name (current-buffer)))))))
+   (lambda (res)
+     (setq!
+      org-agenda-files
+      (append (org-agenda-expand-files-name) res)))))
+
 (run-with-idle-timer 5 nil #'my-org-roam-agenda-file-hook)
 (run-with-idle-timer (* 60 3) t #'my-org-roam-agenda-file-hook)
 
