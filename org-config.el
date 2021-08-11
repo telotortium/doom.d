@@ -2351,7 +2351,7 @@ you can run this command over and over again as you insert state notes."
   (interactive)
   (save-excursion
     (org-back-to-heading)
-    (when (re-search-forward (org-item-re))
+    (when (re-search-forward (org-item-beginning-re))
       ;; Search for last top-level list item.
       (while
           (condition-case nil
