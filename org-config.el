@@ -1545,6 +1545,8 @@ don't support wrapping."
   ;; (advice-add 'org-roam--capture :before #'my-org-roam-capture-split-window)
   (defun my-org-roam-get-first-node-title ()
     "Get title from #+title, or from first node in Org-roam file."
+    (require 'org-roam-node)
+    (require 'org-roam)
     (unless (org-roam-file-p)
       (user-error "Must be called from inside an Org-roam file"))
     (save-excursion
@@ -1552,14 +1554,17 @@ don't support wrapping."
       (when (re-search-forward org-outline-regexp-bol nil t)
         (let* ((node (org-roam-node-at-point))
                (file-title (org-roam-get-keyword "TITLE")))
-          (if (and file-title (not (string= "" file-title)))
-              file-title
-            (org-roam-node-title node))))))
+          (cond
+            ((and file-title (not (string= "" file-title)))
+             file-title)
+            (node (org-roam-node-title node))
+            (t nil))))))
   (defun my-org-roam-set-buffer-name-hook ()
     "Set buffer name of org-roam files."
-    (when-let (((org-roam-file-p))
-               (title (my-org-roam-get-first-node-title)))
-      (rename-buffer title)))
+    (with-demoted-errors "Error: %S"
+     (when-let (((org-roam-file-p))
+                (title (my-org-roam-get-first-node-title)))
+       (rename-buffer title))))
   (add-hook 'find-file-hook #'my-org-roam-set-buffer-name-hook)
   (defun my-org-hugo-get-roam-title (fn &optional backend subtreep ext-plist)
     "Set title for ‘org-export’ according to ‘my-org-roam-get-first-node-title’."
