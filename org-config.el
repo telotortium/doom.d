@@ -1791,6 +1791,7 @@ handle files that use the \"#+title\" file property, see the Git history."
   (require 's)
   (require 'org)
   (require 'org-clock-csv)
+  (org-save-all-org-buffers)
   ;; Execute this in a separate process to avoid blocking Emacs - since
   ;; ‘org-clock-csv’ uses ‘org-element’ to read the Org files, it is quite slow
   ;; - I’ve had it take over 30 minutes with my Agenda.
