@@ -161,6 +161,7 @@ near the edge of the frame, so it may be a culprit. Work around this by using
 (setq! visual-fill-column-width 120)
 (add-hook 'text-mode-hook #'visual-fill-column-mode)
 
+(require 'rg)
 (setq! rg-custom-type-aliases
        '(("org" . "*.org *.org_archive")))
 (rg-define-search rg-org
