@@ -112,29 +112,30 @@ Otherwise, add ENTRY to TEMPLATE."
     (require 'cl-lib)
     (setf (alist-get (car ,entry) ,templates nil nil #'equal)
           (cl-copy-list (cdr ,entry)))))
-(org-capture-templates-put-entry
- org-capture-templates
- `("t" "Task" entry (file (lambda () (concat org-directory "/inbox.org")))
-   "
+(after! org-capture
+ (org-capture-templates-put-entry
+  org-capture-templates
+  `("t" "Task" entry (file (lambda () (concat org-directory "/inbox.org")))
+    "
 * TODO %?%^{Title}
 %u
 " :clock-in t :clock-resume t :jump-to-captured t))
-(org-capture-templates-put-entry
- org-capture-templates
- `("n" "Note" entry (file (lambda () (concat org-directory "/inbox.org")))
-   "
+ (org-capture-templates-put-entry
+  org-capture-templates
+  `("n" "Note" entry (file (lambda () (concat org-directory "/inbox.org")))
+    "
 * %u %?
 " :jump-to-captured t))
-(org-capture-templates-put-entry
- org-capture-templates
- `("i" "Idea" entry (file (lambda () (concat org-directory "/inbox.org")))
-   "
+ (org-capture-templates-put-entry
+  org-capture-templates
+  `("i" "Idea" entry (file (lambda () (concat org-directory "/inbox.org")))
+    "
 * %u %?REPLACE_ME                      :IDEA:
 " :clock-in t :clock-resume t))
-(org-capture-templates-put-entry
- org-capture-templates
- `("j" "Journal" plain (file+weektree (lambda () (concat org-directory "/journal.org")))
-   "
+ (org-capture-templates-put-entry
+  org-capture-templates
+  `("j" "Journal" plain (file+weektree (lambda () (concat org-directory "/journal.org")))
+    "
 * %U %^{Title}                 :journal:
 :PROPERTIES:
 :Effort: 9999:00
@@ -142,10 +143,10 @@ Otherwise, add ENTRY to TEMPLATE."
 
 %?
 " :clock-in t :clock-resume t))
-(org-capture-templates-put-entry
- org-capture-templates
- `("d" "Drill" entry (file+headline org-default-notes-file "Drill")
-   "
+ (org-capture-templates-put-entry
+  org-capture-templates
+  `("d" "Drill" entry (file+headline org-default-notes-file "Drill")
+    "
 * Drill entry        :drill:
 :PROPERTIES:
 :DRILL_CARD_TYPE: hide1cloze
@@ -153,13 +154,13 @@ Otherwise, add ENTRY to TEMPLATE."
 :END:
 %?!|2 + 2|! equals !|4|!.
 " :clock-in t :clock-resume t :jump-to-captured t))
-(org-capture-templates-put-entry
- org-capture-templates
- `("D" "Daily Log" plain
-   (file (lambda ()
-           (require 'org-journal)
-           (org-journal--get-entry-path org-overriding-default-time)))
-   "\
+ (org-capture-templates-put-entry
+  org-capture-templates
+  `("D" "Daily Log" plain
+    (file (lambda ()
+            (require 'org-journal)
+            (org-journal--get-entry-path org-overriding-default-time)))
+    "\
 #+SETUPFILE: common.setup
 
 * %u Daily log
@@ -182,13 +183,13 @@ Advance to NEXT once filled out
 #+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"-Google-break\" :narrow 60!
 #+END: clocktable
 " :time-prompt t :clock-in t :clock-resume t :jump-to-captured t))
-(org-capture-templates-put-entry
- org-capture-templates
- `("W" "GTD weekly review" plain
-   (file (lambda ()
-           (require 'org-journal)
-           (org-journal--get-entry-path org-overriding-default-time)))
-   "\
+ (org-capture-templates-put-entry
+  org-capture-templates
+  `("W" "GTD weekly review" plain
+    (file (lambda ()
+            (require 'org-journal)
+            (org-journal--get-entry-path org-overriding-default-time)))
+    "\
 #+SETUPFILE: common.setup
 
 * NEXT %u GTD weekly review
@@ -268,10 +269,10 @@ Checklist:
 #+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :tstart \"%(org-timestamp-add-days \"%<%F>\" -6)\" :tend \"%<%F>\" :link t :match \"-Google-break\" :narrow 60!
 #+END: clocktable
 " :time-prompt t :tree-type week :clock-in t :clock-resume t :jump-to-captured t))
-(org-capture-templates-put-entry
- org-capture-templates
- `("p" "Link and Text" entry (file+headline org-default-notes-file "Links")
-   "
+ (org-capture-templates-put-entry
+  org-capture-templates
+  `("p" "Link and Text" entry (file+headline org-default-notes-file "Links")
+    "
 * %?REPLACE_ME
 Source: [[%:link][%:description]]
 #+BEGIN_SRC html
@@ -282,13 +283,13 @@ Source: [[%:link][%:description]]
 
 %U
 "))
-(org-capture-templates-put-entry
- org-capture-templates
- `("L" "Link" entry (file+headline org-default-notes-file "Links")
-   "
+ (org-capture-templates-put-entry
+  org-capture-templates
+  `("L" "Link" entry (file+headline org-default-notes-file "Links")
+    "
 * %?[[%:link][%(transform-square-brackets-to-curly-ones \"%:description\")]]
   %U
-" :jump-to-captured t))
+" :jump-to-captured t)))
 
 ;; Create ‘C-u 2 M-x org-capture’ command to refile org-capture template under
 ;; headline at point.
