@@ -204,6 +204,8 @@ Follow:
   In 2015 edition: Chapter 8: \"Reflecting: Keeping It All Fresh and
   Functional\", section \"The Power of the Weekly Review\".
 
+If it’s been more than a month since you’ve done the weekly review, follow [[id:682a1b3a-9335-4d53-b596-0775543e5b21][this catchup checklist]] first.
+
 Checklist:
 
 - GET CLEAR
@@ -245,6 +247,8 @@ Checklist:
     least one current action item on each.  Browse through project plans,
     support material, and any other work-in-progress material to trigger new
     actions, completions, waiting for’s, etc.
+  - [ ] Run [[elisp:(org-drill-review-inbox)]] \\
+    Look at stuff I've captured over the past week, including just now.
   - [ ] Review Any Relevant Checklists \\\\
     Use as a trigger for any new actions.
 - GET CREATIVE
