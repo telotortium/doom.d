@@ -114,3 +114,7 @@
   :recipe (:host github :repo "lastquestion/explain-pause-mode"))
 
 (package! visual-fill-column)
+
+;; Testing with async-await
+(package! async-await)
+(package! aio)
