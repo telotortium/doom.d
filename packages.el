@@ -69,11 +69,12 @@
 
 (disable-packages! evil-org-agenda)
 
-(package! org-mode
-  :recipe (:host github :repo "emacs-straight/org-mode"
-           :fork (:repo "https://github.com/yantar92/org"
-                  :host nil :branch "feature/org-fold-universal-core")
-           :files ("*.el" "lisp/*.el" "contrib/lisp/*.el")
+(unpin! org)                            ; To avoid picking up built-in version
+(package! org
+  :recipe (:host github :repo "emacs-straight/org"
+           :fork (:host github :repo "yantar92/org"
+                  :branch "feature/org-fold-universal-core")
+           :files (:defaults "etc")
            ;; HACK A necessary hack because org requires a compilation step
            ;;      after being cloned, and during that compilation a
            ;;      org-version.el is generated with these two functions, which
@@ -81,11 +82,18 @@
            ;;      root. Of course, this command won't work in a sparse clone,
            ;;      and more than that, initiating these compilation step is a
            ;;      hassle, so...
+           :build t
            :pre-build
-           (with-temp-file (doom-path (straight--repos-dir "org-mode") "org-version.el")
-             (insert "(fset 'org-release (lambda () \"9.4\"))\n"
-                     "(fset 'org-git-version #'ignore)\n"
-                     "(provide 'org-version)\n"))))
+           (progn
+             (require 'straight)
+             ;; Prevent ‘doom sync -p’ from removing org-version.el with .git/info/exclude
+             (with-temp-file (doom-path (straight--repos-dir "org") ".git" "info" "exclude")
+               (insert "/org-version.el\n"))
+             (with-temp-file (doom-path (straight--repos-dir "org") "org-version.el")
+               (insert "(defun org-release () \"9.5\")\n"
+                       (format "(defun org-git-version (&rest _) \"9.5-%s\")\n"
+                               (cdr (doom-call-process "git" "rev-parse" "--short" "HEAD")))
+                       "(provide 'org-version)\n")))))
 (package! org-clock-csv)
 (package! org-pomodoro
   :recipe (:host github :repo "marcinkoziej/org-pomodoro"
