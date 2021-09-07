@@ -2450,19 +2450,15 @@ Follows the same rules as `org-agenda-files'"
             :todo "TODAY")  ; Items that have this TODO keyword
            (:name "Important (max in-flight should be 3)" :priority "A")
            ;; Set order of multiple groups at once
-           (:name "Habits" :habit t)
-           (:name "Inbox" :tag "inbox")
-           (:name "Drill" :tag "drill")
            (:todo "WAITING")
+           (:name "Drill" :tag "drill")
            (:name "Today" :scheduled today :deadline today)
-           (:name "Overdue" :scheduled past :deadline past)
-           (:todo ("SOMEDAY" "TO-READ" "CHECK" "TO-WATCH" "WATCHING")
-            ;; Show this group at the end of the agenda (since it has the
-            ;; highest number). If you specified this group last, items
-            ;; with these todo keywords that e.g. have priority A would be
-            ;; displayed in that group instead, because items are grouped
-            ;; out in the order the groups are listed.
-            :order 9)
+           (:name "Overdue"
+            :and
+            (:scheduled past :deadline past)
+            :not (:tag "inbox" :habit t))
+           (:name "Inbox" :tag "inbox")
+           (:name "Habits" :habit t)
            (:priority<= "B"
             ;; Show this section after "Today" and "Important", because
             ;; their order is unspecified, defaulting to 0. Sections
