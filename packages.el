@@ -103,6 +103,7 @@
 (package! org-download)
 (package! org-cliplink)
 (package! ox-hugo :pin "8345ceb90ff1314d598c6b67ba6ee7616e2b0bc4")
+(package! org-roam :pin "5dce6261a2a45798cdf0c65371b76c83dd5b1de6")
 (package! pocket-reader)
 
 (package! hl-line :disable t)
