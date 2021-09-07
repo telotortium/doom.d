@@ -1517,6 +1517,8 @@ don't support wrapping."
 
 
 ;;;* Org-roam
+;; Needed by ‘org-roam-setup' - for some reason this is not being loaded.
+(require 'org-duration)
 (use-package! org-roam
   :hook (after-init . org-roam-setup)
   :bind
