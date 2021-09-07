@@ -96,6 +96,7 @@ while True:
 "
             cmd)))))
 (defun my-org-pomodoro-stop-tick ()
+  (interactive)
   "Stop ticks for org-pomodoro-mode."
   (when org-pomodoro-ticking-process
     (signal-process org-pomodoro-ticking-process 15) ; SIGTERM
