@@ -1531,13 +1531,14 @@ don't support wrapping."
    ("C-c n u" . org-roam-unlinked-references))
   :init
   (setq! org-roam-directory "~/Documents/org/home-org/roam")
+  (setq! org-roam-v2-ack t)
   (setq! org-roam-link-title-format "§%s")
   (setq! org-roam-completion-system 'ivy)
   (setq! org-roam-db-node-include-function (lambda () t))
   ;; (setq! org-roam-db-node-include-function
   ;;        (lambda ()
   ;;         (not (member "drill" (org-get-tags)))))
-  nil)
+ nil)
 (after! org-roam
   (require 'org-roam-compat)
   ;; (defun my-org-roam-capture-split-window (&rest _args)
