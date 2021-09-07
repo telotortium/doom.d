@@ -118,3 +118,7 @@
 ;; Testing with async-await
 (package! async-await)
 (package! aio)
+
+;; Anki support
+(package! anki-editor)
+(package! anki-connect)
