@@ -1743,8 +1743,8 @@ handle files that use the \"#+title\" file property, see the Git history."
 
 ;;;* Useful packages suggested by
 ;;;* https://blog.jethro.dev/posts/zettelkasten_with_org/.
-(after! org-attach
-  (setq! org-attach-id-dir "data/"))
+(setq! org-attach-id-dir "data/")
+(setq! org-attach-use-inheritance t)
 (use-package! org-download
   :hook (dired-mode . org-download-enable)
   :custom
