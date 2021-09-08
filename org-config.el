@@ -1598,6 +1598,52 @@ don't support wrapping."
   ;; Initialize
  (anki-editor-reset-cloze-number))
 
+;; org-protocol support for opening a file - needed for ‘my-anki-editor-backlink’.
+(add-to-list
+ 'org-protocol-protocol-alist
+ '("org-open-file" :protocol "open-file" :function org-protocol-open-file))
+(defun org-protocol-open-file (fname)
+  "Process an org-protocol://open-file?url= style URL with FNAME.
+
+Change a filename by mapping URLs to local filenames as set
+in `org-protocol-project-alist'.
+
+The location for a browser's bookmark should look like this:
+
+  javascript:location.href = \\='org-protocol://open-source?url=\\=' + \\
+        encodeURIComponent(location.href)"
+  ;; As we enter this function for a match on our protocol, the return value
+  ;; defaults to nil.
+  (let ((f (org-protocol-sanitize-uri
+            (plist-get (org-protocol-parse-parameters fname nil '(:file))
+                       :file))))
+    f))
+(defadvice! my-anki-editor-backlink (fn &rest r)
+  "Add links from Anki cards back to the file that generated them."
+  :around #'anki-editor--build-fields
+  (require 'url-util)
+  (let ((fields (apply fn r)))
+    (when-let*
+        (((and fields))
+         (note-type (org-entry-get nil anki-editor-prop-note-type))
+         (current-file
+          (when-let ((f (buffer-file-name)))
+            (abbreviate-file-name f)))
+         (field-name
+          (cond
+           ((string= note-type "Basic") "Back")
+           ((string= note-type "Basic (and reversed card)") "Note")
+           ((string= note-type "Cloze") "Extra")
+           ((string= note-type "Cloze with typed text") "Extra")
+           (t nil)))
+         (field (assoc field-name fields)))
+      (setf (alist-get field-name fields nil nil #'equal)
+            (concat (cdr field)
+                    (format "<div><hr><p>Source: <a href=\"org-protocol://open-file?file=%s\">%s</p></div>"
+                            (url-hexify-string current-file)
+                            (org-html-encode-plain-text current-file)))))
+    fields))
+
 
 ;;;* Org-roam
 ;; Needed by ‘org-roam-setup' - for some reason this is not being loaded.
