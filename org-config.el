@@ -1599,6 +1599,23 @@ don't support wrapping."
   ;; Initialize
  (anki-editor-reset-cloze-number))
 
+(defun anki-editor-push-agenda-fast ()
+  "Push all anki-files fast.
+
+Grep to find only Org files that *could* contain Anki notes, and then push all the
+notes in those files."
+  (interactive)
+  (require 's)
+  (require 'anki-editor)
+  (dolist (f (s-split "\n"
+              (shell-command-to-string "rg -l -e :ANKI_NOTE_TYPE: ~/Documents/org")
+              'omit-nulls))
+    (save-excursion
+     (set-buffer
+      (or (org-find-base-buffer-visiting f)
+          (find-file-noselect f)))
+     (anki-editor-push-notes nil nil 'file))))
+
 ;; org-protocol support for opening a file - needed for ‘my-anki-editor-backlink’.
 (add-to-list
  'org-protocol-protocol-alist
