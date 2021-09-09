@@ -1621,9 +1621,10 @@ notes in those files."
      (anki-editor-push-notes nil nil 'file))))
 
 ;; org-protocol support for opening a file - needed for ‘my-anki-editor-backlink’.
-(add-to-list
- 'org-protocol-protocol-alist
- '("org-open-file" :protocol "open-file" :function org-protocol-open-file))
+(after! org-protocol
+ (add-to-list
+  'org-protocol-protocol-alist
+  '("org-open-file" :protocol "open-file" :function org-protocol-open-file)))
 (defun org-protocol-open-file (fname)
   "Process an org-protocol://open-file?file= style URL with FNAME.
 
@@ -1636,6 +1637,26 @@ Returns the file name to open, or NIL if no file is to be opened."
             (plist-get (org-protocol-parse-parameters fname nil '(:file))
                        :file))))
     f))
+(after! org-protocol
+ (add-to-list
+  'org-protocol-protocol-alist
+  '("org-open-org-link" :protocol "open-org-link" :function org-protocol-open-org-link)))
+(defun org-protocol-open-org-link (fname)
+  "Process an org-protocol://open-org-link?link= style URL with FNAME.
+
+The value for the “link” key is an Org link, and is opened using
+‘org-link-open-from-string’ after first focusing and raising Emacs. In
+particular, remember that non-HTTP links will generally require opening and
+closing square brackets.
+
+This function returns NIL, because no file is directly opened here. In
+particular, that means Emacsclient will return immediately."
+  (when-let ((f (org-protocol-sanitize-uri
+                 (plist-get (org-protocol-parse-parameters fname nil '(:link))
+                            :link))))
+    (x-focus-frame nil)
+    (org-link-open-from-string f)
+    nil))
 (defadvice! my-anki-editor-backlink (fn &rest r)
   "Add links from Anki cards back to the file that generated them."
   :around #'anki-editor--build-fields
