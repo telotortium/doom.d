@@ -1625,17 +1625,13 @@ notes in those files."
  'org-protocol-protocol-alist
  '("org-open-file" :protocol "open-file" :function org-protocol-open-file))
 (defun org-protocol-open-file (fname)
-  "Process an org-protocol://open-file?url= style URL with FNAME.
+  "Process an org-protocol://open-file?file= style URL with FNAME.
 
-Change a filename by mapping URLs to local filenames as set
-in `org-protocol-project-alist'.
+The value for the “file” key contains a file name to open. This file name is
+opened using ‘find-file’, so any expansions done by that function are performed
+by this handler as well.
 
-The location for a browser's bookmark should look like this:
-
-  javascript:location.href = \\='org-protocol://open-source?url=\\=' + \\
-        encodeURIComponent(location.href)"
-  ;; As we enter this function for a match on our protocol, the return value
-  ;; defaults to nil.
+Returns the file name to open, or NIL if no file is to be opened."
   (let ((f (org-protocol-sanitize-uri
             (plist-get (org-protocol-parse-parameters fname nil '(:file))
                        :file))))
