@@ -1576,6 +1576,10 @@ don't support wrapping."
   'anki-editor-ignored-org-tags
   "inbox" 'append)
 
+ (defun anki-editor-push-tree ()
+   "Push the current tree using ‘anki-editor-push-notes’."
+   (interactive)
+   (funcall-interactively #'anki-editor-push-notes '(4)))
  (defun anki-editor-cloze-region-auto-incr (&optional arg)
    "Cloze region without hint and increase card number."
    (interactive)
