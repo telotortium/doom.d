@@ -69,31 +69,31 @@
 
 (disable-packages! evil-org-agenda)
 
-(unpin! org)                            ; To avoid picking up built-in version
-(package! org
-  :recipe (:host github :repo "emacs-straight/org"
-           :fork (:host github :repo "yantar92/org"
-                  :branch "feature/org-fold-universal-core")
-           :files (:defaults "etc")
-           ;; HACK A necessary hack because org requires a compilation step
-           ;;      after being cloned, and during that compilation a
-           ;;      org-version.el is generated with these two functions, which
-           ;;      return the output of a 'git describe ...'  call in the repo's
-           ;;      root. Of course, this command won't work in a sparse clone,
-           ;;      and more than that, initiating these compilation step is a
-           ;;      hassle, so...
-           :build t
-           :pre-build
-           (progn
-             (require 'straight)
-             ;; Prevent ‘doom sync -p’ from removing org-version.el with .git/info/exclude
-             (with-temp-file (doom-path (straight--repos-dir "org") ".git" "info" "exclude")
-               (insert "/org-version.el\n"))
-             (with-temp-file (doom-path (straight--repos-dir "org") "org-version.el")
-               (insert "(defun org-release () \"9.5\")\n"
-                       (format "(defun org-git-version (&rest _) \"9.5-%s\")\n"
-                               (cdr (doom-call-process "git" "rev-parse" "--short" "HEAD")))
-                       "(provide 'org-version)\n")))))
+;; (unpin! org)                            ; To avoid picking up built-in version
+;; (package! org
+;;   :recipe (:host github :repo "emacs-straight/org"
+;;            :fork (:host github :repo "yantar92/org"
+;;                   :branch "feature/org-fold-universal-core")
+;;            :files (:defaults "etc")
+;;            ;; HACK A necessary hack because org requires a compilation step
+;;            ;;      after being cloned, and during that compilation a
+;;            ;;      org-version.el is generated with these two functions, which
+;;            ;;      return the output of a 'git describe ...'  call in the repo's
+;;            ;;      root. Of course, this command won't work in a sparse clone,
+;;            ;;      and more than that, initiating these compilation step is a
+;;            ;;      hassle, so...
+;;            :build t
+;;            :pre-build
+;;            (progn
+;;              (require 'straight)
+;;              ;; Prevent ‘doom sync -p’ from removing org-version.el with .git/info/exclude
+;;              (with-temp-file (doom-path (straight--repos-dir "org") ".git" "info" "exclude")
+;;                (insert "/org-version.el\n"))
+;;              (with-temp-file (doom-path (straight--repos-dir "org") "org-version.el")
+;;                (insert "(defun org-release () \"9.5\")\n"
+;;                        (format "(defun org-git-version (&rest _) \"9.5-%s\")\n"
+;;                                (cdr (doom-call-process "git" "rev-parse" "--short" "HEAD")))
+;;                        "(provide 'org-version)\n")))))
 (package! org-clock-csv)
 (package! org-pomodoro
   :recipe (:host github :repo "marcinkoziej/org-pomodoro"

@@ -2640,55 +2640,62 @@ with empty todo checkboxes."
 
 ;; Override org-refresh-category-properties to use the fixed version from
 ;; Org-mode upstream. The old version is breaking anki-editor.
-(cond
- ((string= (org-git-version) "9.5-ec36031b4")
-  (defadvice! my-org-refresh-category-properties-override ()
-    "Refresh category text properties in the buffer."
-    :override #'org-refresh-category-properties
-    (let ((case-fold-search t)
-          (inhibit-read-only t)
-          (default-category
-            (cond ((null org-category)
-                   (if buffer-file-name
-                       (file-name-sans-extension
-                        (file-name-nondirectory buffer-file-name))
-                     "???"))
-                  ((symbolp org-category) (symbol-name org-category))
-                  (t org-category))))
-      (with-silent-modifications
-        (org-with-wide-buffer
-         ;; Set buffer-wide property from keyword.  Search last #+CATEGORY
-         ;; keyword.  If none is found, fall-back to `org-category' or
-         ;; buffer file name, or set it by the document property drawer.
-         (put-text-property
-          (point-min) (point-max)
-          'org-category
-          (catch 'buffer-category
-            (goto-char (point-max))
-            (while (re-search-backward "^[ \t]*#\\+CATEGORY:" (point-min) t)
-              (let ((element (org-element-at-point)))
-                (when (eq (org-element-type element) 'keyword)
-                  (throw 'buffer-category
-                         (org-element-property :value element)))))
-            default-category))
-         ;; Set categories from the document property drawer or
-         ;; property drawers in the outline.  If category is found in
-         ;; the property drawer for the whole buffer that value
-         ;; overrides the keyword-based value set above.
-         (goto-char (point-min))
-         (let ((regexp (org-re-property "CATEGORY")))
-           (while (re-search-forward regexp nil t)
-             (let ((value (match-string-no-properties 3)))
-               (when (org-at-property-p)
-                 (put-text-property
-                  (save-excursion (org-back-to-heading-or-point-min t))
-                  (save-excursion (if (org-before-first-heading-p)
-                                      (point-max)
-                                    (org-end-of-subtree t t)))
-                  'org-category
-                  value))))))))))
- (t
-  (warn "org-refresh-categories-properties: Check if version in current code is like https://github.com/emacs-straight/org/blob/38362699d175339330af63a57d40a47b4f748f5a/lisp/org.el#L8607-L8650. Remove this override if so.")))
+(when-let*
+    ;; Only execute this code when using yantar92/org fork.
+    ((package (alist-get 'org doom-packages))
+     (recipe (plist-get package :recipe))
+     ((string= "yantar92/org"
+               (or (plist-get (plist-get recipe :fork) :repo)
+                   (plist-get recipe :repo)))))
+  (cond
+   ((string= (org-git-version) "9.5-ec36031b4")
+    (defadvice! my-org-refresh-category-properties-override ()
+      "Refresh category text properties in the buffer."
+      :override #'org-refresh-category-properties
+      (let ((case-fold-search t)
+            (inhibit-read-only t)
+            (default-category
+              (cond ((null org-category)
+                     (if buffer-file-name
+                         (file-name-sans-extension
+                          (file-name-nondirectory buffer-file-name))
+                       "???"))
+                    ((symbolp org-category) (symbol-name org-category))
+                    (t org-category))))
+        (with-silent-modifications
+          (org-with-wide-buffer
+           ;; Set buffer-wide property from keyword.  Search last #+CATEGORY
+           ;; keyword.  If none is found, fall-back to `org-category' or
+           ;; buffer file name, or set it by the document property drawer.
+           (put-text-property
+            (point-min) (point-max)
+            'org-category
+            (catch 'buffer-category
+              (goto-char (point-max))
+              (while (re-search-backward "^[ \t]*#\\+CATEGORY:" (point-min) t)
+                (let ((element (org-element-at-point)))
+                  (when (eq (org-element-type element) 'keyword)
+                    (throw 'buffer-category
+                           (org-element-property :value element)))))
+              default-category))
+           ;; Set categories from the document property drawer or
+           ;; property drawers in the outline.  If category is found in
+           ;; the property drawer for the whole buffer that value
+           ;; overrides the keyword-based value set above.
+           (goto-char (point-min))
+           (let ((regexp (org-re-property "CATEGORY")))
+             (while (re-search-forward regexp nil t)
+               (let ((value (match-string-no-properties 3)))
+                 (when (org-at-property-p)
+                   (put-text-property
+                    (save-excursion (org-back-to-heading-or-point-min t))
+                    (save-excursion (if (org-before-first-heading-p)
+                                        (point-max)
+                                      (org-end-of-subtree t t)))
+                    'org-category
+                    value))))))))))
+   (t
+    (warn "org-refresh-categories-properties: Check if version in current code is like https://github.com/emacs-straight/org/blob/38362699d175339330af63a57d40a47b4f748f5a/lisp/org.el#L8607-L8650. Remove this override if so."))))
 
 
 ;;; Local Variables:
