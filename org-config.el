@@ -1668,6 +1668,7 @@ particular, that means Emacsclient will return immediately."
          (current-file
           (when-let ((f (buffer-file-name)))
             (abbreviate-file-name f)))
+         (title (or (org-entry-get nil "ITEM") ""))
          (field-name
           (cond
            ((string= note-type "Basic") "Back")
@@ -1678,8 +1679,11 @@ particular, that means Emacsclient will return immediately."
          (field (assoc field-name fields)))
       (setf (alist-get field-name fields nil nil #'equal)
             (concat (cdr field)
-                    (format "<div><hr><p>Source: <a href=\"org-protocol://open-file?file=%s\">%s</p></div>"
-                            (url-hexify-string current-file)
+                    (format "<div><hr><p>Source: <a href=\"org-protocol://open-org-link?link=%%5B%%5Bfile:%s%s%%5D%%5D\">%s</p></div>"
+                            (url-hexify-string (org-link-escape current-file))
+                            (url-hexify-string (if (string= "" title)
+                                                   ""
+                                                 (org-link-escape (format "::*%s" title))))
                             (org-html-encode-plain-text current-file)))))
     fields))
 
