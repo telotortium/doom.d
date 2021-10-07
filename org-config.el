@@ -1565,10 +1565,10 @@ don't support wrapping."
 ** Extra
 "
      :jump-to-captured t))
- :config
  (setq anki-editor-create-decks t ;; Allow anki-editor to create a new deck if it doesn't exist
-       anki-editor-org-tags-as-anki-tags t
-       anki-editor-use-math-jax t)
+  anki-editor-org-tags-as-anki-tags t
+  anki-editor-use-math-jax t)
+ :config
  (add-to-list
   'anki-editor-ignored-org-tags
   "drill" 'append)
