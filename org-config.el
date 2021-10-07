@@ -1538,7 +1538,7 @@ don't support wrapping."
      entry
      (file+headline org-default-notes-file "Drill")
      "
-* %<%H:%M>   %^g
+* %(format-time-string \"%H:%M\")   %^g
 :PROPERTIES:
 :ANKI_NOTE_TYPE: Basic
 :ANKI_DECK: /
@@ -1555,7 +1555,7 @@ don't support wrapping."
      entry
      (file+headline org-default-notes-file "Drill")
      "
-* %<%H:%M>   %^g
+* %(format-time-string \"%H:%M\")   %^g
 :PROPERTIES:
 :ANKI_NOTE_TYPE: Cloze
 :ANKI_DECK: /
