@@ -1747,7 +1747,7 @@ particular, that means Emacsclient will return immediately."
       (if-let* (((org-roam-file-p))
                 ((null (plist-get info :title)))
                 (title (my-org-roam-get-first-node-title)))
-          (org-combine-plists info `(:title ,title))
+          (org-combine-plists info `(:title (,title)))
         info)))
   (advice-add #'org-export-get-environment :around #'my-org-hugo-get-roam-title)
   (defun my-org-roam-relocate-property-drawer-after-capture ()
