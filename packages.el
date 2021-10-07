@@ -130,3 +130,5 @@
 ;; Anki support
 (package! anki-editor)
 (package! anki-connect)
+
+(package! el-patch)

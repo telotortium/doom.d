@@ -2740,6 +2740,19 @@ with empty todo checkboxes."
    (t
     (warn "org-refresh-categories-properties: Check if version in current code is like https://github.com/emacs-straight/org/blob/38362699d175339330af63a57d40a47b4f748f5a/lisp/org.el#L8607-L8650. Remove this override if so."))))
 
+;; Override org-hugo-auto-export-mode to export asynchronously (why on earth is
+;; this not the default?)
+(el-patch-feature org-hugo-auto-export-mode)
+(after! org-hugo-auto-export-mode
+  (el-patch-defun org-hugo-export-wim-to-md-after-save ()
+    "Function for `after-save-hook' to run `org-hugo-export-wim-to-md'.
+
+The exporting happens only when Org Capture is not in progress."
+    (unless (eq real-this-command 'org-capture-finalize)
+      (save-excursion
+        (el-patch-swap
+          (org-hugo-export-wim-to-md)
+          (org-hugo-export-wim-to-md nil 'async))))))
 
 ;;; Local Variables:
 ;;; outline-regexp: ";;;\\*+\\|\\`"
