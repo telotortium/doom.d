@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Customize rg for counsel-rg. In particular, ignore exit status 2, which is
+# thrown even for permissions errors.
+
+rg "$@"
+exit_status=$?
+if [ "$exit_status" -eq 2 ]; then
+    exit 0
+fi
+exit "$exit_status"

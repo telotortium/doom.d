@@ -91,8 +91,11 @@
 (after! (counsel org)
   ;; Make counsel-rg work correctly - see
   ;; https://github.com/hlissner/doom-emacs/issues/3038#issuecomment-624165004.
-  (setq counsel-rg-base-command
-        "rg -M 240 --with-filename --no-heading --line-number --color never %s || true")
+  ;;
+  ;; I override the exit status in a separate script (in this repository)
+  ;; because attempting to use ‘cl-letf’ to override ‘process-exit-status’ is
+  ;; failing for me, at least on a machine with Emacs 28.0.50 with native-comp.
+  (setf (elt counsel-rg-base-command 0) "~/.doom.d/counsel-rg")
   (defun counsel-rg-org (search-archives)
     "Specialize ‘counsel-rg’ for Org-mode files.
 
@@ -102,11 +105,11 @@
     (interactive "P")
     (org-save-all-org-buffers)
     (let* ((extra-rg-args (concat "--smart-case"
-                                  " --type-add 'org:*.org'"
-                                  " --type-add 'org:*.org_archive'"
+                                  " --type-add org:*.org"
+                                  " --type-add org:*.org_archive"
                                   " --type org")))
       (when (not search-archives)
-        (setq extra-rg-args (concat extra-rg-args " '-g!*.org_archive'")))
+        (setq extra-rg-args (concat extra-rg-args " -g!*.org_archive")))
       (counsel-rg nil "~/Documents/org/" extra-rg-args nil)))
   (map! "C-c q" #'counsel-rg-org))
 
