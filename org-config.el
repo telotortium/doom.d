@@ -2621,7 +2621,8 @@ Follows the same rules as `org-agenda-files'"
            ;; Discard top-level recurring events fetched by org-gcal unless I’ve
            ;; done something to indicate I’m using them.
            (:discard
-            (:and
+            (:tag "ARCHIVE"
+             :and
              (
                ;; TODO: replace with ~:property "recurrence"~ once I upgrade to
                ;; ‘org-super-agenda' 1.3.
