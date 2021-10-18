@@ -130,5 +130,8 @@
 ;; Anki support
 (package! anki-editor)
 (package! anki-connect)
+(package! od2ae
+  :recipe (:host nil :repo "git@github.com:telotortium/emacs-od2ae")
+  :pin "v0.1.0")
 
 (package! el-patch)

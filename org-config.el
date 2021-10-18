@@ -1687,6 +1687,10 @@ particular, that means Emacsclient will return immediately."
                             (org-html-encode-plain-text current-file)))))
     fields))
 
+(use-package! od2ae
+  :commands (od2ae-convert-entry-to-anki od2ae-convert-all-notes)
+  :config
+  (setq! od2ae-deck "/"))
 
 ;;;* Org-roam
 ;; Needed by ‘org-roam-setup' - for some reason this is not being loaded.
