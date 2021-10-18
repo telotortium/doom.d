@@ -251,9 +251,11 @@ If NO-LOCK is non-nil, don’t lock screen."
   ;; sometimes Emacs will hang after the break.
   (setq my-org-pomodoro-clock-idle-time org-clock-idle-time)
   (setq org-clock-idle-time nil)
-  (save-excursion
-    (org-id-goto my-org-pomodoro-break-id)
-    (org-clock-in)))
+  (when my-org-pomodoro-break-id
+    (if-let ((m (org-id-find my-org-pomodoro-break-id 'marker)))
+        (org-with-point-at m
+         (org-clock-in))
+      (user-error "Could not find location of ID %S" my-org-pomodoro-break-id))))
 (defun my-org-pomodoro-start-lunch ()
   (interactive)
   (org-pomodoro-notify "Going to lunch now" "")
