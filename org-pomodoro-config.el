@@ -236,12 +236,19 @@ If NO-LOCK is non-nil, don’t lock screen."
          (display-warning
           'my-org-pomodoro-finished-pause-music
           "Can’t pause music"))))
-(defun my-org-pomodoro-finished-agenda-list ()
-  "Schedule ‘org-agenda-list’ one minute after pomodoro finishes.
+(defun my-org-pomodoro-finished-org-gcal-fetch ()
+ "Schedule ‘org-gcal-fetch’ one minute after pomodoro finishes.
 
 Schedule one minute later to ensure that various tasks run at finish have had a
-chance to run, since refreshing the agenda blocks Emacs."
-  (run-at-time 60 nil #'my-org-pomodoro-agenda-list))
+chance to run, since this temporarily blocks Emacs."
+ (run-at-time (* 1 60) nil #'org-gcal-fetch))
+(defun my-org-pomodoro-finished-agenda-list ()
+  "Schedule ‘org-agenda-list’ five minutes after pomodoro finishes.
+
+Schedule five minutes later to ensure that various tasks run at finish have had a
+chance to run, since refreshing the agenda blocks Emacs. Also, this allows
+‘my-org-pomodoro-finished-org-gcal-fetch’ to complete."
+  (run-at-time (* 5 60) nil #'my-org-pomodoro-agenda-list))
 (defun my-org-pomodoro-agenda-list ()
   "Pop up ‘org-agenda-list’ buffer and refresh it."
   (org-agenda-list)
@@ -578,6 +585,7 @@ current ‘my-org-pomodoro-log-event-titles'."
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-pause-music)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-clock-in-break-hook)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-create-break-end-alarm)
+(add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-org-gcal-fetch)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-agenda-list)
 (add-hook 'org-pomodoro-tick-hook #'my-org-pomodoro-tick-current-task-reminder)
 (add-hook 'org-pomodoro-break-finished-hook #'my-org-pomodoro-break-finished-notify-hook)
