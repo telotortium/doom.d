@@ -583,3 +583,48 @@ current ‘my-org-pomodoro-log-event-titles'."
 (add-hook 'org-pomodoro-break-finished-hook #'my-org-pomodoro-break-finished-notify-hook)
 (add-hook 'org-pomodoro-short-break-finished-hook #'my-org-pomodoro-short-break-finished-punch-in)
 (add-hook 'org-pomodoro-long-break-finished-hook #'my-org-pomodoro-long-break-finished-punch-out)
+
+;; Patch org-pomodoro to remove calls to ‘org-agenda-maybe-redo’.
+(el-patch-feature org-pomodoro)
+(after! org-pomodoro
+  (el-patch-defun org-pomodoro-start (&optional state)
+    "Start the `org-pomodoro` timer.
+The argument STATE is optional.  The default state is `:pomodoro`."
+    (when org-pomodoro-timer (cancel-timer org-pomodoro-timer))
+
+    ;; add the org-pomodoro-mode-line to the global-mode-string
+    (unless global-mode-string (setq global-mode-string '("")))
+    (unless (memq 'org-pomodoro-mode-line global-mode-string)
+     (setq global-mode-string (append global-mode-string
+                                   '(org-pomodoro-mode-line))))
+
+    (org-pomodoro-set (or state :pomodoro))
+
+    (when (eq org-pomodoro-state :pomodoro)
+     (org-pomodoro-maybe-play-sound :start)
+     (run-hooks 'org-pomodoro-started-hook))
+    (org-pomodoro-update-mode-line)
+    (el-patch-remove (org-agenda-maybe-redo)))
+
+  (el-patch-defun org-pomodoro-reset ()
+    "Reset the org-pomodoro state."
+    (when org-pomodoro-timer
+      (cancel-timer org-pomodoro-timer))
+    (setq org-pomodoro-state :none
+          org-pomodoro-end-time nil)
+    (org-pomodoro-update-mode-line)
+    (el-patch-remove (org-agenda-maybe-redo)))
+
+  (el-patch-defun org-pomodoro-finished ()
+    "Is invoked when a pomodoro was finished successfully.
+This may send a notification, play a sound and start a pomodoro break."
+    (unless org-pomodoro-clock-break
+       (org-clock-out nil t))
+    (org-pomodoro-maybe-play-sound :pomodoro)
+    (setq org-pomodoro-count (+ org-pomodoro-count 1))
+    (if (zerop (mod org-pomodoro-count org-pomodoro-long-break-frequency))
+        (org-pomodoro-start :long-break)
+      (org-pomodoro-start :short-break))
+    (org-pomodoro-notify "Pomodoro completed!" "Time for a break.")
+    (org-pomodoro-update-mode-line)
+    (el-patch-remove (org-agenda-maybe-redo))))
