@@ -1525,7 +1525,8 @@ don't support wrapping."
               ("<f12>" . anki-editor-cloze-region-auto-incr)
               ("<f11>" . anki-editor-cloze-region-dont-incr)
               ("<f10>" . anki-editor-reset-cloze-number)
-              ("<f9>"  . anki-editor-push-tree))
+              ("<f9>"  . anki-editor-push-tree)
+              ("<f8>"  . anki-editor-open-note-in-anki))
   :hook (org-capture-after-finalize . anki-editor-reset-cloze-number) ; Reset cloze-number after each capture.
   :init
   (require 'org-capture)
@@ -1619,6 +1620,16 @@ notes in those files."
       (or (org-find-base-buffer-visiting f)
           (find-file-noselect f)))
      (anki-editor-push-notes nil nil 'file))))
+(defun anki-editor-open-note-in-anki ()
+  "Open the note at the current point in Anki."
+  (interactive)
+  (if-let* ((nid (org-entry-get (point) anki-editor-prop-note-id)))
+      (anki-editor--anki-connect-invoke-result
+       'guiBrowse
+       `((query . ,(format "nid:%s" nid))))
+      t
+    (user-error "Must be on an Org headline that contains the property ‘%s’"
+                anki-editor-prop-note-id)))
 
 ;; org-protocol support for opening a file - needed for ‘my-anki-editor-backlink’.
 (after! org-protocol
