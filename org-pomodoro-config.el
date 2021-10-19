@@ -627,4 +627,5 @@ This may send a notification, play a sound and start a pomodoro break."
       (org-pomodoro-start :short-break))
     (org-pomodoro-notify "Pomodoro completed!" "Time for a break.")
     (org-pomodoro-update-mode-line)
-    (el-patch-remove (org-agenda-maybe-redo))))
+    (el-patch-remove (org-agenda-maybe-redo))
+    (run-hooks 'org-pomodoro-finished-hook)))
