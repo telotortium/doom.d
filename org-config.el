@@ -1697,6 +1697,12 @@ particular, that means Emacsclient will return immediately."
                                                  (org-link-escape (format "::*%s" title))))
                             (org-html-encode-plain-text current-file)))))
     fields))
+(defadvice! my-anki-editor-fix-attach-dir (fn &rest r)
+ "Make ‘org-attach-id-dir’ absolute in ‘anki-editor-note-at-point’."
+ :around #'anki-editor-note-at-point
+ (require 'org-attach)
+ (let ((org-attach-id-dir (file-truename org-attach-id-dir)))
+   (apply fn r)))
 
 (use-package! od2ae
   :commands (od2ae-convert-entry-to-anki od2ae-convert-all-notes)
