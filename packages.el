@@ -132,6 +132,7 @@
 (package! anki-connect)
 (package! od2ae
   :recipe (:host nil :repo "git@github.com:telotortium/emacs-od2ae")
-  :pin "v0.1.0")
+  :pin "4e9c75bb3ca5a3985b10e7bb6f991fe2b67a704e")
+
 
 (package! el-patch)
