@@ -88,6 +88,11 @@
     (server-force-delete)
     (server-start)))
 
+;; Work around https://github.com/hlissner/doom-emacs/issues/5692
+(when (fboundp '+vertico/consult-fd)
+  (require 'consult)
+  (require 'vertico-directory))
+
 (after! (counsel org)
   ;; Make counsel-rg work correctly - see
   ;; https://github.com/hlissner/doom-emacs/issues/3038#issuecomment-624165004.
@@ -112,6 +117,28 @@
         (setq extra-rg-args (concat extra-rg-args " -g!*.org_archive")))
       (counsel-rg nil "~/Documents/org/" extra-rg-args nil)))
   (map! "C-c q" #'counsel-rg-org))
+
+(after! (consult org)
+  (defun consult-ripgrep-org (&optional search-archives initial)
+    "Search for regexp with rg in my Org directory with INITIAL input.
+
+See `consult-grep' for more details."
+    (interactive "P")
+    (org-save-all-org-buffers)
+    (let ((consult-ripgrep-args consult-ripgrep-args))
+      (setq consult-ripgrep-args
+            (concat consult-ripgrep-args
+                    (concat " --smart-case"
+                            " --type-add org:*.org"
+                            " --type-add org:*.org_archive"
+                            " --type org")))
+      (when (not search-archives)
+        (setq consult-ripgrep-args
+              (concat consult-ripgrep-args
+                      " -g!*.org_archive")))
+      (consult--grep "Ripgrep Org" #'consult--ripgrep-builder
+                     "~/Documents/org" initial)))
+  (map! "C-c q" #'consult-ripgrep-org))
 
 (after! fd-dired
   (when (eq system-type 'darwin)
@@ -179,11 +206,20 @@ near the edge of the frame, so it may be a culprit. Work around this by using
   "Run ‘org-save-all-org-buffers’ so ‘rg-org’ searches all file contents."
   (org-save-all-org-buffers))
 (advice-add 'rg-org :before #'rg-org-save-files)
+(map! "C-c q" #'rg-org)
 
 ;; Allow creating org-roam files that are a prefix of existing file names
 ;; (see https://www.orgroam.com/manual/How-do-I-create-a-note-whose-title-already-matches-one-of-the-candidates_003f.html#How-do-I-create-a-note-whose-title-already-matches-one-of-the-candidates_003f)
 (after! ivy
   (setq! ivy-use-selectable-prompt t))
+
+;; Disable fuzzy features that are enabled merely by Ivy finding Flx in the
+;; load-path.
+(after! (ivy flx)
+  (unless (featurep! +fuzzy)
+    (setq ivy-flx-limit 0
+          ivy--flx-cache nil
+          ivy--flx-featurep nil)))
 
 (setq!
  ;; Inherit Emacs load-path from current session - prevents annoying errors

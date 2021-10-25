@@ -29,7 +29,9 @@
        company           ; the ultimate code completion backend
        ;;helm              ; the *other* search engine for love and life
        ;;ido               ; the other *other* search engine...
-       (ivy +prescient)    ; a search engine for love and life
+       ;;(ivy +prescient)    ; a search engine for love and life
+       vertico
+
 
        :ui (modeline +light)
        ;;deft              ; notational velocity for Emacs
