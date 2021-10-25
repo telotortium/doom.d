@@ -205,8 +205,8 @@ near the edge of the frame, so it may be a culprit. Work around this by using
 ;; Give buffers editing files with the same basename more distinctive names
 ;; based on directory.
 (use-package! uniquify
-  :custom
-  (uniquify-buffer-name-style 'post-forward-angle-brackets))
+  :init
+  (setq! uniquify-buffer-name-style 'post-forward-angle-brackets))
 
 (setq! history-length 5000)
 
