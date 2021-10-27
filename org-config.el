@@ -672,6 +672,7 @@ Use ‘org-ql-search' to search."
       (not (property "CUSTOM_ID"))
       (not (clocked))
       (not (closed))
+      (not (todo))
       (not (children)))
     :buffer (or buffer org-ql-view-buffer)
     :super-groups '((:auto-ts))
