@@ -219,19 +219,28 @@ If NO-LOCK is non-nil, don’t lock screen."
                               "playerctl" 'ignore
                               "--all-players" "pause"))
         ((eq system-type 'darwin)
-         ;; For whatever reason (probably because it involves the GUI session),
-         ;; I need to invoke macos_mediakeys.py via a terminal spawned from the
-         ;; GUI, rather than just executing a command. That’s why I’m telling
-         ;; the Terminal app via Applescript to run the command.
-         (async-start-process "macos_mediakeys.py"
-                              "osascript"
-                              'ignore
-                              "-e"
-                              (concat
-                               "tell application \"Terminal\" to do script \""
-                               (shell-quote-argument
-                                (expand-file-name "macos_mediakeys.py" doom-private-dir))
-                               " playpause; exit\"")))
+         ;; I have disabled this more general script, macos_mediakeys.py, for
+         ;; now, in favor of pause-chrome-music, because I usually play music
+         ;; through Chrome somehow, and this general script will start YouTube
+         ;; Music if it’s paused.
+         ;; ;; For whatever reason (probably because it involves the GUI session),
+         ;; ;; I need to invoke macos_mediakeys.py via a terminal spawned from the
+         ;; ;; GUI, rather than just executing a command. That’s why I’m telling
+         ;; ;; the Terminal app via Applescript to run the command.
+         ;; (async-start-process "macos_mediakeys.py"
+         ;;                      "osascript"
+         ;;                      'ignore
+         ;;                      "-e"
+         ;;                      (concat
+         ;;                       "tell application \"Terminal\" to do script \""
+         ;;                       (shell-quote-argument
+         ;;                        (expand-file-name "macos_mediakeys.py" doom-private-dir))
+         ;;                       " playpause; exit\""))
+         (async-start-process "pause-chrome-music"
+          "osascript"
+          'ignore
+          (expand-file-name "pause-chrome-music.scpt" doom-private-dir))
+         nil)
         (t
          (display-warning
           'my-org-pomodoro-finished-pause-music
