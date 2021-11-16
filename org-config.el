@@ -1479,6 +1479,8 @@ don't support wrapping."
   "Mark headline as card of the inbox type."
   (interactive)
   (org-with-point-at (point)
+    ;; Log org-drill reschedules into drawer
+    (org-entry-put (point) "LOG_INTO_DRAWER" "t")
     ;; Set properties to skip first few steps of review.
     (org-entry-put (point) "DRILL_LAST_INTERVAL" "4.5234")
     (org-entry-put (point) "DRILL_REPEATS_SINCE_FAIL" "2")
