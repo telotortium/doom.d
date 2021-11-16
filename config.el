@@ -337,6 +337,32 @@ near the edge of the frame, so it may be a culprit. Work around this by using
 
 (setq! parinfer-rust-preferred-mode "paren")
 
+(use-package! follow
+  :defer t
+  ;; Remove all this once
+  ;; https://github.com/seagle0128/doom-modeline/commit/36fed6d1a1614f72d425073d7c9e1529f622fe7a
+  ;; is gotten from upstream.
+  :config
+  (after! doom-modeline
+    (doom-modeline-def-segment follow
+      (when follow-mode
+        (let* ((windows (follow-all-followers))
+               (nwindows (length windows))
+               (nfollowing (- (length (memq (selected-window) windows))
+                              1)))
+         (concat
+          (doom-modeline-spc)
+          (propertize (format "Follow %d/%d" (- nwindows nfollowing) nwindows)
+                      'face 'doom-modeline-buffer-minor-mode)))))
+   ;; Based on the main modeline (see ‘doom-modeline-set-main-modeline').
+   (doom-modeline-def-modeline 'follow
+    '(bar workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
+    '(objed-state misc-info persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs checker))
+   (add-hook! 'follow-mode-hook
+     (defun +follow-set-modeline ()
+       (doom-modeline-set-modeline 'follow)))))
+
+
 ;;;* Local configuration
 
 ;;; Allow users to provide an optional "config-local" containing personal settings
