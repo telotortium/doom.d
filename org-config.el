@@ -1468,6 +1468,21 @@ don't support wrapping."
           (org-clock-out)))))
   (advice-add #'org-drill :around #'my-org-drill-maximize-frame)
   (advice-add #'org-drill :around #'my-org-drill-clock-time)
+  (defun my-org-drill-rebind-keys (fn &rest r)
+    "Rebind some key sequences at ‘org-drill’ prompt.
+
+Needs to be done this way because ‘org-drill’ has no keymap."
+    (let ((continue t)
+          result)
+      (while continue
+        (setq result (apply fn r))
+        (cond
+         ((and (stringp result) (string= result "\C-c\C-o"))
+          (call-interactively #'org-open-at-point))
+         (t
+          (setq continue nil))))
+      result))
+  (advice-add #'org-drill--read-key-sequence :around #'my-org-drill-rebind-keys)
   (after! (org-capture org-drill)
     (map! :map org-mode-map
           "C-c d" #'org-drill-type-inbox-init
