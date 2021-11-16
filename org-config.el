@@ -1530,6 +1530,12 @@ Needs to be done this way because ‘org-drill’ has no keymap."
   (require 'org-drill)
   (let ((org-drill-question-tag "inbox"))
     (call-interactively #'org-drill)))
+(defun org-drill-resume-inbox ()
+ "Resume reviewing inbox cards."
+ (interactive)
+ (require 'org-drill)
+ (let ((org-drill-question-tag "inbox"))
+   (call-interactively #'org-drill-resume)))
 ;; Need to eagerly load because my Org files call functions declared by this
 ;; file in their local variables.
 (require 'org-drill)
