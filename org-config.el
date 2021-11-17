@@ -1748,6 +1748,7 @@ particular, that means Emacsclient will return immediately."
    ("C-c n u" . org-roam-unlinked-references))
   :init
   (setq! org-roam-directory "~/Documents/org/home-org/roam")
+  (setq! org-roam-db-location "~/.doom.d/doom.emacs.d/.local/etc/org-roam-home.db")
   (setq! org-roam-v2-ack t)
   (setq! org-roam-link-title-format "§%s")
   (setq! org-roam-db-node-include-function (lambda () t))
