@@ -157,12 +157,8 @@ Otherwise, add ENTRY to TEMPLATE."
  (org-capture-templates-put-entry
   org-capture-templates
   `("D" "Daily Log" plain
-    (file (lambda ()
-            (require 'org-journal)
-            (org-journal--get-entry-path org-overriding-default-time)))
+    (file my-org-roam-daily-for-overriding-time)
     "\
-#+SETUPFILE: common.setup
-
 * %u Daily log
 :PROPERTIES:
 :Effort: 0:05
@@ -186,12 +182,8 @@ Advance to NEXT once filled out
  (org-capture-templates-put-entry
   org-capture-templates
   `("W" "GTD weekly review" plain
-    (file (lambda ()
-            (require 'org-journal)
-            (org-journal--get-entry-path org-overriding-default-time)))
+    (file my-org-roam-daily-for-overriding-time)
     "\
-#+SETUPFILE: common.setup
-
 * NEXT %u GTD weekly review
 SCHEDULED: <%<%Y-%m-%d %a 13:00-14:00>>
 :PROPERTIES:
@@ -268,7 +260,7 @@ Checklist:
 
 #+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :tstart \"%(org-timestamp-add-days \"%<%F>\" -6)\" :tend \"%<%F>\" :link t :match \"-Google-break\" :narrow 60!
 #+END: clocktable
-" :time-prompt t :tree-type week :clock-in t :clock-resume t :jump-to-captured t))
+" :time-prompt t :immediate-finish t))
  (org-capture-templates-put-entry
   org-capture-templates
   `("p" "Link and Text" entry (file+headline org-default-notes-file "Links")
@@ -290,6 +282,25 @@ Source: [[%:link][%:description]]
 * %?[[%:link][%(transform-square-brackets-to-curly-ones \"%:description\")]]
   %U
 " :jump-to-captured t)))
+(defun my-org-roam-daily-for-overriding-time ()
+  "Called by ‘org-capture’ templates."
+  (require 'org-roam)
+  (require 'org-roam-capture)
+  (require 'org-roam-dailies)
+  (let* ((org-roam-directory
+          (default-value 'org-roam-directory))
+         (time
+          (or org-overriding-default-time (current-time)))
+         (daily-file
+          (expand-file-name (format-time-string "%Y-%m-%d.org" time)
+                            (expand-file-name
+                             org-roam-dailies-directory
+                             org-roam-directory))))
+     (when (org-roam-capture--new-file-p daily-file)
+      (save-excursion
+        (save-restriction
+          (org-roam-dailies--capture time 'goto))))
+     daily-file))
 
 ;; Create ‘C-u 2 M-x org-capture’ command to refile org-capture template under
 ;; headline at point.
@@ -1795,8 +1806,12 @@ particular, that means Emacsclient will return immediately."
           (org-combine-plists info `(:title (,title)))
         info)))
   (advice-add #'org-export-get-environment :around #'my-org-hugo-get-roam-title)
-  (defun my-org-roam-relocate-property-drawer-after-capture ()
-    "Relocate PROPERTIES drawer to first node after capture."
+  (cl-defun my-org-roam-relocate-property-drawer-after-capture ()
+    "Relocate PROPERTIES drawer to first node after capture of a new file."
+    (message "file %S" (buffer-file-name))
+    (unless (org-roam-capture--get :new-file)
+      (cl-return-from my-org-roam-relocate-property-drawer-after-capture nil))
+    (message "in new file %S" (buffer-file-name))
     (save-excursion
       (goto-char (point-min))
       (when-let* (((org-at-property-drawer-p))
@@ -1807,15 +1822,18 @@ particular, that means Emacsclient will return immediately."
                   (drawer (buffer-substring start (+ end 1))))
         (message "drawer %S" drawer)
         (with-undo-collapse
-          (kill-region start (+ end 1))
-          (re-search-forward org-outline-regexp-bol)
-          (end-of-line)
-          (newline)
-          (insert drawer)))))
+          (when (save-excursion
+                  (re-search-forward org-outline-regexp-bol nil t))
+           (kill-region start (+ end 1))
+           (re-search-forward org-outline-regexp-bol)
+           (end-of-line)
+           (newline)
+           (insert drawer))))))
   (add-hook 'org-roam-capture-new-node-hook
             #'my-org-roam-relocate-property-drawer-after-capture
             100)
   (require 'org-roam-protocol)
+  (require 'org-roam-dailies)
   (require 'org-roam-capture)
   (require 'cl-lib)
   (setq! org-roam-capture-templates
@@ -1837,6 +1855,9 @@ particular, that means Emacsclient will return immediately."
                 ;; #+title file-level property so that I can easily run
                 ;; ‘org-drill-type-inbox-init’ to defer the task.
                 "#+setupfile: common.setup\n#+date: %U\n\n* ${title}\n#+begin_quote\n${body}\n#+end_quote"))
+  (setq! org-roam-dailies-capture-templates
+   '(("d" "default" entry "* %?\n%U" :if-new
+      (file+head "%<%Y-%m-%d>.org" "#+setupfile: common.setup\n#+title: %<%Y-%m-%d>\n#+comment: If this file is blank after capturing daily log or weekly review, try that command again.\n"))))
   ;; "R" is like "r" but also runs ‘org-drill-type-inbox-init'.
   (setf (alist-get "R" org-roam-capture-ref-templates nil nil #'equal)
         (cl-copy-list (alist-get "r" org-roam-capture-ref-templates nil nil #'equal)))
