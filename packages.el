@@ -102,6 +102,7 @@
   (package! org-gcal
     :recipe (:host github :repo "kidd/org-gcal.el"
              :fork (:host nil :repo "git@github.com:telotortium/org-gcal.el"))))
+(package! org-clock-convenience)
 (package! org-drill)
 (package! org-drill-table)
 (package! orgit)
