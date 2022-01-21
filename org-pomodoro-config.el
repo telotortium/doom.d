@@ -483,8 +483,8 @@ killed."
 (defun my-org-pomodoro--create-alarm-event (calendar-id event-id time remove?)
   (apply
    #'async-start-process
-   "pomodoro_schedule_alarm.py"
-   (expand-file-name "pomodoro_schedule_alarm.py" doom-private-dir)
+   "org_pomodoro_schedule_alarm.py"
+   (expand-file-name "org_pomodoro_schedule_alarm.py" doom-private-dir)
    ;; Store event ID in ‘my-org-pomodoro-break-end-alarm-event-id'.
    (cond
     (remove? (lambda (proc)
