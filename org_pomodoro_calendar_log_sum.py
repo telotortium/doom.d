@@ -1,7 +1,52 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.8
 # -*- coding: utf-8 -*-
 #
-"""Export Org Pomodoro sessions to Google Calendar."""
+"""Export Org Pomodoro sessions to Google Calendar.
+
+Dependencies (MacPorts):
+
+- py38-dateutil
+- py38-google-api
+- py38-oauth2client
+
+Last supported version is Python 3.8. In Python 3.9+, you get the following
+stack trace:
+
+```
+Traceback (most recent call last):
+  File "/Users/bytedance/.doom.d/org_pomodoro_calendar_log_sum.py", line 64, in <module>
+    main(sys.argv)
+  File "/Users/bytedance/.doom.d/org_pomodoro_calendar_log_sum.py", line 33, in main
+    service, flags = sample_tools.init(
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/googleapiclient/sample_tools.py", line 98, in init
+    service = discovery.build(name, version, http=http)
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/googleapiclient/_helpers.py", line 130, in positional_wrapper
+    return wrapped(*args, **kwargs)
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/googleapiclient/discovery.py", line 219, in build
+    requested_url = uritemplate.expand(discovery_url, params)
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/uritemplate/api.py", line 33, in expand
+    return URITemplate(uri).expand(var_dict, **kwargs)
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/uritemplate/template.py", line 132, in expand
+    return self._expand(_merge(var_dict, kwargs), False)
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/uritemplate/template.py", line 97, in _expand
+    expanded.update(v.expand(expansion))
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/uritemplate/variable.py", line 338, in expand
+    expanded = expansion(name, value, opts['explode'], opts['prefix'])
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/uritemplate/variable.py", line 278, in _string_expansion
+    if dict_test(value) or tuples:
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/uritemplate/variable.py", line 363, in dict_test
+    return isinstance(value, (dict, collections.MutableMapping))
+AttributeError: module 'collections' has no attribute 'MutableMapping'
+```
+
+This is because `collections.MutableMapping`, deprecated in 3.3, was removed in 3.9:
+
+```
+collections.MutableMapping
+__main__:1: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3,and in 3.9 it will stop working
+<class 'collections.abc.MutableMapping'>
+```
+"""
 
 import argparse
 import dateutil.parser
