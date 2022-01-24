@@ -362,6 +362,24 @@ near the edge of the frame, so it may be a culprit. Work around this by using
      (defun +follow-set-modeline ()
        (doom-modeline-set-modeline 'follow)))))
 
+(when
+    (and (not (fboundp 'play-sound-internal))
+         (executable-find "play"))
+  (defadvice! play-sound-sox (sound)
+    :override #'play-sound
+    "Implement ‘play-sound’ using ‘play’ binary from SoX.
+
+This replaces the use of ‘play-sound-internal’ when Emacs is compiled without
+sound support.  Currently supports only :file and :volume entries in ‘sound’."
+    (when-let* (((eq (car-safe sound) 'sound))
+                (args (cdr-safe sound)))
+      (let* ((file (plist-get args :file))
+             (volume (plist-get args :volume)))
+        (apply #'start-process "play-sound-sox" nil
+              (append
+               (list "play" file)
+               (when volume
+                (list "vol" volume))))))))
 
 ;;;* Local configuration
 
