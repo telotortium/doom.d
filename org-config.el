@@ -170,13 +170,13 @@ Otherwise, add ENTRY to TEMPLATE."
 Advance to NEXT once filled out
 ** Clocktables
 
-#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"Google/-MEETING\" :narrow 60!
+#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"TikTok/-MEETING\" :narrow 60!
 #+END: clocktable
 
-#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"Google/MEETING\" :narrow 60!
+#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"TikTok/MEETING\" :narrow 60!
 #+END: clocktable
 
-#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"-Google-break\" :narrow 60!
+#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"-TikTok-break\" :narrow 60!
 #+END: clocktable
 " :time-prompt t :clock-in t :clock-resume t :jump-to-captured t))
  (org-capture-templates-put-entry
@@ -252,13 +252,13 @@ Checklist:
     Any new, wonderful, hare-brained, creative, thought-provoking, risk-taking
     ideas to add into your system???
 
-#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :tstart \"%(org-timestamp-add-days \"%<%F>\" -6)\" :tend \"%<%F>\" :link t :match \"Google/-MEETING\" :narrow 60!
+#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :tstart \"%(org-timestamp-add-days \"%<%F>\" -6)\" :tend \"%<%F>\" :link t :match \"TikTok/-MEETING\" :narrow 60!
 #+END: clocktable
 
-#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :tstart \"%(org-timestamp-add-days \"%<%F>\" -6)\" :tend \"%<%F>\" :link t :match \"Google/MEETING\" :narrow 60!
+#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :tstart \"%(org-timestamp-add-days \"%<%F>\" -6)\" :tend \"%<%F>\" :link t :match \"TikTok/MEETING\" :narrow 60!
 #+END: clocktable
 
-#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :tstart \"%(org-timestamp-add-days \"%<%F>\" -6)\" :tend \"%<%F>\" :link t :match \"-Google-break\" :narrow 60!
+#+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :tstart \"%(org-timestamp-add-days \"%<%F>\" -6)\" :tend \"%<%F>\" :link t :match \"-TikTok-break\" :narrow 60!
 #+END: clocktable
 " :time-prompt t :immediate-finish t))
  (org-capture-templates-put-entry
