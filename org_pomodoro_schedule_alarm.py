@@ -85,7 +85,6 @@ def main(argv):
 
     try:
         event = {
-            'summary': flags.title,
             'start': {
                 'dateTime': flags.timestamp,
                 'timeZone': 'America/Los_Angeles',
@@ -101,13 +100,15 @@ def main(argv):
                  ],
             },
         }
+        if flags.title:
+            event['summary'] = flags.title
 
         if flags.remove:
             event = service.events().delete(
                 calendarId=flags.calendar_id,
                 eventId=flags.event_id).execute()
-        if flags.event_id:
-            event = service.events().update(
+        elif flags.event_id:
+            event = service.events().patch(
                 calendarId=flags.calendar_id,
                 eventId=flags.event_id, body=event).execute()
         else:
