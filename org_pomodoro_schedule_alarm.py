@@ -114,7 +114,8 @@ def main(argv):
         else:
             event = service.events().insert(
                 calendarId=flags.calendar_id, body=event).execute()
-        print(event['id'])
+        if not flags.remove:
+            print(event['id'])
 
     except client.AccessTokenRefreshError:
         print('The credentials have been revoked or expired, please re-run'
