@@ -14,6 +14,41 @@
 (add-to-list 'debug-ignored-errors 'search-failed)
 (setq! debug-on-message nil)
 
+;; Add timestamps to log messages in the "*Messages*" buffer. Taken from
+;; https://emacs.stackexchange.com/a/33523, but improved to highlight the
+;; timestamp and not log for blank or null format strings.
+(defun sh/current-time-microseconds ()
+  "Return the current time formatted to include microseconds."
+  (let* ((nowtime (current-time))
+         (now-ms (nth 2 nowtime)))
+    (concat (format-time-string "[%d %b %T" nowtime) (format ".%d]" now-ms))))
+(defun sh/ad-timestamp-message (FORMAT-STRING &rest args)
+  "Advice to run before `message' that prepends a timestamp to each message.
+
+Activate this advice with:
+(advice-add 'message :before 'sh/ad-timestamp-message)"
+  (unless (or (null FORMAT-STRING)
+              (string-equal FORMAT-STRING "%s%s")
+              (string-match-p "\\`[[:blank:]\r\n]*\\'"
+                              (apply #'format-message
+                                     FORMAT-STRING args)))
+    (let ((deactivate-mark nil)
+          (inhibit-read-only t)
+          begin end)
+      (with-current-buffer "*Messages*"
+        (goto-char (point-max))
+        (if (not (bolp))
+            (newline))
+        (setq begin (point))
+        (insert (sh/current-time-microseconds))
+        (setq end (point))
+        ;; Adding the space *before* setting text property is important to
+        ;; ensure the text of the message isn’t colored.
+        (insert " ")
+        (put-text-property begin end 'face 'header-line)))))
+(advice-add 'message :before 'sh/ad-timestamp-message)
+(setq message-log-max 20000)
+
 ;; Disabled by Doom Emacs, but I want it.
 (setq! auto-save-default t)
 
