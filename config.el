@@ -371,6 +371,26 @@ near the edge of the frame, so it may be a culprit. Work around this by using
   nil)
 
 (setq! parinfer-rust-preferred-mode "paren")
+(defcustom my-parinfer-rust-git-repo-local-dir "~/misc/build/parinfer-rust"
+  "Location of parinfer-rust Git checkout for use in patched ‘parinfer-rust--download-from-github’.")
+(when (string-match-p "^aarch64-apple-darwin.*" system-configuration)
+  (after! parinfer-rust-helper
+    (defadvice! my-parinfer-rust-compile-dylib (parinfer-rust-version
+                                                library-location
+                                                lib-name)
+      :override #'parinfer-rust--download-from-github
+      "Compiles parinfer-rust from ‘my-parinfer-rust-git-repo-local-dir', installs it in LIBRARY-LOCATION.
+
+PARINFER-RUST-VERSION and LIB-NAME currently ignored."
+      (shell-command
+       (concat (format "set -xv; cd %s && "
+                       (shell-quote-argument
+                        (expand-file-name my-parinfer-rust-git-repo-local-dir)))
+               "cargo build --release --features emacs && "
+               (format
+                "install -m 755 ./target/release/libparinfer_rust.dylib %s"
+                (shell-quote-argument
+                 (expand-file-name parinfer-rust-library))))))))
 
 (use-package! follow
   :defer t
