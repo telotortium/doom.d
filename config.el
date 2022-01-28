@@ -108,20 +108,40 @@ Activate this advice with:
   (auto-compile-on-load-mode)
   (auto-compile-on-save-mode))
 
+(defun server-process-matches-server-file ()
+  "Check that the server process in ‘server-auth-dir’ matches the currently running server process in this instance of Emacs."
+  (when server-process
+    (with-temp-buffer
+      (let ((file (expand-file-name server-name server-auth-dir)))
+        (insert-file-contents-literally file)
+        (when-let* (((looking-at "127\\.0\\.0\\.1:\\([0-9]+\\) \\([0-9]+\\)"))
+                    (match1 (match-string 1))
+                    (port (string-to-number match1))
+                    (match2 (match-string 2))
+                    (pid (string-to-number match2))
+                    (server-port (nth 1 (process-contact server-process)))
+                    (server-file (plist-get (process-plist server-process)
+                                            :server-file)))
+          (and (= port server-port)
+               (= pid (emacs-pid))
+               (string= server-file file)))))))
 (after! server
   :config
   (setq! server-name "server")
   (setq! server-use-tcp t)
-  (defun warn-server-name-changed (original-server-name)
-    (when (not (string= server-name original-server-name))
-      (warn "server-name = \"%s\", should be \"%s\""
-            server-name original-server-name)))
-  (run-at-time nil 30 #'warn-server-name-changed server-name)
-  (if (server-running-p)
-      (warn "Not starting server - server with name \"%s\" already running" server-name)
-    (server-force-stop)
-    (server-force-delete)
-    (server-start)))
+  (defun my-server-warn-if-stopped ()
+    (unless (eq t (server-running-p))
+      (warn "Emacs server stopped running - run ‘+default/restart-server'")))
+  (run-at-time 30 60 #'my-server-warn-if-stopped)
+  (if (eq t (server-running-p))
+      (warn
+       "Not starting server - server with name \"%s\" already running%s"
+       server-name
+       (if (server-process-matches-server-file)
+           " in this process"
+         (format " (in another Emacs process - check %s)"
+                 (expand-file-name server-name server-auth-dir))))
+    (+default/restart-server)))
 
 ;; Work around https://github.com/hlissner/doom-emacs/issues/5692
 (when (fboundp '+vertico/consult-fd)
