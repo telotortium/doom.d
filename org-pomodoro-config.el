@@ -61,17 +61,18 @@ Guzey schedule
 ;;
 ;; but use \"play\" from the SoX package so that playback is smoother and
 ;; takes less CPU.
-(defvar org-pomodoro-ticking-process nil)
 (setq! org-pomodoro-ticking-sound-p nil)
 (defvar org-pomodoro-ticking-volume 1.0
   "Volume for ‘my-org-pomodoro-start-tick’. Should be in range 0.0-1.0.")
+(defconst org-pomodoro-ticking-process-name "*org-pomodoro-ticking-process*"
+  "Name of process spawned by ‘my-org-pomodoro-start-tick’")
 (defun my-org-pomodoro-start-tick ()
   "Start ticks for org-pomodoro-mode.
 
 Requires the \"play\" executable from the SoX package
 \(http://sox.sourceforge.net/sox.html)."
   (when (not (and (executable-find "play")
-              (executable-find "python3")))
+                  (executable-find "python3")))
     (user-error "my-org-pomodoro-start-tick: python3 and play (from SoX) must be on PATH"))
   (let ((cmd
          ;; Pad with 0.79 seconds of silence because tick.wav included with
@@ -79,14 +80,13 @@ Requires the \"play\" executable from the SoX package
          (format "play --volume %f %s pad 0 0.79 repeat - </dev/null >/dev/null 2>&1"
                  org-pomodoro-ticking-volume
                  (shell-quote-argument org-pomodoro-ticking-sound))))
-    (setq org-pomodoro-ticking-process
-          (start-process
-           "*org-pomodoro-ticking-process*"
-           "*org-pomodoro-ticking-process*"
-           "python3"
-           "-c"
-           (format
-            "\
+    (start-process
+     org-pomodoro-ticking-process-name
+     org-pomodoro-ticking-process-name
+     "python3"
+     "-c"
+     (format
+      "\
 import os, signal, subprocess, sys, time
 x = subprocess.Popen(r'''%s''', shell=True)
 while True:
@@ -98,13 +98,15 @@ while True:
         sys.exit(x.returncode)
     time.sleep(1)
 "
-            cmd)))))
+      cmd))))
 (defun my-org-pomodoro-stop-tick ()
   (interactive)
   "Stop ticks for org-pomodoro-mode."
-  (when org-pomodoro-ticking-process
-    (signal-process org-pomodoro-ticking-process 15) ; SIGTERM
-    (setq org-pomodoro-ticking-process nil)))
+  (dolist (proc (process-list))
+    (when (and (string-prefix-p org-pomodoro-ticking-process-name
+                                (process-name proc))
+               (process-live-p proc))
+      (signal-process proc 15))))       ; SIGTERM
 (defun my-org-pomodoro-change-ticking-volume (volume)
   "Change ticking volume for Pomodoro to VOLUME"
   (interactive "nVolume (0.0-1.0): ")
