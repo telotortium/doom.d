@@ -304,36 +304,57 @@ Source: [[%:link][%:description]]
 
 ;; Create ‘C-u 2 M-x org-capture’ command to refile org-capture template under
 ;; headline at point.
-(defvar my-org-capture-rfloc nil
-  "Holds the RFLOC argument to pass to ‘org-refile’.")
-(defun my-org-capture-under-headline (&optional goto keys)
-  "Capture a headline using ‘org-capture’, according to the template you \
-select, and then immediately refile that headline under the headline at the \
-current point.  GOTO and KEYS are passed to ‘org-capture’."
+(defun my-org-capture-under-headline (&optional _goto keys)
+  "Capture under the headline at current point.
+
+This finds an appropriate point at the end of the subtree to capture the new
+entry to, then call ‘org-capture’ with \"C-u 0\" to capture at this new point,
+and finally fixes the level of the newly-captured entry to be a child of the
+headline at which this function was called.
+
+KEYS are passed to ‘org-capture’ in its KEYS argument.  _GOTO corresponds to the
+GOTO argument of ‘org-capture’, but is is ignored because we intentionally place
+the point where we want it."
   (interactive "P")
   (unwind-protect
       (progn
         (unless (eq major-mode 'org-mode)
           (user-error "Must be called from an Org-mode buffer"))
-        ;; Capture refile target at point. For format see
-        ;; ‘org-refile-target-table’.
-        (setq my-org-capture-rfloc
-              (list
-               (org-display-outline-path t t nil t)
-               (buffer-file-name (buffer-base-buffer))
-               nil
-               (org-with-wide-buffer
-                (org-back-to-heading t)
-                (point-marker))))
-        (funcall #'org-capture nil keys)
-        (when my-org-capture-rfloc
-          (org-capture-goto-last-stored)
-          ;; Refile last-captured target under the headline stored earlier.
-          (org-refile nil nil my-org-capture-rfloc)
-          ;; Ensure point is at the newly-captured and refiled headline.
-          (org-refile-goto-last-stored)))
-    ;; Ensure ‘my-org-capture-rfloc’ is reset.
-    (setq my-org-capture-rfloc nil)))
+        (org-with-point-at (point)
+          (org-back-to-heading t)
+          (let* ((headline-marker (point-marker))
+                 (headline-level (org-current-level)))
+            (org-end-of-subtree t)
+            (unless (org--line-empty-p 1)
+              (end-of-line)
+              (open-line 1)
+              (forward-line 1))
+            (cl-letf*
+                (((symbol-function 'my-org-capture-under-headline--fixup-level)
+                  (lambda ()
+                    ;; If :begin-marker doesn’t point to a buffer, the capture
+                    ;; has already been finalized, so don’t try to do any work
+                    ;; in that case.
+                    (when-let* ((begin-marker (org-capture-get :begin-marker))
+                                ((marker-buffer begin-marker)))
+                      ;; Go to the capture buffer.
+                      (org-goto-marker-or-bmk begin-marker)
+                      ;; Make the captured headline one level below the original headline.
+                      (while (< (org-current-level) (+ 1 headline-level))
+                        (save-excursion (org-demote-subtree)))
+                      (while (> (org-current-level) (+ 1 headline-level))
+                        (save-excursion (org-promote-subtree))))))
+                 ;; Store the original ‘org-capture-finalize’ for the override before.
+                 ((symbol-function 'org-capture-finalize-orig) (symbol-function 'org-capture-finalize))
+                 ;; Need to fixup level in case ‘:immediate-finish’ set in ‘org-capture-templates’
+                 ((symbol-function 'org-capture-finalize)
+                  (lambda (&optional stay-with-capture)
+                    (my-org-capture-under-headline--fixup-level)
+                    (org-capture-finalize-orig stay-with-capture))))
+              (apply #'org-capture 0 keys)
+              ;; If the template didn’t contain ‘:immediate-finish’, we fix up
+              ;; levels now.
+              (my-org-capture-under-headline--fixup-level)))))))
 (defun my-org-capture-under-headline-prefix (_orig-fn &rest _args)
   "Provide an additional “C-u 2” prefix arg to `org-capture'.
 
@@ -521,6 +542,18 @@ Use `org-ql-search' to search for all loose TODOs."
     :super-groups '((:auto-map my-org-super-agenda-group-by-project-or-task-group))
     :title "Ready projects (those with all children done)"
     :buffer (or buffer org-ql-view-buffer)))
+(cl-defun my-org-agenda-inbox (&optional buffer)
+ "Show agenda for inbox entries not scheduled for future."
+ (interactive)
+ (org-ql-search
+   (org-agenda-files)
+   `(and
+     (tags-local "inbox")
+     (not (tags "HOLD" "CANCELLED" "ARCHIVED"))
+     (not (scheduled :from 1)))
+   :super-groups '((:auto-ts t))
+   :title "Inbox entries (not scheduled for future)"
+   :buffer (or buffer org-ql-view-buffer)))
 (cl-defun my-org-agenda-loose-todos (&optional buffer)
   "Show agenda for Loose TODOs (those not part of projects)
 
