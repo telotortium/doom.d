@@ -876,6 +876,63 @@ argument when called in `org-agenda-custom-commands'."
                 (expand-file-name (my-org-agenda--get-export-file "U")))
   (clog/msg "Wrote %s" my-org-agenda-combined-output-file))
 
+;; Highlight lines of marked Org-Agenda items
+;; See https://emacs.stackexchange.com/a/70380/17182
+(defun my-org-agenda-highlight-marked (oldfun &rest r)
+  ;; ‘advice--cd*r’ finds the underlying advised function so that we can
+  ;; properly compare functions.
+  (let* ((oldfun-base (advice--cd*r oldfun))
+         ;; Functions that examine the whole buffer and are not implemented
+         ;; in terms of more primitive functions - currently just
+         ;; ‘org-agenda-bulk-unmark-all'.
+         (all-buffer-funcs
+                   (mapcar (lambda (sym)
+                             (advice--cd*r (symbol-function sym)))
+                           '(org-agenda-bulk-unmark-all)))
+         (begin
+          (cond
+           ((member oldfun all-buffer-funcs) (point-min))
+           ((use-region-p) (region-beginning))
+           (t (point-at-bol))))
+         (end
+          (cond
+           ((member oldfun all-buffer-funcs) (point-max))
+           ((use-region-p) (region-end))
+           (t (point-at-eol)))))
+    (apply oldfun r)
+    (save-excursion
+      (goto-char begin)
+      (forward-line 0)
+      (while (< (point) end)
+        (let* ((ovs (overlays-at (point)))
+               (marked-entry-overlay
+                (nth 0
+                     (cl-remove-if-not
+                      (lambda (ov)
+                        (eq (overlay-get ov 'type) 'org-marked-entry-overlay))
+                      ovs)))
+               (highlight-marked-overlay
+                (nth 0
+                     (cl-remove-if-not
+                      (lambda (ov)
+                        (eq (overlay-get ov 'type) 'my-org-agenda-highlight-marked))
+                      ovs))))
+          (cond
+           ((and highlight-marked-overlay (not marked-entry-overlay))
+            (delete-overlay highlight-marked-overlay))
+           ((and marked-entry-overlay (not highlight-marked-overlay))
+            (let ((ov (make-overlay (point-at-bol) (point-at-eol))))
+              (overlay-put ov 'type 'my-org-agenda-highlight-marked)
+              (overlay-put ov 'face '(:background "yellow"))))))
+        (forward-line 1)))))
+;; ‘org-agenda-bulk-mark-all’, ‘org-agenda-bulk-mark-regexp’, and
+;; ‘org-agenda-bulk-toggle-all’ are all implemented using
+;; ‘org-agenda-bulk-mark’, and ‘org-agend-bulk-toggle’, so
+;; they don't need to be advised.
+(dolist (cmd '(org-agenda-bulk-mark org-agenda-bulk-toggle
+                    org-agenda-bulk-unmark org-agenda-bulk-unmark-all))
+  (advice-add cmd :around #'my-org-agenda-highlight-marked))
+
 (setq! org-stuck-projects
        '("TODO={TODO\\|NEXT}-HOLD-CANCELLED-REFILE" ("NEXT" "HOLD") nil ""))
 
