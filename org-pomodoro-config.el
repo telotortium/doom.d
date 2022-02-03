@@ -360,35 +360,42 @@ activate application (path to frontmost application as text)
   (setq my-org-pomodoro-count-today-var 0
         my-org-pomodoro-time-today-var 0))
 (my-org-pomodoro-reset-today-schedule)
+
+(defcustom my-org-pomodoro-browser nil
+  "If set, the browser for Org Pomodoro to use for OAuth2 requests.")
+
 (defun my-org-agenda-start-pomodoro-info-update (&rest _r)
   "Start updating variables used by ‘my-org-agenda-pomodoro-info’.
 
 The variables will be updated asynchronously."
-  (apply
-   #'async-start-process
-   "org_pomodoro_calendar_log_sum.py"
-   (expand-file-name "org_pomodoro_calendar_log_sum.py" doom-private-dir)
-   (lambda (proc)
-     (when (= 0 (process-exit-status proc))
-       (with-current-buffer (process-buffer proc)
-         (let* ((out
-                 (string-trim (buffer-substring-no-properties
-                               (point-min) (point-max))))
-                (result-list (s-split "," out)))
-           (setq my-org-pomodoro-count-today-var
-                 (string-to-number (nth 0 result-list))
-                 my-org-pomodoro-time-today-var
-                 (string-to-number (nth 1 result-list)))))))
-   (let* ((today-start
-           (append `(0 0 ,(or org-extend-today-until 0))
-                   (nthcdr 3 (decode-time (org-current-effective-time))))))
-     (append
-       (list
-        "--calendar_id" my-org-pomodoro-log-gcal-calendar-id
-        "--state" ":pomodoro"
-        "--start_timestamp" (format-time-string "%FT%T%z"
-                                             (encode-time today-start))
-        "--end_timestamp" (format-time-string "%FT%T%z" (current-time)))))))
+  (let ((process-environment (copy-sequence process-environment)))
+    (when my-org-pomodoro-browser
+      (setenv "BROWSER" my-org-pomodoro-browser))
+    (apply
+     #'async-start-process
+     "org_pomodoro_calendar_log_sum.py"
+     (expand-file-name "org_pomodoro_calendar_log_sum.py" doom-private-dir)
+     (lambda (proc)
+       (when (= 0 (process-exit-status proc))
+         (with-current-buffer (process-buffer proc)
+           (let* ((out
+                   (string-trim (buffer-substring-no-properties
+                                 (point-min) (point-max))))
+                  (result-list (s-split "," out)))
+             (setq my-org-pomodoro-count-today-var
+                   (string-to-number (nth 0 result-list))
+                   my-org-pomodoro-time-today-var
+                   (string-to-number (nth 1 result-list)))))))
+     (let* ((today-start
+             (append `(0 0 ,(or org-extend-today-until 0))
+                     (nthcdr 3 (decode-time (org-current-effective-time))))))
+       (append
+         (list
+          "--calendar_id" my-org-pomodoro-log-gcal-calendar-id
+          "--state" ":pomodoro"
+          "--start_timestamp" (format-time-string "%FT%T%z"
+                                                  (encode-time today-start))
+          "--end_timestamp" (format-time-string "%FT%T%z" (current-time))))))))
 (defun my-org-agenda-pomodoro-info ()
   "Add Org Pomodoro Count and Time to agenda."
   (require 'org-timer)
@@ -496,19 +503,22 @@ killed."
 
 (defun my-org-pomodoro--create-alarm-event (calendar-id event-id event-id-var title time remove?)
   (deferred:$
-    (apply
-     #'deferred:process
-     (expand-file-name "org_pomodoro_schedule_alarm.py" doom-private-dir)
-     (append
-      (list
-       "--calendar_id" calendar-id
-       "--timestamp" (format-time-string "%FT%T%z" time))
-      (when title
-       (list "--title" title))
-      (when event-id
-        (list "--event_id" event-id))
-      (when remove?
-        (list "--remove"))))
+    (let ((process-environment (copy-sequence process-environment)))
+      (when my-org-pomodoro-browser
+        (setenv "BROWSER" my-org-pomodoro-browser))
+      (apply
+       #'deferred:process
+       (expand-file-name "org_pomodoro_schedule_alarm.py" doom-private-dir)
+       (append
+        (list
+         "--calendar_id" calendar-id
+         "--timestamp" (format-time-string "%FT%T%z" time))
+        (when title
+           (list "--title" title))
+        (when event-id
+          (list "--event_id" event-id))
+        (when remove?
+          (list "--remove")))))
     (deferred:nextc it
       (lambda (output)
         (cond
@@ -570,19 +580,22 @@ current ‘my-org-pomodoro-log-event-titles'."
 (defun my-org-pomodoro--create-log-event
     (calendar-id state clocked-events event-id start-time end-time)
   (deferred:$
-    (apply
-     #'deferred:process
-     (expand-file-name "org_pomodoro_calendar_export.py" doom-private-dir)
-     (append
-      (list
-       "--calendar_id" calendar-id
-       "--state" (format "%s" state)
-       "--start_timestamp" (format-time-string "%FT%T%z" start-time)
-       "--end_timestamp" (format-time-string "%FT%T%z" end-time))
-      (mapcar (lambda (x) (concat "--clocked_event=" x))
-              clocked-events)
-      (when event-id
-        (list "--event_id" event-id))))
+    (let ((process-environment (copy-sequence process-environment)))
+      (when my-org-pomodoro-browser
+        (setenv "BROWSER" my-org-pomodoro-browser))
+      (apply
+       #'deferred:process
+       (expand-file-name "org_pomodoro_calendar_export.py" doom-private-dir)
+       (append
+        (list
+         "--calendar_id" calendar-id
+         "--state" (format "%s" state)
+         "--start_timestamp" (format-time-string "%FT%T%z" start-time)
+         "--end_timestamp" (format-time-string "%FT%T%z" end-time))
+        (mapcar (lambda (x) (concat "--clocked_event=" x))
+                clocked-events)
+        (when event-id
+          (list "--event_id" event-id)))))
     (deferred:nextc it
       (lambda (output)
         (cond
@@ -590,31 +603,6 @@ current ‘my-org-pomodoro-log-event-titles'."
          (t
           ;; Store event ID.
           (setq my-org-pomodoro-log-event-id (string-trim output))))))))
-
-(defun my-org-pomodoro--create-alarm-event (calendar-id event-id event-id-var title time remove?)
-  (deferred:$
-    (apply
-     #'deferred:process
-     (expand-file-name "org_pomodoro_schedule_alarm.py" doom-private-dir)
-     (append
-      (list
-       "--calendar_id" calendar-id
-       "--timestamp" (format-time-string "%FT%T%z" time))
-      (when title
-       (list "--title" title))
-      (when event-id
-        (list "--event_id" event-id))
-      (when remove?
-        (list "--remove"))))
-    (deferred:nextc it
-      (lambda (output)
-        (cond
-         (remove?
-          (set event-id-var nil))
-         (event-id nil)
-         (t
-          (set event-id-var
-               (string-trim output))))))))
 
 (defvar my-org-pomodoro-break-reminder-event-id nil
   "The event ID to update when org-pomodoro ends.")
