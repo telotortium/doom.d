@@ -279,8 +279,11 @@ Source: [[%:link][%:description]]
   org-capture-templates
   `("L" "Link" entry (file+headline org-default-notes-file "Links")
     "
-* %?[[%:link][%(transform-square-brackets-to-curly-ones \"%:description\")]]
-  %U
+* %?%:description
+:PROPERTIES:
+:link: [[%:link][%(transform-square-brackets-to-curly-ones \"%:description\")]]
+:END:
+%U
 " :jump-to-captured t)))
 (defun my-org-roam-daily-for-overriding-time ()
   "Called by ‘org-capture’ templates."
