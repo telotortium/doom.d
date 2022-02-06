@@ -1964,7 +1964,12 @@ particular, that means Emacsclient will return immediately."
 \" body))"))
   (setq! org-roam-dailies-capture-templates
    '(("d" "default" entry "* %?\n%U" :if-new
-      (file+head "%<%Y-%m-%d>.org" "#+setupfile: common.setup\n#+title: %<%Y-%m-%d>\n#+comment: If this file is blank after capturing daily log or weekly review, try that command again.\n"))))
+      (file+head "%<%Y-%m-%d>.org" "\
+#+setupfile: common.setup
+* %<%Y-%m-%d>
+[[elisp:(let ((org-agenda-sticky nil) (org-agenda-window-setup 'reorganize-frame)) (org-agenda-list nil \"%<%Y-%m-%d\"))][(agenda)]]
+#+comment: If this file is blank after capturing daily log or weekly review, try that command again.
+"))))
   ;; "R" is like "r" but also runs ‘org-drill-type-inbox-init'.
   (setf (alist-get "R" org-roam-capture-ref-templates nil nil #'equal)
         (cl-copy-list (alist-get "r" org-roam-capture-ref-templates nil nil #'equal)))
