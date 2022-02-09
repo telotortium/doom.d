@@ -744,3 +744,5 @@ This may send a notification, play a sound and start a pomodoro break."
     (org-pomodoro-update-mode-line)
     (el-patch-remove (org-agenda-maybe-redo))
     (run-hooks 'org-pomodoro-finished-hook)))
+
+(org-pomodoro-third-time)

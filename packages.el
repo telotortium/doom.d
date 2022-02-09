@@ -98,6 +98,8 @@
 (package! org-pomodoro
   :recipe (:host github :repo "marcinkoziej/org-pomodoro"
            :fork (:host nil :repo "git@github.com:telotortium/org-pomodoro")))
+(package! org-pomodoro-third-time
+ :recipe (:host github :repo "telotortium/org-pomodoro-third-time"))
 (when (package! alert)
   (package! org-gcal
     :recipe (:host github :repo "kidd/org-gcal.el"
