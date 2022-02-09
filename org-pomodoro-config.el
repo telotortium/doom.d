@@ -222,6 +222,7 @@ If NO-LOCK is non-nil, don’t lock screen."
          "Can't prevent system from sleeping"))))))
 (defun my-org-pomodoro-finished-pause-music ()
   "Pause music when Pomodoro is finished."
+  (interactive)
   (cond ((executable-find "playerctl")
          (async-start-process "my-org-pomodoro-finished-pause-music"
                               "playerctl" 'ignore
