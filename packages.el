@@ -122,9 +122,6 @@
 (package! hl-line+)
 (package! evil-visual-mark-mode)
 
-(package! explain-pause-mode
-  :recipe (:host github :repo "lastquestion/explain-pause-mode"))
-
 (package! visual-fill-column)
 
 ;; Testing with async-await

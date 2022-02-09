@@ -358,12 +358,6 @@ near the edge of the frame, so it may be a culprit. Work around this by using
   (toggle-hl-line-when-idle 1))
 
 (setq! profiler-max-stack-depth 64)
-(use-package! explain-pause-mode
-  :config
-  (explain-pause-mode t)
-  (explain-pause-profiles-ignore-command
-   '(gcmh-idle-garbage-collect idle-timer)))
-
 (setq! adaptive-wrap-extra-indent 2)
 (add-hook 'visual-line-mode-hook #'adaptive-wrap-prefix-mode)
 (global-visual-line-mode +1)
