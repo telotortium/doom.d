@@ -445,6 +445,15 @@ headline under the headline at the current point."
 (run-with-idle-timer 300 t (lambda ()
                              (org-refile-cache-clear)
                              (org-refile-get-targets)))
+(defun my-org-git-sync ()
+  "Run org-syncup-full script to save Org buffers and then org-git-sync."
+  (start-process
+   "*my-org-git-sync*"
+   "*my-org-git-sync*"
+   (expand-file-name "~/bin/org-syncup-full")
+   "-n" "-g" "-P"))
+(run-with-idle-timer 120 t #'my-org-git-sync)
+
 (setq! org-alphabetical-lists t)
 ;; Override Doom Emacs default. I've already written too many files with my
 ;; value for this setting, and I don't write much code in Org-mode files, so
