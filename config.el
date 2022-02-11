@@ -385,6 +385,8 @@ near the edge of the frame, so it may be a culprit. Work around this by using
  (let ((org-attach-id-dir (file-truename org-attach-id-dir)))
    (apply fn r)))
 
+;; Stop ‘magit-previous-line' from throwing errors about undefined variable
+;; ‘project-switch-commands’ by forcing an autoload.
 (after! magit
   (require 'magit-extras))
 (after! magit-extras
