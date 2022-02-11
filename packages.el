@@ -60,10 +60,6 @@
 (package! rg)
 (package! vimrc-mode)
 (package! rainbow-identifiers)
-(package! git-auto-commit-mode
-  :recipe (:host github :repo "ryuslash/git-auto-commit-mode"
-           :fork (:repo "git@github.com:telotortium/git-auto-commit-mode"
-                  :host nil :branch "gac-merge")))
 
 (package! so-long :built-in 'prefer)
 
