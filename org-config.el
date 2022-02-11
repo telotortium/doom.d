@@ -2006,6 +2006,57 @@ particular, that means Emacsclient will return immediately."
   nil)"))))
   nil)                                  ; To make eval-region on previous block easier
 
+(defun my-org-html-to-org-quote ()
+  "Change an HTML blockquote to Org quote.
+Changes this
+
+#+BEGIN_SRC html
+<blockquote>
+[html ...]
+</blockquote>
+#+END_SRC html
+
+to this:
+
+#+BEGIN_QUOTE
+[org ...]
+#+END_QUOTE"
+  (interactive)
+  (let* ((begin (if (use-region-p) (region-beginning) (point-min)))
+         (end (if (use-region-p) (region-end) (point-max)))
+         (regexp
+          (rx-to-string
+           `(and
+             line-start
+             "#+BEGIN_SRC html"
+             ?\n
+             "<blockquote>"
+             ?\n
+             (group
+              (*? anychar))
+             ?\n
+             "</blockquote>"
+             ?\n
+             "#+END_SRC"
+             line-end))))
+    (save-excursion
+      (save-match-data
+        (goto-char begin)
+        (while (re-search-forward regexp end t)
+          (let ((m (match-string-no-properties 1)))
+            (replace-match
+             (format
+              "\
+#+BEGIN_QUOTE
+%s#+END_QUOTE"                          ; Pandoc output has final newline
+              (with-temp-buffer
+                (insert m)
+                (call-process-region
+                 (point-min) (point-max)
+                 "pandoc" t t t
+                 "-f" "html" "-t" "org" "--wrap=preserve")
+                (buffer-string)))
+             nil t)))))))
 
 (defun org-roam-create-note-from-headline (no-link)
   "Create an Org-roam note from the current headline and jump to it.
