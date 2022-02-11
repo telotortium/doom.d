@@ -378,8 +378,15 @@ near the edge of the frame, so it may be a culprit. Work around this by using
   "Format encoded TIME to ISO8601 time string (with local time zone)."
   (format-time-string "%FT%T%z" time))
 
-;; Stop ‘magit-previous-line' from throwing errors about undefined variable
-;; ‘project-switch-commands’ by forcing an autoload.
+(defadvice! my-anki-editor-fix-attach-dir (fn &rest r)
+ "Make ‘org-attach-id-dir’ absolute in ‘anki-editor-note-at-point’."
+ :around #'anki-editor-note-at-point
+ (require 'org-attach)
+ (let ((org-attach-id-dir (file-truename org-attach-id-dir)))
+   (apply fn r)))
+
+(after! magit
+  (require 'magit-extras))
 (after! magit-extras
   (load "project")
   nil)
