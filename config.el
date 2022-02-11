@@ -131,11 +131,12 @@ Activate this advice with:
   (setq! server-use-tcp t)
   (defun my-server-warn-if-stopped ()
     (unless (eq t (server-running-p))
-      (warn "Emacs server stopped running - run ‘+default/restart-server'")))
+      (display-warning
+       'config "Emacs server stopped running - run ‘+default/restart-server'")))
   (run-at-time 30 60 #'my-server-warn-if-stopped)
   (if (eq t (server-running-p))
-      (warn
-       "Not starting server - server with name \"%s\" already running%s"
+      (display-warning
+       'config "Not starting server - server with name \"%s\" already running%s"
        server-name
        (if (server-process-matches-server-file)
            " in this process"

@@ -2926,7 +2926,8 @@ with empty todo checkboxes."
                     'org-category
                     value))))))))))
    (t
-    (warn "org-refresh-categories-properties: Check if version in current code is like https://github.com/emacs-straight/org/blob/38362699d175339330af63a57d40a47b4f748f5a/lisp/org.el#L8607-L8650. Remove this override if so."))))
+    (display-warning
+     'org-config "org-refresh-categories-properties: Check if version in current code is like https://github.com/emacs-straight/org/blob/38362699d175339330af63a57d40a47b4f748f5a/lisp/org.el#L8607-L8650. Remove this override if so."))))
 
 ;; Override org-hugo-auto-export-mode to export asynchronously (why on earth is
 ;; this not the default?)
