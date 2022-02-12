@@ -642,6 +642,12 @@ current ‘org-pomodoro-end-time’."
     org-pomodoro-end-time
     nil)))
 
+(defun org-pomodoro-kill-running ()
+  "Kill the running Pomodoro."
+  (interactive)
+  (when (org-pomodoro-active-p)
+    (org-pomodoro-kill)))
+
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-clear-break-end-alarm-id)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-notify-hook)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-create-log-event)
