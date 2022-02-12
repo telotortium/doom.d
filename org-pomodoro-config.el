@@ -290,6 +290,13 @@ chance to run, since refreshing the agenda blocks Emacs. Also, this allows
   (when org-agenda-buffer-name
     (pop-to-buffer org-agenda-buffer-name))
   (org-agenda-redo 'all))
+(defun my-org-pomodoro-started-punch-in ()
+  "Punch in on Pomodoro start.
+
+Effectively the same as ‘bh/punch-in’, but since ‘org-pomodoro’ starts the
+clock, we just need to set the proper variable and the bh clocking functions
+will work as designed."
+  (setq bh/keep-clock-running t))
 (defun my-org-pomodoro-started-notify-hook ()
   (org-pomodoro-notify "Pomodoro started"
                        "Snooze notifications in Hangouts Chat."))
@@ -315,39 +322,13 @@ chance to run, since refreshing the agenda blocks Emacs. Also, this allows
   (org-pomodoro-notify "Going to lunch now" "")
   (setq org-pomodoro-count -1)
   (org-pomodoro-start :pomodoro)
- (defun my-org-pomodoro-finished-clock-in-break-hook ()
-   "Clock into task with ID my-org-pomodoro-break-id during breaks if set."
-   (require 'call-log)
-   (message "%s %s" my-org-pomodoro-break-id org-pomodoro-state)
-   (when my-org-pomodoro-break-id
-     (message "About to start clock")
-     (my-org-pomodoro-start-break)))
- (org-pomodoro-third-time-end-now))
+  (org-pomodoro-third-time-end-now))
 (defun my-org-pomodoro-clear-break-end-alarm-id ()
   "Clear ‘my-org-pomodoro-break-end-alarm-event-id’."
   (setq my-org-pomodoro-break-end-alarm-event-id nil))
 (defun my-org-pomodoro-break-finished-notify-hook ()
   (org-pomodoro-notify
    "Break finished!" "Pomodoro break finished -- get back to work!"))
-(defun my-org-pomodoro-short-break-finished-punch-in ()
-  "Run bh/punch-in when Pomodoro short breaks end."
-  (setq org-clock-idle-time my-org-pomodoro-clock-idle-time)
-  (if (executable-find "osascript")
-      ;; Use osascript on macOS because I suspect ‘message-box’ of sometimes
-      ;; hanging Emacs if it’s not dismissed after a while.
-      (start-process "org-pomodoro-notification" "*notify*"
-                     "osascript" "-e" "\
-tell application \"SystemUIServer\" \
-to display dialog \"Break finished - please run bh/punch-in\" \
-    with title \"Org Pomodoro\" \
-    default button 1 \
-    buttons {\"OK\"}
-activate application (path to frontmost application as text)
-")
-    (message-box "Break finished - please run bh/punch-in")))
-(defun my-org-pomodoro-long-break-finished-punch-out ()
-  "Run bh/punch-out when Pomodoro long breaks end."
-  (bh/punch-out))
 
 (defcustom my-org-pomodoro-alarm-gcal-calendar-id nil
   "The Google Calendar ID on which to create alarms."
@@ -665,6 +646,7 @@ current ‘org-pomodoro-end-time’."
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-notify-hook)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-create-log-event)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-break-reminder-prompt-hook)
+(add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-punch-in)
 (add-hook 'org-clock-in-hook #'my-org-pomodoro-update-log-event-titles)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-ended-update-log-event)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-remove-break-end-alarm)
@@ -678,15 +660,13 @@ current ‘org-pomodoro-end-time’."
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-lock-screen)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-caffeinate)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-pause-music)
-(add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-clock-in-break-hook)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-sync-anki)
+(add-hook 'org-pomodoro-finished-hook #'bh/punch-out)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-create-break-end-alarm)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-org-gcal-fetch)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-agenda-list)
 (add-hook 'org-pomodoro-tick-hook #'my-org-pomodoro-tick-current-task-reminder)
 (add-hook 'org-pomodoro-break-finished-hook #'my-org-pomodoro-break-finished-notify-hook)
-(add-hook 'org-pomodoro-short-break-finished-hook #'my-org-pomodoro-short-break-finished-punch-in)
-(add-hook 'org-pomodoro-long-break-finished-hook #'my-org-pomodoro-long-break-finished-punch-out)
 (add-hook 'org-pomodoro-break-finished-hook #'my-org-pomodoro-break-finished-cancel-timers)
 
 ;; Patch org-pomodoro to remove calls to ‘org-agenda-maybe-redo’.
