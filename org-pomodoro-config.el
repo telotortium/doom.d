@@ -258,19 +258,32 @@ If NO-LOCK is non-nil, don’t lock screen."
    (lambda (s)
      (when s
        (display-warning 'org-pomodoro-config s)))))
+(defvar my-org-pomodoro-finished-org-gcal-fetch-timer nil)
 (defun my-org-pomodoro-finished-org-gcal-fetch ()
- "Schedule ‘org-gcal-fetch’ one minute after pomodoro finishes.
+  "Schedule ‘org-gcal-fetch’ one minute after pomodoro finishes.
 
 Schedule one minute later to ensure that various tasks run at finish have had a
 chance to run, since this temporarily blocks Emacs."
- (run-at-time (* 1 60) nil #'org-gcal-fetch))
+  (when (>= org-pomodoro-short-break-length 5)
+    (setq my-org-pomodoro-finished-org-gcal-fetch-timer
+          (run-at-time (* 1 60) nil #'org-gcal-fetch))))
+(defvar my-org-pomodoro-finished-agenda-list-timer nil)
 (defun my-org-pomodoro-finished-agenda-list ()
   "Schedule ‘org-agenda-list’ five minutes after pomodoro finishes.
 
 Schedule five minutes later to ensure that various tasks run at finish have had a
 chance to run, since refreshing the agenda blocks Emacs. Also, this allows
 ‘my-org-pomodoro-finished-org-gcal-fetch’ to complete."
-  (run-at-time (* 5 60) nil #'my-org-pomodoro-agenda-list))
+  (setq my-org-pomodoro-finished-agenda-list-timer
+        (run-at-time (* 5 60) nil #'my-org-pomodoro-agenda-list)))
+(defun my-org-pomodoro-break-finished-cancel-timers ()
+  "Cancel timers upon end of break."
+  (when my-org-pomodoro-finished-org-gcal-fetch-timer
+    (cancel-timer my-org-pomodoro-finished-org-gcal-fetch-timer)
+    (setq my-org-pomodoro-finished-org-gcal-fetch-timer nil))
+  (when my-org-pomodoro-finished-agenda-list-timer
+    (cancel-timer my-org-pomodoro-finished-agenda-list-timer)
+    (setq my-org-pomodoro-finished-agenda-list-timer nil)))
 (defun my-org-pomodoro-agenda-list ()
   "Pop up ‘org-agenda-list’ buffer and refresh it."
   (org-agenda-list)
@@ -705,6 +718,7 @@ current ‘org-pomodoro-end-time’."
 (add-hook 'org-pomodoro-break-finished-hook #'my-org-pomodoro-break-finished-notify-hook)
 (add-hook 'org-pomodoro-short-break-finished-hook #'my-org-pomodoro-short-break-finished-punch-in)
 (add-hook 'org-pomodoro-long-break-finished-hook #'my-org-pomodoro-long-break-finished-punch-out)
+(add-hook 'org-pomodoro-break-finished-hook #'my-org-pomodoro-break-finished-cancel-timers)
 
 ;; Patch org-pomodoro to remove calls to ‘org-agenda-maybe-redo’.
 (el-patch-feature org-pomodoro)
