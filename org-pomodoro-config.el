@@ -243,6 +243,21 @@ If NO-LOCK is non-nil, don’t lock screen."
          (display-warning
           'my-org-pomodoro-finished-pause-music
           "Can’t pause music"))))
+(defun my-org-pomodoro-finished-sync-anki ()
+  "Sync Anki - used at end of Pomodoro."
+  (interactive)
+  (async-start
+   `(lambda ()
+      ,(async-inject-variables "^\\(load-path\\|my-org-roam-directories\\)$")
+      (require 'anki-editor)
+      (condition-case err
+          (progn
+            (anki-editor--anki-connect-invoke-result 'sync)
+            nil)
+        (t (format "my-org-pomodoro-finished-sync-anki: %S" err))))
+   (lambda (s)
+     (when s
+       (display-warning 'org-pomodoro-config s)))))
 (defun my-org-pomodoro-finished-org-gcal-fetch ()
  "Schedule ‘org-gcal-fetch’ one minute after pomodoro finishes.
 
@@ -674,12 +689,15 @@ current ‘org-pomodoro-end-time’."
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-ended-update-log-event)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-remove-break-end-alarm)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-remove-break-reminder-alarm)
+(add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-finished-sync-anki)
+(add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-sync-anki)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-ended-update-log-event)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-notify-hook)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-lock-screen)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-caffeinate)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-pause-music)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-clock-in-break-hook)
+(add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-sync-anki)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-create-break-end-alarm)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-org-gcal-fetch)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-agenda-list)
