@@ -355,34 +355,16 @@ activate application (path to frontmost application as text)
 (defcustom my-org-pomodoro-current-task-reminder-interval 60
   "Number of seconds between being notified of the current task. Set to nil to disable notifications"
   :type 'number)
+(defcustom my-org-pomodoro-browser nil
+ "If set, the browser for Org Pomodoro to use for OAuth2 requests.")
 
-;; Update agenda to log count and time of pomodoros elapsed today.
+;; Produce report for count and time of total Pomodoros today.
 (defvar my-org-pomodoro-count-today-var 0
   "Number of pomodoros today.")
 (defvar my-org-pomodoro-time-today-var 0
   "Amount of time spent in pomodoro today, in seconds.")
-(defun my-org-pomodoro-reset-today-schedule ()
-  "Schedule next run of ‘my-org-pomodoro-reset-today’."
-  (run-at-time
-   ;; Start tomorrow at ‘org-extend-today-until’ hours past midnight.
-   (let* ((today-start
-              (append `(0 0 ,(or org-extend-today-until 0))
-                     (nthcdr 3 (decode-time (org-current-effective-time)))))
-          (tomorrow-start
-           (decoded-time-add today-start (make-decoded-time :day 1))))
-        (encode-time tomorrow-start))
-   nil
-   #'my-org-pomodoro-reset-today))
-(defun my-org-pomodoro-reset-today ()
-  "Resets daily org-pomodoro variables."
-  (setq my-org-pomodoro-count-today-var 0
-        my-org-pomodoro-time-today-var 0))
-(my-org-pomodoro-reset-today-schedule)
 
-(defcustom my-org-pomodoro-browser nil
-  "If set, the browser for Org Pomodoro to use for OAuth2 requests.")
-
-(defun my-org-agenda-start-pomodoro-info-update (&rest _r)
+(defun my-org-pomodoro-start-info-update ()
   "Start updating variables used by ‘my-org-agenda-pomodoro-info’.
 
 The variables will be updated asynchronously."
@@ -414,34 +396,19 @@ The variables will be updated asynchronously."
           "--start_timestamp" (format-time-string "%FT%T%z"
                                                   (encode-time today-start))
           "--end_timestamp" (format-time-string "%FT%T%z" (current-time))))))))
-(defun my-org-agenda-pomodoro-info ()
-  "Add Org Pomodoro Count and Time to agenda."
-  (require 'org-timer)
-  (save-restriction
-    (widen)
-    (save-excursion
-      (goto-char (point-min))
-      (let* ((search-for "Org Pomodoro - Count:")
-             (match (search-forward search-for nil 'noerror)))
-        (if match
-          (let ((start-match (- (point) (length search-for))))
-              (goto-char start-match)
-              (delete-region start-match (point-max)))
-          (progn
-            (end-of-line)
-            (newline)))
-        (insert
-         (format "Org Pomodoro - Count: %2d, Time: %s"
-                 my-org-pomodoro-count-today-var
-                 (org-timer-secs-to-hms
-                         (round my-org-pomodoro-time-today-var))))
-        (newline)
-        ;; Add spaces to align with line above
-        (insert "Try to get above                3:30:00")))))
-(advice-add #'org-agenda-list :before #'my-org-agenda-start-pomodoro-info-update)
-(add-hook 'org-agenda-finalize-hook 'my-org-agenda-pomodoro-info 'append)
+(defun my-org-pomodoro-info-today ()
+  "Show count of pomodoros and time spent within today."
+  (interactive)
+  (message "Updating info...")
+  (async-wait (my-org-pomodoro-start-info-update))
+  (message "Org Pomodoro - Count: %2d, Time: %s"
+            my-org-pomodoro-count-today-var
+            (org-timer-secs-to-hms
+             (round my-org-pomodoro-time-today-var))))
+(defun my-org-pomodoro-finished-info-today ()
+  "Run ‘my-org-pomodoro-info-today’ when Pomodoro finishes."
+  (display-warning 'org-pomodoro-config (my-org-pomodoro-info-today)))
 
-(defun my-org-pomodoro-today-tick-hook ())
 (defvar my-org-pomodoro-current-task-reminder-next-time nil)
 (defun my-org-pomodoro-tick-current-task-reminder ()
   "Prod me with reminders of my current task to stop me from being distracted."
@@ -703,7 +670,9 @@ current ‘org-pomodoro-end-time’."
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-remove-break-end-alarm)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-remove-break-reminder-alarm)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-finished-sync-anki)
+(add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-finished-info-today)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-sync-anki)
+(add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-info-today)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-ended-update-log-event)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-notify-hook)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-lock-screen)
