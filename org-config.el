@@ -1567,6 +1567,9 @@ don't support wrapping."
   (defun my-org-drill-clock-time (fn &rest r)
     "Clock time on ‘my-org-drill-clock-heading-id' when ‘org-drill' is run."
     (require 'org-clock)
+    (unless my-org-drill-clock-heading-id
+      (display-warning
+       'org-config "‘my-org-drill-clock-heading-id’ not set"))
     (let ((clocking? (org-clocking-p)))
       (unwind-protect
           (progn
@@ -1575,10 +1578,11 @@ don't support wrapping."
                                   my-org-drill-clock-heading-id t)
                 (org-clock-in)))
             (apply fn r))
-        (if clocking?
-            (org-with-point-at org-clock-interrupted-task
-              (org-clock-in))
-          (org-clock-out)))))
+        (when my-org-drill-clock-heading-id
+          (if clocking?
+               (org-with-point-at org-clock-interrupted-task
+                     (org-clock-in))
+             (org-clock-out))))))
   (advice-add #'org-drill :around #'my-org-drill-maximize-frame)
   (advice-add #'org-drill :around #'my-org-drill-clock-time)
   (defun my-org-drill-rebind-keys (fn &rest r)
