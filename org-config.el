@@ -1641,12 +1641,15 @@ Needs to be done this way because ‘org-drill’ has no keymap."
       (org-set-tags
        (seq-filter (lambda (tag) (not (equal tag "inbox")))
                    (org-get-tags nil 'local))))))
-(defun org-drill-review-inbox ()
-  "Review inbox cards."
+(defun org-drill-review-inbox (&optional scope drill-match resume-p cram)
+  "Review inbox cards.
+SCOPE, DRILL-MATCH, RESUME-P, and CRAM passed to ‘org-drill'."
   (interactive)
   (require 'org-drill)
   (let ((org-drill-question-tag "inbox"))
-    (call-interactively #'org-drill)))
+    (if (called-interactively-p 'any)
+        (call-interactively #'org-drill)
+      (funcall #'org-drill scope drill-match resume-p cram))))
 (defun org-drill-resume-inbox ()
  "Resume reviewing inbox cards."
  (interactive)
