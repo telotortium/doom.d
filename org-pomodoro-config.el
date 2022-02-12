@@ -71,6 +71,7 @@ Guzey schedule
 
 Requires the \"play\" executable from the SoX package
 \(http://sox.sourceforge.net/sox.html)."
+  (interactive)
   (when (not (and (executable-find "play")
                   (executable-find "python3")))
     (user-error "my-org-pomodoro-start-tick: python3 and play (from SoX) must be on PATH"))
