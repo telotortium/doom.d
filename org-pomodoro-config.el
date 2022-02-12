@@ -4,6 +4,8 @@
 
 (require 'async)
 (require 'deferred)
+(require 'org-pomodoro)
+(require 'org-pomodoro-third-time)
 (require 's)
 
 (defun my-org-pomodoro-complice-config ()
@@ -746,4 +748,5 @@ This may send a notification, play a sound and start a pomodoro break."
     (el-patch-remove (org-agenda-maybe-redo))
     (run-hooks 'org-pomodoro-finished-hook)))
 
-(org-pomodoro-third-time)
+(org-pomodoro-third-time +1)
+(provide 'org-pomodoro-config)

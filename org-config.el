@@ -1204,8 +1204,7 @@ Iterates over all buffers in FRAME."
 (add-hook 'org-mode-hook #'org-resize-inline-images)
 (setq! org-image-actual-width '(800))
 
-(after! org-pomodoro
-  (load! "org-pomodoro-config.el"))
+(load! "org-pomodoro-config.el")
 
 (add-to-list 'org-modules 'org-id)      ; Needed for ID links to work
 (after! org-id
