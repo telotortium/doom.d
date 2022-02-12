@@ -44,7 +44,7 @@ Guzey schedule
 (defun my-org-pomodoro-start-half ()
   "Start or set time for ‘org-pomodoro' for half of ‘org-pomodoro-length’."
   (interactive)
-  (org-pomodoro-end-in (/ org-pomodoro-length 2)))
+  (org-pomodoro-third-time-end-in (/ org-pomodoro-length 2)))
 (defun my-org-pomodoro-half-on-expiry (fn &rest r)
   "Start a half-pomodoro when ‘org-pomodoro’ would prompt to reset count."
   (let ((half-p
@@ -120,29 +120,15 @@ while True:
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-stop-tick)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-stop-tick)
 
-(defun org-pomodoro-end-at ()
-  "Force the current Pomodoro to end at a time prompted from the user."
-  (interactive)
-  (unless (org-pomodoro-active-p)
-    (org-pomodoro))
+(defun my-org-pomodoro-modify-end-time-hook ()
+  "Hook to reschedule alarms when end time changed."
   (setq my-org-pomodoro-current-task-reminder-next-time nil)
-  (setq org-pomodoro-end-time
-        (org-read-date 'with-time 'to-time))
   (my-org-pomodoro-update-log-event org-pomodoro-end-time)
   (my-org-pomodoro-reschedule-break-end-alarm)
   (my-org-pomodoro-reschedule-break-reminder-alarm))
 
-(defun org-pomodoro-end-in (minutes)
-  "Force the current Pomodoro to end in MINUTES minutes."
-  (interactive "nMinutes: ")
-  (unless (org-pomodoro-active-p)
-    (org-pomodoro))
-  (setq my-org-pomodoro-current-task-reminder-next-time nil)
-  (setq org-pomodoro-end-time
-        (time-add (current-time) (* minutes 60)))
-  (my-org-pomodoro-update-log-event org-pomodoro-end-time)
-  (my-org-pomodoro-reschedule-break-end-alarm)
-  (my-org-pomodoro-reschedule-break-reminder-alarm))
+(add-hook 'org-pomodoro-third-time-modify-end-time-hook
+          #'my-org-pomodoro-modify-end-time-hook)
 
 (defun org-pomodoro-start-short-break (&optional no-lock)
   "Start a short break immediately.
@@ -155,7 +141,7 @@ If NO-LOCK is non-nil, don’t lock screen."
   (when no-lock
     (setq my-org-pomodoro-inhibit-lock t)
     (run-at-time 5 nil (lambda () (setq my-org-pomodoro-inhibit-lock nil))))
-  (org-pomodoro-end-in 0))
+  (org-pomodoro-third-time-end-now))
 
 (defun org-pomodoro-start-long-break (&optional no-lock)
   "Start a long break immediately.
@@ -168,7 +154,7 @@ If NO-LOCK is non-nil, don’t lock screen."
   (when no-lock
     (setq my-org-pomodoro-inhibit-lock t)
     (run-at-time 5 nil (lambda () (setq my-org-pomodoro-inhibit-lock nil))))
-  (org-pomodoro-end-in 0))
+  (org-pomodoro-third-time-end-now))
 
 (defcustom my-org-pomodoro-break-id nil
   "Task ID of task to clock into during Pomodoro breaks. Must specify manually."
@@ -301,14 +287,14 @@ chance to run, since refreshing the agenda blocks Emacs. Also, this allows
   (org-pomodoro-notify "Going to lunch now" "")
   (setq org-pomodoro-count -1)
   (org-pomodoro-start :pomodoro)
-  (org-pomodoro-end-in 0))
-(defun my-org-pomodoro-finished-clock-in-break-hook ()
-  "Clock into task with ID my-org-pomodoro-break-id during breaks if set."
-  (require 'call-log)
-  (message "%s %s" my-org-pomodoro-break-id org-pomodoro-state)
-  (when my-org-pomodoro-break-id
-    (message "About to start clock")
-    (my-org-pomodoro-start-break)))
+ (defun my-org-pomodoro-finished-clock-in-break-hook ()
+   "Clock into task with ID my-org-pomodoro-break-id during breaks if set."
+   (require 'call-log)
+   (message "%s %s" my-org-pomodoro-break-id org-pomodoro-state)
+   (when my-org-pomodoro-break-id
+     (message "About to start clock")
+     (my-org-pomodoro-start-break)))
+ (org-pomodoro-third-time-end-now))
 (defun my-org-pomodoro-clear-break-end-alarm-id ()
   "Clear ‘my-org-pomodoro-break-end-alarm-event-id’."
   (setq my-org-pomodoro-break-end-alarm-event-id nil))
@@ -748,5 +734,7 @@ This may send a notification, play a sound and start a pomodoro break."
     (el-patch-remove (org-agenda-maybe-redo))
     (run-hooks 'org-pomodoro-finished-hook)))
 
-(org-pomodoro-third-time +1)
+(unless (and (boundp 'org-pomodoro-third-time-mode)
+             org-pomodoro-third-time-mode)
+  (org-pomodoro-third-time-mode +1))
 (provide 'org-pomodoro-config)
