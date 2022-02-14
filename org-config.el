@@ -1089,6 +1089,7 @@ This property is inherited - you can set it to the string “nil” to turn this
 off if the property is inherited."
   (when-let* (((and org-clock-notification-was-shown
                     org-clock-marker
+                    (marker-buffer org-clock-marker)
                     (null my-org-clock-nag-after-expiry--timer)))
               (nag-prop (org-entry-get org-clock-marker
                                        "org-clock-nag-after-expiry"
