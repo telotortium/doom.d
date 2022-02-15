@@ -415,9 +415,15 @@ The variables will be updated asynchronously."
           ;; Rate limit reminders in last minute to once every 5 seconds.
           (setq my-org-pomodoro-current-task-reminder-next-time
                 (car (cl-floor (+ (float-time) 5))))
-          (org-pomodoro-notify (format "Pomodoro in progress - %ds to break"
-                                       remainder)
-                               org-clock-heading)))))))
+          (org-pomodoro-notify
+           (format "Pomodoro in progress - %ds to break" remainder)
+           (format "%s%s"
+                   org-clock-heading
+                   (if (null my-org-pomodoro-started-break-reminder-prompt)
+                       ""
+                     (format "\nBreak reminder: %s"
+                             my-org-pomodoro-started-break-reminder-prompt))))))))))
+
 (defvar my-org-pomodoro-break-end-alarm-event-id nil
   "The event ID of the break-end alarm created by
 ‘my-org-pomodoro-finished-create-break-end-alarm’.")
@@ -572,18 +578,22 @@ current ‘my-org-pomodoro-log-event-titles'."
 
 (defvar my-org-pomodoro-break-reminder-event-id nil
   "The event ID to update when org-pomodoro ends.")
+(defvar my-org-pomodoro-started-break-reminder-prompt nil
+  "Prompt for break reminders.")
 (defun my-org-pomodoro-started-break-reminder-prompt (prompt)
   "Create Google Calendar event for break reminder after ‘org-pomodoro' session."
   (interactive "MBreak start reminder (leave empty for none): ")
   (let ((remove? (or (null prompt) (string-empty-p prompt))))
+    (setq my-org-pomodoro-started-break-reminder-prompt
+          (if remove? nil prompt))
     (unless (and remove? (null my-org-pomodoro-break-reminder-event-id))
-     (my-org-pomodoro--create-alarm-event
-      my-org-pomodoro-alarm-gcal-calendar-id
-      my-org-pomodoro-break-reminder-event-id
-      'my-org-pomodoro-break-reminder-event-id
-      (if remove? "break start" prompt)
-      org-pomodoro-end-time
-      remove?))))
+         (my-org-pomodoro--create-alarm-event
+          my-org-pomodoro-alarm-gcal-calendar-id
+          my-org-pomodoro-break-reminder-event-id
+          'my-org-pomodoro-break-reminder-event-id
+          (if remove? "break start" prompt)
+          org-pomodoro-end-time
+          remove?))))
 (defun my-org-pomodoro-started-break-reminder-prompt-hook ()
   "Adapt ‘my-org-pomodoro-started-break-reminder-prompt’ for hooks."
   (call-interactively #'my-org-pomodoro-started-break-reminder-prompt))
