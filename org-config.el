@@ -2011,7 +2011,22 @@ particular, that means Emacsclient will return immediately."
         (call-interactively #'my-org-capture-defer-task))
        nil)))
   nil)"))))
-  nil)                                  ; To make eval-region on previous block easier
+  (el-patch-defun org-roam-protocol--insert-captured-ref-h ()
+    "Insert the ref if any."
+    (message "org-roam-capture--info: %S" org-roam-capture--info)
+    (message "org-roam-capture--node: %S" org-roam-capture--node)
+    (message "title: %S" (and (org-roam-node-p org-roam-capture--node)
+                              (org-roam-node-title org-roam-capture--node)))
+    (when-let ((ref (plist-get org-roam-capture--info :ref)))
+     (el-patch-swap
+      (org-roam-ref-add ref)
+      (org-roam-ref-add
+         (if-let ((title
+                   (when (org-roam-node-p org-roam-capture--node)
+                     (org-roam-node-title org-roam-capture--node))))
+          (org-link-make-string ref title)
+          ref)))))
+ nil)                                  ; To make eval-region on previous block easier
 
 (defun my-org-html-to-org-quote ()
   "Change an HTML blockquote to Org quote.
