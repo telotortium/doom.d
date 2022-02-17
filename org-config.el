@@ -1859,14 +1859,6 @@ particular, that means Emacsclient will return immediately."
 (require 'org-duration)
 (use-package! org-roam
   :hook (after-init . org-roam-setup)
-  :bind
-  ("C-c n l" . org-roam-buffer-list)
-  ("C-c n t" . org-roam-dailies-today)
-  ("C-c n f" . org-roam-node-find)
-  ("C-c n g" . org-roam-show-graph)
-  (:map org-mode-map
-   ("C-c n i" . org-roam-node-insert)
-   ("C-c n u" . org-roam-unlinked-references))
   :init
   (setq! org-roam-directory "~/Documents/org/home-org/roam")
   (setq! org-roam-db-location "~/.doom.d/doom.emacs.d/.local/etc/org-roam-home.db")
@@ -1879,11 +1871,61 @@ particular, that means Emacsclient will return immediately."
  nil)
 (after! org-roam
   (require 'org-roam-compat)
-  ;; (defun my-org-roam-capture-split-window (&rest _args)
-  ;;   "Split current window and select new window."
-  ;;   (unless (eq org-roam-capture--context 'ref)
-  ;;     (select-window (split-window))))
-  ;; (advice-add 'org-roam--capture :before #'my-org-roam-capture-split-window)
+  ;; Copied from doom.emacs.d/modules/lang/org/contrib/roam2.el
+  (map! (:prefix ("C-c n" . "org-roam")
+         "f" #'org-roam-node-find
+         "F" #'org-roam-ref-find
+         (:prefix ("d" . "by date")
+          :desc "Goto previous note" "b" #'org-roam-dailies-goto-previous-note
+          :desc "Goto date"          "d" #'org-roam-dailies-goto-date
+          :desc "Capture date"       "D" #'org-roam-dailies-capture-date
+          :desc "Goto next note"     "f" #'org-roam-dailies-goto-next-note
+          :desc "Goto tomorrow"      "m" #'org-roam-dailies-goto-tomorrow
+          :desc "Capture tomorrow"   "M" #'org-roam-dailies-capture-tomorrow
+          :desc "Capture today"      "n" #'org-roam-dailies-capture-today
+          :desc "Goto today"         "t" #'org-roam-dailies-goto-today
+          :desc "Capture today"      "T" #'org-roam-dailies-capture-today
+          :desc "Goto yesterday"     "y" #'org-roam-dailies-goto-yesterday
+          :desc "Capture yesterday"  "Y" #'org-roam-dailies-capture-yesterday
+          :desc "Find directory"     "-" #'org-roam-dailies-find-directory)))
+  (map! (:map org-mode-map
+           :prefix ("C-c n" . "org-roam")
+           "D" #'org-roam-demote-entire-buffer
+           "f" #'org-roam-node-find
+           "F" #'org-roam-ref-find
+           "g" #'org-roam-graph
+           "i" #'org-roam-node-insert
+           "I" #'org-id-get-create
+           "m" #'org-roam-buffer-toggle
+           "M" #'org-roam-buffer-display-dedicated
+           "n" #'org-roam-capture
+           "r" #'org-roam-refile
+           "R" #'org-roam-link-replace-all
+           (:prefix ("d" . "by date")
+            :desc "Goto previous note" "b" #'org-roam-dailies-goto-previous-note
+            :desc "Goto date"          "d" #'org-roam-dailies-goto-date
+            :desc "Capture date"       "D" #'org-roam-dailies-capture-date
+            :desc "Goto next note"     "f" #'org-roam-dailies-goto-next-note
+            :desc "Goto tomorrow"      "m" #'org-roam-dailies-goto-tomorrow
+            :desc "Capture tomorrow"   "M" #'org-roam-dailies-capture-tomorrow
+            :desc "Capture today"      "n" #'org-roam-dailies-capture-today
+            :desc "Goto today"         "t" #'org-roam-dailies-goto-today
+            :desc "Capture today"      "T" #'org-roam-dailies-capture-today
+            :desc "Goto yesterday"     "y" #'org-roam-dailies-goto-yesterday
+            :desc "Capture yesterday"  "Y" #'org-roam-dailies-capture-yesterday
+            :desc "Find directory"     "-" #'org-roam-dailies-find-directory)
+           (:prefix ("o" . "node properties")
+            "a" #'org-roam-alias-add
+            "A" #'org-roam-alias-remove
+            "t" #'org-roam-tag-add
+            "T" #'org-roam-tag-remove
+            "r" #'org-roam-ref-add
+            "R" #'org-roam-ref-remove)))
+      ;; (defun my-org-roam-capture-split-window (&rest _args)
+      ;;   "Split current window and select new window."
+      ;;   (unless (eq org-roam-capture--context 'ref)
+      ;;     (select-window (split-window))))
+      ;; (advice-add 'org-roam--capture :before #'my-org-roam-capture-split-window)
   (defun my-org-roam-get-first-node-title ()
     "Get title from #+title, or from first node in Org-roam file."
     (require 'org-roam-node)
