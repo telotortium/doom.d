@@ -135,3 +135,5 @@
 
 (package! el-patch
   :pin "4a4e040fcede0c320e860571d5e96100cac05bb5")
+
+(package! atomic-chrome)

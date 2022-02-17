@@ -460,6 +460,8 @@ sound support.  Currently supports only :file and :volume entries in ‘sound’
                (when volume
                 (list "vol" volume))))))))
 
+(atomic-chrome-start-server)
+
 ;;;* Local configuration
 
 ;;; Allow users to provide an optional "config-local" containing personal settings
