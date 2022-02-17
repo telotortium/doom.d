@@ -386,6 +386,8 @@ near the edge of the frame, so it may be a culprit. Work around this by using
  (let ((org-attach-id-dir (file-truename org-attach-id-dir)))
    (apply fn r)))
 
+;; Git commits should use Github-flavored Markdown
+(setq! git-commit-major-mode 'gfm-mode)
 ;; Stop ‘magit-previous-line' from throwing errors about undefined variable
 ;; ‘project-switch-commands’ by forcing an autoload.
 (after! magit
