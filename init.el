@@ -21,6 +21,9 @@
            "XPC_FLAGS" "TERM_SESSION_ID" "TMPDIR"
            "ITERM_SESSION_ID" "ITERM_PROFILE")))
 
+(setq initial-buffer-choice
+      (lambda () (org-roam-dailies-goto-today "d") (current-buffer)))
+
 (doom! :input
        ;;chinese
        ;;japanese
