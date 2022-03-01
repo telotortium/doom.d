@@ -1885,6 +1885,7 @@ particular, that means Emacsclient will return immediately."
   (setq! org-roam-v2-ack t)
   (setq! org-roam-link-title-format "§%s")
   (setq! org-roam-db-node-include-function (lambda () t))
+  (setq! +org-roam-auto-backlinks-buffer t)
   ;; (setq! org-roam-db-node-include-function
   ;;        (lambda ()
   ;;         (not (member "drill" (org-get-tags)))))
