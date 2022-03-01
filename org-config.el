@@ -508,6 +508,18 @@ headline under the headline at the current point."
 
 (defcustom my-org-agenda-active-days 14
   "Number of days in the past to search for active projects.")
+(defun my-org-list-all-org-files-under (directory &optional archives)
+  "List all Org files under DIRECTORY, recursively.
+If ARCHIVES set, include archives too."
+  (unless (executable-find "fd")
+    (user-error "‘fd’ must be installed and on PATH"))
+  (s-split "\0"
+           (shell-command-to-string (format "fd -a -0 '\\.(?:org%s)$' %s"
+                                            (if archives "|org_archive" "")
+                                            (shell-quote-argument
+                                             (expand-file-name
+                                              directory))))
+           'omit-nulls))
 (cl-defun my-org-agenda-someday-maybe (&optional buffer)
   "Show agenda for Someday/Maybe tasks.
 
