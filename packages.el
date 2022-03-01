@@ -53,7 +53,8 @@
 ;;; For logging messages prefixed with function name.
 (package! call-log
   :recipe (:host github :repo "jordonbiondo/call-log"
-           :fork (:host nil :repo "git@github.com:telotortium/call-log")))
+           :fork (:host nil :repo "git@github.com:telotortium/call-log")
+           :depth full))
 
 (package! el-mock)
 (package! auto-compile)
@@ -93,14 +94,17 @@
 (package! org-clock-csv)
 (package! org-pomodoro
   :recipe (:host github :repo "marcinkoziej/org-pomodoro"
-           :fork (:host nil :repo "git@github.com:telotortium/org-pomodoro")))
+           :fork (:host nil :repo "git@github.com:telotortium/org-pomodoro")
+           :depth full))
 (package! org-pomodoro-third-time
   :recipe (:host github :repo "telotortium/org-pomodoro-third-time"
-           :fork (:host nil :repo "git@github.com:telotortium/org-pomodoro-third-time")))
+           :fork (:host nil :repo "git@github.com:telotortium/org-pomodoro-third-time")
+           :depth full))
 (when (package! alert)
   (package! org-gcal
     :recipe (:host github :repo "kidd/org-gcal.el"
-             :fork (:host nil :repo "git@github.com:telotortium/org-gcal.el"))))
+             :fork (:host nil :repo "git@github.com:telotortium/org-gcal.el")
+             :depth full)))
 (package! org-clock-convenience)
 (package! org-drill)
 (package! org-drill-table)
@@ -111,8 +115,9 @@
 (package! org-super-agenda)
 (package! org-download)
 (package! org-cliplink)
-(package! ox-hugo :pin "8345ceb90ff1314d598c6b67ba6ee7616e2b0bc4")
-(package! org-roam :pin "5dce6261a2a45798cdf0c65371b76c83dd5b1de6")
+(package! ox-hugo)
+(package! org-roam)
+(package! org-roam-ui)                  ; TODO: should figure out commit from org-roam
 (package! pocket-reader)
 
 (package! hl-line :disable t)
@@ -129,11 +134,11 @@
 (package! anki-editor)
 (package! anki-connect)
 (package! od2ae
-  :recipe (:host nil :repo "git@github.com:telotortium/emacs-od2ae")
-  :pin "4e9c75bb3ca5a3985b10e7bb6f991fe2b67a704e")
+  :recipe (:host github :repo "telotortium/emacs-od2ae"
+           :fork (:host nil :repo "git@github.com:telotortium/emacs-od2ae")
+           :depth full))
 
 
-(package! el-patch
-  :pin "4a4e040fcede0c320e860571d5e96100cac05bb5")
+(package! el-patch)
 
 (package! atomic-chrome)
