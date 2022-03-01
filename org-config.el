@@ -2947,7 +2947,9 @@ Follows the same rules as `org-agenda-files'"
                :regexp "^[ \t]*:recurrence:"
                :not (:todo t)
                :not (:log t)
-               :not (:habit t))))
+               :not (:habit t))
+             :and
+             (:tag "inbox")))
            (:name "Today"  ; Optionally specify section name
             :time-grid t  ; Items that appear on the time grid
             :todo "TODAY")  ; Items that have this TODO keyword
@@ -2958,9 +2960,7 @@ Follows the same rules as `org-agenda-files'"
            (:name "Today" :scheduled today :deadline today)
            (:name "Overdue"
             :and
-            (:scheduled past :deadline past)
-            :not (:tag "inbox" :habit t))
-           (:name "Inbox" :tag "inbox")
+            (:scheduled past :deadline past))
            (:name "Habits" :habit t)
            (:priority<= "B"
             ;; Show this section after "Today" and "Important", because
