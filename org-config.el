@@ -2027,6 +2027,11 @@ particular, that means Emacsclient will return immediately."
                 ;; Use headline to populate title for org-roam bookmark instead of
                 ;; #+title file-level property so that I can easily run
                 ;; ‘org-drill-type-inbox-init’ to defer the task.
+                ;;
+                ;; TODO: It would probably be good to replace the ‘run-at-time’
+                ;; stuff here with a hook added to
+                ;; ‘org-roam-capture-new-node-hook’, placed towards the end
+                ;; (after ‘my-org-roam-relocate-property-drawer-after-capture').
                 "\
 #+setupfile: common.setup
 #+date: %U
@@ -2040,7 +2045,31 @@ particular, that means Emacsclient will return immediately."
 %s
 </blockquote>
 #+END_SRC
-\" body))"))
+\" body))
+%(progn
+  ;; Assume we focus the capture buffer in the active window. We have to
+  ;; wait a bit to ensure we’ve jumped to the destination buffer.
+  (run-at-time 0.5 nil
+    (lambda ()
+     (let
+       ((id
+          (save-window-excursion
+           (save-excursion
+             (message \"about to capture\")
+             (org-roam-dailies--capture (org-read-date nil t \"%<%Y-%m-%d>\") t \"d\")
+             (message \"captured, in %S\" (current-buffer))
+             (goto-char (point-min))
+             (org-next-visible-heading 1)
+             (org-id-get-create)))))
+        (message \"id: \\%S\" id)
+        (with-current-buffer (window-buffer (selected-window))
+          (goto-char (point-max))
+          (forward-line 1)
+          (insert (org-link-make-string
+                    (concat \"id:\" id)
+                    \"%<%Y-%m-%d>\"))))
+     nil))
+   nil)"))
   (setq! org-roam-dailies-capture-templates
    '(("d" "default" entry "* %?\n%U" :if-new
       (file+head "%<%Y-%m-%d>.org" "\
