@@ -2046,7 +2046,7 @@ particular, that means Emacsclient will return immediately."
       (file+head "%<%Y-%m-%d>.org" "\
 #+setupfile: common.setup
 * %<%Y-%m-%d>
-[[elisp:(let ((org-agenda-sticky nil) (org-agenda-window-setup 'reorganize-frame)) (org-agenda-list nil \"%<%Y-%m-%d\"))][(agenda)]]
+[[elisp:(let ((org-agenda-sticky nil) (org-agenda-include-inactive-timestamps t) (org-agenda-window-setup 'reorganize-frame)) (message \"org-roam-dailes-capture-templates: overriding time %S\" org-default-overriding-time) (org-agenda-list nil \"%<%Y-%m-%d>\"))][(agenda)]]
 #+comment: If this file is blank after capturing daily log or weekly review, try that command again.
 "))))
   ;; "R" is like "r" but also runs ‘org-drill-type-inbox-init'.
