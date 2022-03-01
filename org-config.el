@@ -1706,6 +1706,7 @@ SCOPE, DRILL-MATCH, RESUME-P, and CRAM passed to ‘org-drill'."
      "
 * %(format-time-string \"%H:%M\")   %^g
 :PROPERTIES:
+:ANKI_TAGS: org-anki-editor
 :ANKI_NOTE_TYPE: Basic
 :ANKI_DECK: /
 :END:
@@ -1723,6 +1724,7 @@ SCOPE, DRILL-MATCH, RESUME-P, and CRAM passed to ‘org-drill'."
      "
 * %(format-time-string \"%H:%M\")   %^g
 :PROPERTIES:
+:ANKI_TAGS: org-anki-editor
 :ANKI_NOTE_TYPE: Cloze
 :ANKI_DECK: /
 :END:
