@@ -96,8 +96,10 @@ Examples:
    (encode-time (decoded-time-add (org-parse-time-string ts)
                                   (make-decoded-time :day days)))))
 
+(require 'f)
+(setq! org-directory "~/Documents/org")
 (defcustom org-daily-log-file
-  (concat org-directory "/daily-log.org")
+  (f-join org-directory "home-org" "daily-log.org")
   "The path to Org file in which daily log entries are captured."
   :type 'file)
 
@@ -115,26 +117,26 @@ Otherwise, add ENTRY to TEMPLATE."
 (after! org-capture
  (org-capture-templates-put-entry
   org-capture-templates
-  `("t" "Task" entry (file (lambda () (concat org-directory "/inbox.org")))
+  `("t" "Task" entry (file (lambda () (f-join org-directory "home-org" "inbox.org")))
     "
 * TODO %?%^{Title}
 %u
 " :clock-in t :clock-resume t :jump-to-captured t))
  (org-capture-templates-put-entry
   org-capture-templates
-  `("n" "Note" entry (file (lambda () (concat org-directory "/inbox.org")))
+  `("n" "Note" entry (file (lambda () (f-join org-directory "home-org" "inbox.org")))
     "
 * %u %?
 " :jump-to-captured t))
  (org-capture-templates-put-entry
   org-capture-templates
-  `("i" "Idea" entry (file (lambda () (concat org-directory "/inbox.org")))
+  `("i" "Idea" entry (file (lambda () (f-join org-directory "home-org" "inbox.org")))
     "
 * %u %?REPLACE_ME                      :IDEA:
 " :clock-in t :clock-resume t))
  (org-capture-templates-put-entry
   org-capture-templates
-  `("j" "Journal" plain (file+weektree (lambda () (concat org-directory "/journal.org")))
+  `("j" "Journal" plain (file+weektree (lambda () (f-join org-directory "home-org" "journal.org")))
     "
 * %U %^{Title}                 :journal:
 :PROPERTIES:
