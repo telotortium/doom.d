@@ -24,6 +24,40 @@
 (setq initial-buffer-choice
       (lambda () (org-roam-dailies-goto-today "d") (current-buffer)))
 
+;; Previously I kept my ‘doom-emacs-dir’ as a submodule of my private Doom
+;; configuration. However, according to the maintainer, this might cause issues
+;; with not being able to load certain modules correctly (see
+;; https://github.com/hlissner/doom-emacs/issues/6101#issuecomment-1034197760).
+;; Therefore, I’ve decided to move my config outside of my ‘doom-private-dir’,
+;; and manually check the commit instead in order to make sure ‘doom-emacs-dir’
+;; is as my private configuration expects.
+(let* ((doom-expected-commit "42e5763782fdc1aabb9f2624d468248d6978abe2")
+       actual-commit)
+  (condition-case err
+      (when-let
+          ((result
+            (replace-regexp-in-string
+             "\n+$"
+             ""
+             (shell-command-to-string
+              (format "cd %s && git rev-parse HEAD"
+                      (shell-quote-argument doom-emacs-dir))))))
+        (setq actual-commit result))
+    (error
+     (error "Verifying commit of %1$s failed: %2$S
+Is Doom installed in %1$s? If not, run these commands and try again:
+
+git clone --depth 1 https://github.com/hlissner/doom-emacs %1$s
+cd %1$s && git reset --hard %3$s
+%1$s/bin/doom install"
+            (shell-quote-argument doom-emacs-dir)
+            err
+            (shell-quote-argument doom-expected-commit)))
+    (:success
+     (unless (string-equal doom-expected-commit actual-commit)
+       (error "Doom Git repo in %1$s at commit %2$s - want %3$s"
+              doom-emacs-dir actual-commit doom-expected-commit)))))
+
 (doom! :input
        ;;chinese
        ;;japanese
