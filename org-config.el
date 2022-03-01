@@ -531,6 +531,7 @@ Use `org-ql-search' to search."
       (todo)
       (tags "HOLD")
       (not (tags "CANCELLED" "ARCHIVED"))
+      (not (parent (tags "HOLD")))
       (not (scheduled :from 1)))
     :super-groups '((:auto-map my-org-super-agenda-group-by-project-or-task-group))
     :buffer (or buffer org-ql-view-buffer)
