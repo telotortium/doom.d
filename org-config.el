@@ -575,11 +575,11 @@ Use `org-ql-search' to search for all loose TODOs."
  (org-ql-search
    (org-agenda-files)
    `(and
-     (tags-local "inbox")
-     (not (tags "HOLD" "CANCELLED" "ARCHIVED"))
-     (not (scheduled :from 1)))
+     (tags-local "inbox" "REFILE")
+     (not (scheduled :from 1))
+     (not (tags "HOLD" "CANCELLED" "ARCHIVED")))
    :super-groups '((:auto-ts t))
-   :title "Inbox entries (not scheduled for future)"
+   :title "Inbox entries"
    :buffer (or buffer org-ql-view-buffer)))
 (cl-defun my-org-agenda-loose-todos (&optional buffer)
   "Show agenda for Loose TODOs (those not part of projects)
@@ -766,6 +766,8 @@ argument when called in `org-agenda-custom-commands'."
                           my-org-agenda-waiting)
 (my-org-agenda-ql-wrapper my-org-agenda-ready-projects-agenda-command
                           my-org-agenda-ready-projects)
+(my-org-agenda-ql-wrapper my-org-agenda-inbox-agenda-command
+                          my-org-agenda-inbox)
 (my-org-agenda-ql-wrapper my-org-agenda-loose-todos-agenda-command
                           my-org-agenda-loose-todos)
 (my-org-agenda-ql-wrapper my-org-agenda-stuck-projects-agenda-command
@@ -832,6 +834,9 @@ argument when called in `org-agenda-custom-commands'."
                 (org-agenda-exporter-settings
                  my-org-agenda-export-options))
                "~/Downloads/agenda-P-export.pdf"))
+(add-to-list 'org-agenda-custom-commands
+ `("I" "Inbox"
+   ((my-org-agenda-inbox-agenda-command ""))))
 (add-to-list 'org-agenda-custom-commands
              `("U" "Loose TODOs (not part of projects)"
                ((my-org-agenda-loose-todos-agenda-command ""))
