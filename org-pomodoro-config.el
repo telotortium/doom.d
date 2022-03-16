@@ -656,7 +656,8 @@ current ‘org-pomodoro-end-time’."
   "Kill the running Pomodoro."
   (interactive)
   (when (org-pomodoro-active-p)
-    (org-pomodoro-kill)))
+    (org-pomodoro-kill))
+  (setq org-pomodoro-count 0))
 
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-clear-break-end-alarm-id)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-notify-hook)
