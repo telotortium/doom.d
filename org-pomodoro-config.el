@@ -297,9 +297,6 @@ Effectively the same as ‘bh/punch-in’, but since ‘org-pomodoro’ starts t
 clock, we just need to set the proper variable and the bh clocking functions
 will work as designed."
   (setq bh/keep-clock-running t))
-(defun my-org-pomodoro-started-notify-hook ()
-  (org-pomodoro-notify "Pomodoro started"
-                       "Snooze notifications in Hangouts Chat."))
 (defun my-org-pomodoro-finished-notify-hook ()
   (org-pomodoro-notify "Pomodoro phase finished"
                        (format "%S" org-pomodoro-state)))
@@ -680,7 +677,6 @@ current ‘org-pomodoro-end-time’."
   "off"))
 
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-clear-break-end-alarm-id)
-(add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-notify-hook)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-create-log-event)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-break-reminder-prompt-hook)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-punch-in)
