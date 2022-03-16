@@ -658,19 +658,41 @@ current ‘org-pomodoro-end-time’."
   (when (org-pomodoro-active-p)
     (org-pomodoro-kill))
   (setq org-pomodoro-count 0))
+(defun my-org-pomodoro-pomodoro-light-on ()
+  "Turn on my Pomodoro light lamp when Pomodoro starts."
+  (interactive)
+  (start-process
+   "*pomodoro-light-on*"
+   "*pomodoro-light-on*"
+   "chronic"  ;; Don’t show output unless command fails
+   "kasa"
+   "--alias=Pomodoro light"
+   "on"))
+(defun my-org-pomodoro-pomodoro-light-off ()
+ "Turn off my Pomodoro light lamp when Pomodoro starts."
+ (interactive)
+ (start-process
+  "*pomodoro-light-off*"
+  "*pomodoro-light-off*"
+  "chronic"  ;; Don’t show output unless command fails
+  "kasa"
+  "--alias=Pomodoro light"
+  "off"))
 
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-clear-break-end-alarm-id)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-notify-hook)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-create-log-event)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-break-reminder-prompt-hook)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-punch-in)
+(add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-pomodoro-light-on)
 (add-hook 'org-clock-in-hook #'my-org-pomodoro-update-log-event-titles)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-ended-update-log-event)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-remove-break-end-alarm)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-remove-break-reminder-alarm)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-finished-sync-anki)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-finished-info-today)
-(add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-sync-anki)
+(add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-pomodoro-light-off)
+(add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-pomodoro-light-off)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-info-today)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-ended-update-log-event)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-notify-hook)
