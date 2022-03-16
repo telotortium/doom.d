@@ -116,9 +116,6 @@ while True:
   (setq org-pomodoro-ticking-volume volume)
   (my-org-pomodoro-stop-tick)
   (my-org-pomodoro-start-tick))
-(add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-start-tick)
-(add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-stop-tick)
-(add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-stop-tick)
 
 (defun my-org-pomodoro-modify-end-time-hook ()
   "Hook to reschedule alarms when end time changed."
@@ -126,9 +123,6 @@ while True:
   (my-org-pomodoro-update-log-event org-pomodoro-end-time)
   (my-org-pomodoro-reschedule-break-end-alarm)
   (my-org-pomodoro-reschedule-break-reminder-alarm))
-
-(add-hook 'org-pomodoro-third-time-modify-end-time-hook
-          #'my-org-pomodoro-modify-end-time-hook)
 
 (defun org-pomodoro-start-short-break (&optional no-lock)
   "Start a short break immediately.
@@ -681,6 +675,7 @@ current ‘org-pomodoro-end-time’."
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-break-reminder-prompt-hook)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-punch-in)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-pomodoro-light-on)
+(add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-start-tick)
 (add-hook 'org-clock-in-hook #'my-org-pomodoro-update-log-event-titles)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-ended-update-log-event)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-remove-break-end-alarm)
@@ -688,6 +683,8 @@ current ‘org-pomodoro-end-time’."
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-finished-sync-anki)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-finished-info-today)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-pomodoro-light-off)
+(add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-stop-tick)
+(add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-stop-tick)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-pomodoro-light-off)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-finished-info-today)
 (add-hook 'org-pomodoro-finished-hook #'my-org-pomodoro-ended-update-log-event)
@@ -703,6 +700,8 @@ current ‘org-pomodoro-end-time’."
 (add-hook 'org-pomodoro-tick-hook #'my-org-pomodoro-tick-current-task-reminder)
 (add-hook 'org-pomodoro-break-finished-hook #'my-org-pomodoro-break-finished-notify-hook)
 (add-hook 'org-pomodoro-break-finished-hook #'my-org-pomodoro-break-finished-cancel-timers)
+(add-hook 'org-pomodoro-third-time-modify-end-time-hook
+          #'my-org-pomodoro-modify-end-time-hook)
 
 ;; Patch org-pomodoro to remove calls to ‘org-agenda-maybe-redo’.
 (el-patch-feature org-pomodoro)
