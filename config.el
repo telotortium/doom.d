@@ -358,6 +358,12 @@ near the edge of the frame, so it may be a culprit. Work around this by using
   (hl-line-when-idle-interval 0.3)
   (toggle-hl-line-when-idle 1))
 
+;;; Enable pixel-scrolling
+(when (require 'pixel-scroll nil 'noerror)
+  (if (fboundp 'pixel-scroll-precision-mode)
+      (pixel-scroll-precision-mode +1)
+    (pixel-scroll-mode +1)))
+
 (setq! profiler-max-stack-depth 64)
 (setq! adaptive-wrap-extra-indent 2)
 (add-hook 'visual-line-mode-hook #'adaptive-wrap-prefix-mode)
