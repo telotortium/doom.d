@@ -451,12 +451,17 @@ headline under the headline at the current point."
                              (org-refile-get-targets)))
 (defun my-org-git-sync ()
   "Run org-syncup-full script to save Org buffers and then org-git-sync."
-  (start-process
-   "*my-org-git-sync*"
-   "*my-org-git-sync*"
-   (expand-file-name "~/bin/org-syncup-full")
-   "-n" "-g" "-P"))
-(run-with-idle-timer 120 t #'my-org-git-sync)
+  (let ((c (current-window-configuration)))
+    (message "my-org-git-sync: launching - will restore window configuration afterward.")
+    (deferred:try
+      (deferred:process-shell
+        "~/bin/org-syncup-full -n -g -P")
+      :finally
+      (lambda (_)
+        (set-window-configuration c)
+        (message "my-org-git-sync: restored window configuration")
+        (start-process-shell-command "promesia-index" nil "promnesia index")))))
+(run-with-idle-timer 300 t #'my-org-git-sync)
 
 (setq! org-alphabetical-lists t)
 ;; Override Doom Emacs default. I've already written too many files with my
