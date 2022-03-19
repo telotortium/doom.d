@@ -336,51 +336,60 @@ will work as designed."
 (defvar my-org-pomodoro-time-today-var 0
   "Amount of time spent in pomodoro today, in seconds.")
 
-(defun my-org-pomodoro-start-info-update ()
-  "Start updating variables used by ‘my-org-agenda-pomodoro-info’.
-
-The variables will be updated asynchronously."
-  (let ((process-environment (copy-sequence process-environment)))
-    (when my-org-pomodoro-browser
-      (setenv "BROWSER" my-org-pomodoro-browser))
-    (apply
-     #'async-start-process
-     "org_pomodoro_calendar_log_sum.py"
-     (expand-file-name "org_pomodoro_calendar_log_sum.py" doom-private-dir)
-     (lambda (proc)
-       (when (= 0 (process-exit-status proc))
-         (with-current-buffer (process-buffer proc)
-           (let* ((out
-                   (string-trim (buffer-substring-no-properties
-                                 (point-min) (point-max))))
-                  (result-list (s-split "," out)))
-             (setq my-org-pomodoro-count-today-var
-                   (string-to-number (nth 0 result-list))
-                   my-org-pomodoro-time-today-var
-                   (string-to-number (nth 1 result-list)))))))
-     (let* ((today-start
-             (append `(0 0 ,(or org-extend-today-until 0))
-                     (nthcdr 3 (decode-time (org-current-effective-time))))))
-       (append
-         (list
-          "--calendar_id" my-org-pomodoro-log-gcal-calendar-id
-          "--state" ":pomodoro"
-          "--start_timestamp" (format-time-string "%FT%T%z"
-                                                  (encode-time today-start))
-          "--end_timestamp" (format-time-string "%FT%T%z" (current-time))))))))
 (defun my-org-pomodoro-info-today ()
   "Show count of pomodoros and time spent within today."
   (interactive)
   (message "Updating info...")
-  (async-wait (my-org-pomodoro-start-info-update))
-  (message "Org Pomodoro - Count: %2d, Time: %s"
-            my-org-pomodoro-count-today-var
-            (org-timer-secs-to-hms
-             (round my-org-pomodoro-time-today-var))))
+  (let ((process-environment (copy-sequence process-environment)))
+    (when my-org-pomodoro-browser
+      (setenv "BROWSER" my-org-pomodoro-browser))
+    (with-current-buffer (generate-new-buffer "*org_pomodoro_calendar_log_sum.py*")
+      (let*
+          ((proc
+            (apply
+             #'start-process
+             "org_pomodoro_calendar_log_sum.py"
+             (current-buffer)
+             (expand-file-name "org_pomodoro_calendar_log_sum.py" doom-private-dir)
+             (let* ((today-start
+                     (append `(0 0 ,(or org-extend-today-until 0))
+                             (nthcdr 3 (decode-time (org-current-effective-time))))))
+               (append
+                (list
+                 "--calendar_id" my-org-pomodoro-log-gcal-calendar-id
+                 "--state" ":pomodoro"
+                 "--start_timestamp" (format-time-string "%FT%T%z"
+                                                         (encode-time today-start))
+                 "--end_timestamp" (format-time-string "%FT%T%z" (current-time))))))))
+        ;; This process timeout code from
+        ;; https://emacs.stackexchange.com/a/10295/17182. Not using CLI
+        ;; ‘timeout’ program because it doesn’t exist on macOS.
+        (with-timeout (5.0
+                       (kill-process proc)
+                       (error "my-org-pomodoro-info-today: process timeout after 5.0 seconds"))
+          (while (process-live-p proc)
+            (sit-for 0.05))
+          (when (= 0 (process-exit-status proc))
+            (with-current-buffer (process-buffer proc)
+              (let* ((out
+                      (string-trim (buffer-substring-no-properties
+                                    (point-min) (point-max))))
+                     (result-list (s-split "," out)))
+                (setq my-org-pomodoro-count-today-var
+                      (string-to-number (nth 0 result-list))
+                      my-org-pomodoro-time-today-var
+                      (string-to-number (nth 1 result-list)))
+                (message "Org Pomodoro - Count: %2d, Time: %s"
+                         my-org-pomodoro-count-today-var
+                         (org-timer-secs-to-hms
+                          (round my-org-pomodoro-time-today-var)))))))))))
 (defun my-org-pomodoro-finished-info-today ()
   "Run ‘my-org-pomodoro-info-today’ when Pomodoro finishes."
-  (display-warning 'org-pomodoro-config (my-org-pomodoro-info-today)))
-
+  (display-warning
+   'org-pomodoro-config
+   (condition-case-unless-debug err
+      (my-org-pomodoro-info-today)
+     (t (format "Error: %S" err)))))
 (defvar my-org-pomodoro-current-task-reminder-next-time nil)
 (defun my-org-pomodoro-tick-current-task-reminder ()
   "Prod me with reminders of my current task to stop me from being distracted."
