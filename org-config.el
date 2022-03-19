@@ -756,6 +756,31 @@ Use ‘org-ql-search' to search."
     :super-groups '((:auto-ts))
     :sort 'date
     :title "Old GCal tasks to delete."))
+(cl-defun my-org-agenda-ancient-tasks (&optional buffer)
+ "Show agenda for ancient tasks.
+
+Look for tasks with property ‘org-gcal-calendar-id-property' that are older than
+90 days, have never been clocked, have no children, and are not parents of
+recurring events. These tasks are merely cached versions of events on Google
+Calendar that I’ve never interacted with, and can thus be deleted without any
+ill effect.
+
+Use ‘org-ql-search' to search."
+ (interactive)
+ (require 'org-gcal)
+ (org-ql-search
+   (my-org-list-all-org-files-under org-directory)
+   `(and
+     (ts :to -365)
+     (not (ts :from -365))
+     (or
+      (todo)
+      (tags-local "REFILE" "inbox"))
+     (not (parent (tags "REFILE" "inbox" "HOLD" "WAITING"))))
+   :buffer (or buffer org-ql-view-buffer)
+   :super-groups '((:auto-ts))
+   :sort 'date
+   :title "Ancient tasks, to re-triage or archive"))
 (defmacro my-org-agenda-ql-wrapper (wrapper-name wrapped-func-name)
   "Defines a wrapper for use in `org-agenda-custom-commands'.
 
