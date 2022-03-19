@@ -3005,6 +3005,8 @@ Follows the same rules as `org-agenda-files'"
            (:discard
             (:tag "ARCHIVE"
              :and
+             (:todo "CANCELLED")
+             :and
              (
                ;; TODO: replace with ~:property "recurrence"~ once I upgrade to
                ;; ‘org-super-agenda' 1.3.
