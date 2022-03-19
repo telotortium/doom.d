@@ -54,6 +54,8 @@
  org-agenda-start-day "."
  org-agenda-start-on-weekday nil
  org-agenda-skip-deadline-prewarning-if-scheduled t)
+(add-hook 'org-mode-hook #'electric-quote-local-mode)
+
 
 (defun transform-square-brackets-to-curly-ones (string-to-transform)
   "Transforms [ into ( and ] into ) in STRING-TO-TRANSFORM.
