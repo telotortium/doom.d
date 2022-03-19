@@ -191,7 +191,7 @@ Advance to NEXT once filled out
 * NEXT %u GTD weekly review
 SCHEDULED: <%<%Y-%m-%d %a 13:00-14:00>>
 :PROPERTIES:
-:Effort:   1:00
+:Effort:   2:00
 :END:
 Follow:
 
@@ -212,15 +212,13 @@ Checklist:
   - [ ] Get “IN” to Zero \\\\
     Process completely all outstanding paper materials, journal and meeting
     notes, voicemails, dictation, and emails.
-    - [ ] inbox.org files
-    - [ ] Personal email
-    - [ ] Personal tasks (use ~sync-tasks~)
+    - [ ] Personal email (use [[https://mail.google.com/mail/u/0/#search/is%3Ainbox+-label%3Anewsletters+-label%3Anewsletters%2Ffavorite][Inbox without newsletters]])
+    - [ ] Personal tasks (use src_sh{cd ~/Documents/org/home-org && ./sync-tasks --pull})
     - [ ] Corp email
-    - [ ] Corp tasks (use ~sync-tasks~)
-    - [ ] [[https://b.corp.google.com/savedsearches/5024171][Buganizer: Org-mode assigned but not captured]]
-    - [ ] [[https://critique.corp.google.com/#search/&q=reviewer:me+-is:submitted+-starred:me][Critique: CLs to review]]
+    - [ ] Corp tasks
     - [ ] Close all browser tabs (use org-capture-extension to capture)
     - [ ] Chats
+    - [ ] Inbox (use [[elisp:(my-org-agenda-inbox-recent)]])
   - [ ] Empty Your Head \\\\
     Put in writing and process any uncaptured new projects, action items,
     waiting for’s, someday maybe’s, etc.
