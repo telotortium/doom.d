@@ -1927,8 +1927,9 @@ particular, that means Emacsclient will return immediately."
 (use-package! org-roam
   :hook (after-init . org-roam-setup)
   :init
-  (setq! org-roam-directory "~/Documents/org/home-org/roam")
-  (setq! org-roam-db-location "~/.doom.d/doom.emacs.d/.local/etc/org-roam-home.db")
+  (setq! org-roam-directory org-directory)
+  (setq! org-roam-extract-new-file-path "home-org/roam/${slug}.org")
+  (setq! org-roam-dailies-directory "home-org/roam/daily/")
   (setq! org-roam-v2-ack t)
   (setq! org-roam-link-title-format "§%s")
   (setq! org-roam-db-node-include-function (lambda () t))
@@ -2014,6 +2015,9 @@ particular, that means Emacsclient will return immediately."
     "Set buffer name of org-roam files."
     (with-demoted-errors "Error: %S"
      (when-let (((org-roam-file-p))
+                ((s-contains?
+                  "/roam/"
+                  (buffer-file-name (buffer-base-buffer))))
                 (title (my-org-roam-get-first-node-title)))
        (rename-buffer title))))
   (add-hook 'find-file-hook #'my-org-roam-set-buffer-name-hook)
@@ -2049,6 +2053,57 @@ particular, that means Emacsclient will return immediately."
            (end-of-line)
            (newline)
            (insert drawer))))))
+  (cl-defun my-org-roam-dailies-today-id ()
+    "Return the ID of today’s org-roam dailies entry.
+Create the entry if it does not exist."
+    ;; ‘save-window-excursion’ to avoid closing the current capture window if
+    ;; used from ‘org-capture’.
+    (save-window-excursion
+     (save-excursion
+      (let ((org-roam-dailies-capture-templates
+             (cl-copy-list org-roam-dailies-capture-templates)))
+        (plist-put! (nthcdr 4 (assoc "D" org-roam-dailies-capture-templates))
+                    :immediate-finish t :jump-to-captured t)
+        (org-roam-dailies--capture (org-read-date nil t "%<%y-%m-%d>") t "D"))
+      (goto-char (point-min))
+      (org-next-visible-heading 1)
+      (org-id-get-create))))
+  (cl-defun my-org-roam-dailies-today-link ()
+    "Return a link to today’s ‘org-roam' dailies entry."
+    (org-link-make-string
+     (concat "id:" (my-org-roam-dailies-today-id))
+     (format-time-string "%Y-%m-%d" org-overriding-default-time)))
+  (cl-defun my-org-roam-dailies-link-to-today ()
+    "Link the current headline to ‘org-roam’ today’s daily headline."
+    (interactive)
+    (save-excursion
+      ;; Go to first heading.
+      (goto-char (point-min))
+      (outline-next-heading)
+      ;; Go to end of current heading (before any subheadings) and insert the date there.)
+      (outline-next-heading)
+      (if (eobp)
+          (progn
+            (end-of-line)
+            (open-line 1)
+            (forward-line 1))
+        (forward-line -1)
+        (unless (org--line-empty-p 1)
+          (end-of-line)
+          (open-line 1)
+          (forward-line 1)))
+      (insert (my-org-roam-dailies-today-link))
+      nil))
+  (cl-defun my-org-roam-add-to-inbox ()
+    "Run ‘org-drill-type-inbox-init’ on the current top-level ‘org-roam’ headline."
+    (interactive)
+    (save-excursion
+      ;; Go to first heading.
+      (goto-char (point-min))
+      (outline-next-heading)
+      ;; And add to inbox
+      (org-drill-type-inbox-init)
+      nil))
   (add-hook 'org-roam-capture-new-node-hook
             #'my-org-roam-relocate-property-drawer-after-capture
             100)
@@ -2060,26 +2115,54 @@ particular, that means Emacsclient will return immediately."
          (cl-copy-list org-roam-capture-templates))
   (plist-put! (nthcdr 4 (assoc "d" org-roam-capture-templates))
               :immediate-finish t :jump-to-captured t
-              :if-new
+              :target
               '(file+head
-                "${slug}.org"
-                "#+setupfile: common.setup\n#+date: %U\n\n* ${title}\n"))
-  (setq! org-roam-capture-ref-templates
-   (cl-copy-list org-roam-capture-ref-templates))
-  (plist-put! (nthcdr 4 (assoc "r" org-roam-capture-ref-templates))
-              :immediate-finish t :jump-to-captured t
-              :if-new
-              '(file+head
-                "${slug}.org"
-                ;; Use headline to populate title for org-roam bookmark instead of
-                ;; #+title file-level property so that I can easily run
-                ;; ‘org-drill-type-inbox-init’ to defer the task.
-                ;;
-                ;; TODO: It would probably be good to replace the ‘run-at-time’
-                ;; stuff here with a hook added to
-                ;; ‘org-roam-capture-new-node-hook’, placed towards the end
-                ;; (after ‘my-org-roam-relocate-property-drawer-after-capture').
+                "home-org/roam/${slug}.org"
                 "\
+#+setupfile: common.setup
+#+date: %U
+
+* ${title}"))
+ (defun org-capture-plist-dump ()
+   "Dump variables for org-roam-capture plists for debugging."
+  (message "org-capture-plist: %s"
+           (pp-to-string org-capture-plist))
+  (message "org-capture-current-plist: %s"
+   (pp-to-string org-capture-current-plist))
+  (message "org-roam-capture--info: %s"
+   (pp-to-string org-roam-capture--info))
+  (message "org-roam-capture--node: %s"
+   (pp-to-string org-roam-capture--node))
+  (message "org-capture-templates: %s"
+           (pp-to-string org-capture-templates))
+  (message "org-roam-capture-templates: %s"
+           (pp-to-string org-roam-capture-templates)))
+ (cl-defun my-org-roam-after-finalize-link-to-today ()
+   (when-let*
+       (
+        ;; First 2 checks confirm that we’re capturing for ‘org-roam-capture’.
+        ((and org-roam-capture--node))
+        ((org-capture-get :org-roam))
+        (key (org-capture-get :key))
+        (buffer (org-capture-get :buffer)))
+     (save-excursion
+       (with-current-buffer buffer
+         ;; Skip D from ‘org-roam-dailies-capture-templates’.
+         (when (equal "D" key)
+           (cl-return-from my-org-roam-after-finalize-link-to-today nil))
+         (my-org-roam-dailies-link-to-today)
+         (when (member key '("R" "G"))
+           (my-org-roam-add-to-inbox))))))
+ (add-hook 'org-capture-after-finalize-hook
+  #'my-org-roam-after-finalize-link-to-today)
+ (setq! org-roam-capture-ref-templates
+  (cl-copy-list org-roam-capture-ref-templates))
+ (plist-put! (nthcdr 4 (assoc "r" org-roam-capture-ref-templates))
+             :immediate-finish t :jump-to-captured t
+             :target
+             '(file+head
+               "home-org/roam/${slug}.org"
+               "\
 #+setupfile: common.setup
 #+date: %U
 
@@ -2092,79 +2175,58 @@ particular, that means Emacsclient will return immediately."
 %s
 </blockquote>
 #+END_SRC
-\" body))
-%(progn
-  ;; Assume we focus the capture buffer in the active window. We have to
-  ;; wait a bit to ensure we’ve jumped to the destination buffer.
-  (run-at-time 0.5 nil
-    (lambda ()
-     (let
-       ((id
-          (save-window-excursion
-           (save-excursion
-             (message \"about to capture\")
-             (org-roam-dailies--capture (org-read-date nil t \"%<%Y-%m-%d>\") t \"d\")
-             (message \"captured, in %S\" (current-buffer))
-             (goto-char (point-min))
-             (org-next-visible-heading 1)
-             (org-id-get-create)))))
-        (message \"id: \\%S\" id)
-        (with-current-buffer (window-buffer (selected-window))
-          (goto-char (point-max))
-          (forward-line 1)
-          (insert (org-link-make-string
-                    (concat \"id:\" id)
-                    \"%<%Y-%m-%d>\"))))
-     nil))
-   nil)"))
-  (setq! org-roam-dailies-capture-templates
-   '(("d" "default" entry "* %?\n%U" :if-new
-      (file+head "%<%Y-%m-%d>.org" "\
+\" body))"))
+ (setq! org-roam-dailies-capture-templates
+  '(("D" "default" entry "* %?\n%U" :target
+     (file+head "%<%Y-%m-%d>.org" "\
 #+setupfile: common.setup
 * %<%Y-%m-%d>
 [[elisp:(let ((org-agenda-sticky nil) (org-agenda-include-inactive-timestamps t) (org-agenda-window-setup 'reorganize-frame)) (message \"org-roam-dailes-capture-templates: overriding time %S\" org-default-overriding-time) (org-agenda-list nil \"%<%Y-%m-%d>\"))][(agenda)]]
 #+comment: If this file is blank after capturing daily log or weekly review, try that command again.
 "))))
-  ;; "R" is like "r" but also runs ‘org-drill-type-inbox-init'.
-  (setf (alist-get "R" org-roam-capture-ref-templates nil nil #'equal)
-        (cl-copy-list (alist-get "r" org-roam-capture-ref-templates nil nil #'equal)))
-  (let* ((rval (nthcdr 4 (assoc "R" org-roam-capture-ref-templates)))
-         (if-new (plist-get rval :if-new)))
-    (plist-put! rval
-                :immediate-finish nil   ; ‘org-capture-finalize’ called by template.
-                :jump-to-captured t
-                :if-new
-                (list
-                 'file+head
-                 (nth 1 if-new)
-                 (concat (nth 2 if-new) "\
-%(progn
-  ;; Assume we focus the capture buffer in the active window. We have to
-  ;; wait a bit to ensure we’ve jumped to the destination buffer.
-  (run-at-time 0.5 nil
-    (lambda ()
-     (save-excursion
-       (with-current-buffer (window-buffer (selected-window))
-        (goto-char (point-min))
-        (re-search-forward org-outline-regexp-bol)
-        (call-interactively #'my-org-capture-defer-task))
-       nil)))
-  nil)"))))
-  (el-patch-defun org-roam-protocol--insert-captured-ref-h ()
-    "Insert the ref if any."
-    (message "org-roam-capture--info: %S" org-roam-capture--info)
-    (message "org-roam-capture--node: %S" org-roam-capture--node)
-    (message "title: %S" (and (org-roam-node-p org-roam-capture--node)
-                              (org-roam-node-title org-roam-capture--node)))
-    (when-let ((ref (plist-get org-roam-capture--info :ref)))
-     (el-patch-swap
-      (org-roam-ref-add ref)
-      (org-roam-ref-add
-         (if-let ((title
-                   (when (org-roam-node-p org-roam-capture--node)
-                     (org-roam-node-title org-roam-capture--node))))
-          (org-link-make-string ref title)
-          ref)))))
+  ;; "R" is like "r" but also runs ‘org-drill-type-inbox-init' - the templates
+  ;; are exactly the same, but the behavior is controlled by
+  ;; ‘my-org-roam-after-finalize-link-to-today’.
+ (setf (alist-get "R" org-roam-capture-ref-templates nil nil #'equal)
+       (cl-copy-list (alist-get "r" org-roam-capture-ref-templates nil nil #'equal)))
+  ;; "g" and "G" are exactly like "r" and "R", but they put the captured node in
+  ;; the tiktok-org repo instead.
+ (progn
+   (setf (alist-get "g" org-roam-capture-ref-templates nil nil #'equal)
+         (cl-copy-list (alist-get "r" org-roam-capture-ref-templates nil nil #'equal)))
+   (let* ((rval (nthcdr 4 (assoc "g" org-roam-capture-ref-templates)))
+          (target (cl-copy-list (plist-get rval :target))))
+     (plist-put! rval
+                 :target
+                 (list
+                  (nth 0 target)
+                  "tiktok-org/roam/${slug}.org"
+                  (nth 2 target))))
+   (setf (alist-get "G" org-roam-capture-ref-templates nil nil #'equal)
+         (cl-copy-list (alist-get "R" org-roam-capture-ref-templates nil nil #'equal)))
+   (let* ((rval (nthcdr 4 (assoc "G" org-roam-capture-ref-templates)))
+          (target (cl-copy-list (plist-get rval :target))))
+     (plist-put! rval
+                 :target
+                 (list
+                  (nth 0 target)
+                  "tiktok-org/roam/${slug}.org"
+                  (nth 2 target)))))
+ (el-patch-defun org-roam-protocol--insert-captured-ref-h ()
+   "Insert the ref if any."
+   (message "org-roam-capture--info: %S" org-roam-capture--info)
+   (message "org-roam-capture--node: %S" org-roam-capture--node)
+   (message "title: %S" (and (org-roam-node-p org-roam-capture--node)
+                             (org-roam-node-title org-roam-capture--node)))
+   (when-let ((ref (plist-get org-roam-capture--info :ref)))
+    (el-patch-swap
+     (org-roam-ref-add ref)
+     (org-roam-ref-add
+        (if-let ((title
+                  (when (org-roam-node-p org-roam-capture--node)
+                    (org-roam-node-title org-roam-capture--node))))
+         (org-link-make-string ref title)
+         ref)))))
  nil)                                  ; To make eval-region on previous block easier
 
 (defun my-org-html-to-org-quote ()
@@ -2219,46 +2281,58 @@ to this:
                 (buffer-string)))
              nil t)))))))
 
-(defun org-roam-create-note-from-headline (no-link)
-  "Create an Org-roam note from the current headline and jump to it.
+(after! org-roam-node
+ (el-patch-defun org-roam-extract-subtree ()
+  "Convert current subtree at point to a node, and extract it into a new file."
+  (interactive)
+  (save-excursion
+    (org-back-to-heading-or-point-min t)
+    (when (bobp) (user-error "Already a top-level node"))
+    (org-id-get-create)
+    (save-buffer)
+    (org-roam-db-update-file)
+    (let* ((template-info nil)
+           (node (org-roam-node-at-point))
+           (template (org-roam-format-template
+                      (string-trim (org-capture-fill-template org-roam-extract-new-file-path))
+                      (lambda (key default-val)
+                        (let ((fn (intern key))
+                              (node-fn (intern (concat "org-roam-node-" key)))
+                              (ksym (intern (concat ":" key))))
+                          (cond
+                           ((fboundp fn)
+                            (funcall fn node))
+                           ((fboundp node-fn)
+                            (funcall node-fn node))
+                           (t (let ((r (read-from-minibuffer (format "%s: " key) default-val)))
+                                (plist-put template-info ksym r)
+                                r)))))))
+           (file-path (read-file-name "Extract node to: "
+                                      (file-name-as-directory org-roam-directory) template nil template)))
+      (when (file-exists-p file-path)
+        (user-error "%s exists. Aborting" file-path))
+      (org-cut-subtree)
+      (save-buffer)
+      (with-current-buffer (find-file-noselect file-path)
+        (org-paste-subtree)
+        ;; I don’t know why this doesn’t just use my
+        ;; ‘org-roam-capture-templates’, so I have to replicate this on my own.
+        (el-patch-swap
+          (org-roam-promote-entire-buffer)
+          (progn
+            (save-excursion
+              (goto-char (point-min))
+              (insert
+               (format "\
+#+setupfile: common.setup
+#+date: %s
 
-If called with a prefix or NO-LINK non-nil, don’t
-
-Since I’ve decided to just use the first headline to extract the title (see
-‘org-roam-capture-templates'), this just cuts the subtree to a new file and
-cleans up the file a bit. For earlier versions of this function that can also
-handle files that use the \"#+title\" file property, see the Git history."
-  (interactive "P")
-  (let ((title (nth 4 (org-heading-components)))
-        id)
-    (org-copy-subtree)
-    (org-with-point-at (point)
-      ;; Create file and clean it up.
-      (org-roam-find-file title nil nil 'no-confirm)
-      (org-paste-subtree)
-      (goto-char (point-max))
-      (forward-line -1)
-      (beginning-of-line)
-      (kill-line)
-      ;; Get the ID for the first heading, newly created if necessary.
-      (goto-char (point-min))
-      (when (org-before-first-heading-p)
-        (outline-next-heading))
-      (setq id (org-id-get-create)))
-    (org-back-to-heading)
-    (atomic-change-group
-      (if no-link
-          (org-cut-subtree)
-        (let ((subtree-end
-               (save-excursion
-                 (org-end-of-subtree 'invisible-ok)
-                 (point))))
-          (forward-line 1)
-          (kill-region (point) subtree-end)
-          (org-insert-link nil
-                           (concat "id:" id)
-                           "(moved)"))))
-    (org-id-goto id)))
+"
+                       (format-time-string (org-time-stamp-format t t)))))
+            (save-excursion
+               (my-org-roam-dailies-link-to-today))))
+        (save-buffer)))))
+ (defalias 'org-roam-create-note-from-headline #'org-roam-extract-subtree))
 
 (defcustom my-org-roam-directories (list org-roam-directory)
   "List of org-roam directories to examine in ‘my-org-roam-agenda-file-hook’.")
@@ -2272,21 +2346,35 @@ handle files that use the \"#+title\" file property, see the Git history."
       (require 'org-ql)
       (require 'f)
       (require 's)
-      (cl-loop for dir in my-org-roam-directories
-               append
-               (delete-dups
-                (org-ql-select
-                  (f-files dir (lambda (f) (s-ends-with? ".org" f))
-                           'recursive)
-                  `(or
-                    (ts :from -60)
-                    (tags-local "inbox" "drill"))
-                  :action
-                  (lambda () (buffer-file-name (current-buffer)))))))
+      (let* (text-search agenda)
+        (dolist (dir my-org-roam-directories)
+          (let
+              ((files
+                (f-files dir
+                         (lambda (f) (s-ends-with? ".org" f))
+                         'recursive)))
+            (push files text-search)
+            (push
+             (org-ql-select
+                files
+                `(or
+                  (ts :from -60)
+                  (tags-local "inbox" "drill"))
+                :action
+                (lambda () (buffer-file-name (current-buffer))))
+             agenda)))
+        (delete-dups agenda)
+        (delete-dups text-search)
+        (list agenda text-search)))
    (lambda (res)
      (setq!
       org-agenda-files
-      (append (org-agenda-expand-files-name) res)))))
+      (apply #'append (org-agenda-expand-files-name) (nth 0 res)))
+     (setq!
+      org-agenda-text-search-extra-files
+      (apply #'append org-agenda-text-search-extra-files (nth 1 res)))
+     (delete-dups org-agenda-files)
+     (delete-dups org-agenda-text-search-extra-files))))
 
 (run-with-idle-timer 5 nil #'my-org-roam-agenda-file-hook)
 (run-with-idle-timer (* 60 3) t #'my-org-roam-agenda-file-hook)
