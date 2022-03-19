@@ -576,15 +576,30 @@ Use `org-ql-search' to search for all loose TODOs."
     :super-groups '((:auto-map my-org-super-agenda-group-by-project-or-task-group))
     :title "Ready projects (those with all children done)"
     :buffer (or buffer org-ql-view-buffer)))
+(defconst my-org-agenda-inbox-query
+  `(and
+     (tags-local "inbox" "REFILE")
+     (not (scheduled :from 1))
+     (not (tags "HOLD" "CANCELLED" "ARCHIVED"))))
 (cl-defun my-org-agenda-inbox (&optional buffer)
  "Show agenda for inbox entries not scheduled for future."
  (interactive)
  (org-ql-search
    (org-agenda-files)
-   `(and
-     (tags-local "inbox" "REFILE")
-     (not (scheduled :from 1))
-     (not (tags "HOLD" "CANCELLED" "ARCHIVED")))
+   my-org-agenda-inbox-query
+   :super-groups '((:auto-ts t))
+   :title "Inbox entries"
+   :buffer (or buffer org-ql-view-buffer)))
+(cl-defun my-org-agenda-inbox-recent (&optional buffer)
+ "Show agenda for recent inbox entries.
+Like ‘my-org-agenda-inbox’, but only for entries from the past
+‘my-org-agenda-active-days'."
+ (interactive)
+ (org-ql-search
+   (org-agenda-files)
+   (append
+    my-org-agenda-inbox-query
+    `((ts :from ,(- my-org-agenda-active-days))))
    :super-groups '((:auto-ts t))
    :title "Inbox entries"
    :buffer (or buffer org-ql-view-buffer)))
