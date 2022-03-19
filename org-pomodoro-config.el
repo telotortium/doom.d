@@ -596,7 +596,15 @@ current ‘my-org-pomodoro-log-event-titles'."
           remove?))))
 (defun my-org-pomodoro-started-break-reminder-prompt-hook ()
   "Adapt ‘my-org-pomodoro-started-break-reminder-prompt’ for hooks."
-  (call-interactively #'my-org-pomodoro-started-break-reminder-prompt))
+  ;; Use run-at-time to allow other hooks to run per
+  ;; https://emacs.stackexchange.com/a/70970/17182.
+  (run-at-time 0.1 nil
+                 (lambda ()
+                   (condition-case-unless-debug err
+                       (progn
+                         (call-interactively #'my-org-pomodoro-started-break-reminder-prompt)
+                         (my-org-pomodoro-start-tick))
+                     (t . (message "my-org-pomodoro-started-break-reminder-hook: error: %S" err))))))
 (defun my-org-pomodoro-remove-break-reminder-alarm ()
  "Remove alarm from ‘my-org-pomodoro-break-reminder-event-id’ when Pomodoro
 killed."
@@ -684,7 +692,7 @@ current ‘org-pomodoro-end-time’."
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-break-reminder-prompt-hook)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-punch-in)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-pomodoro-light-on)
-(add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-start-tick)
+(remove-hook 'org-pomodoro-started-hook #'my-org-pomodoro-start-tick)
 (add-hook 'org-clock-in-hook #'my-org-pomodoro-update-log-event-titles)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-ended-update-log-event)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-remove-break-end-alarm)
