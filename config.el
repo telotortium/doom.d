@@ -13,6 +13,10 @@
 
 (add-to-list 'debug-ignored-errors 'search-failed)
 (setq! debug-on-message nil)
+(defun dbgmsg (format-string &rest args)
+  "Log a debug message using ‘message’.
+Primarily exists to easily find and remove after code is written."
+  (apply #'message (concat "[dbgmsg] " format-string) args))
 
 ;; Add timestamps to log messages in the "*Messages*" buffer. Taken from
 ;; https://emacs.stackexchange.com/a/33523, but improved to highlight the
