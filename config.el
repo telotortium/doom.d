@@ -278,14 +278,25 @@ near the edge of the frame, so it may be a culprit. Work around this by using
           ivy--flx-featurep nil)))
 
 (setq!
- ;; Inherit Emacs load-path from current session - prevents annoying errors
- ;; from custom packages.
  flycheck-emacs-lisp-load-path 'inherit
  ;; Don't re-run Flycheck syntax checkers on inserting new lines, to save
  ;; performance.
  flycheck-check-syntax-automatically '(save idle-buffer-switch idle-change mode-enabled)
  flycheck-idle-buffer-switch-delay 4
  flycheck-idle-change-delay 4)
+(add-hook!
+ 'emacs-lisp-mode-hook
+ :depth 100
+  (defun flycheck-emacs-lisp-load-path-inherit ()
+    "Inherit Emacs load-path from current session.
+Prevents annoying errors from custom packages.
+
+This overrides the changes made by ‘flycheck-cask-setup’, since
+Cask isn’t working correctly on my machine right now."
+    (setq-local flycheck-emacs-lisp-load-path 'inherit)))
+
+;; Doesn’t work with Doom because we don’t use ‘package-initialize’.
+(add-to-list 'flycheck-disabled-checkers 'emacs-lisp-package)
 
 ;; Enable for quotes in docstrings.
 (add-hook 'emacs-lisp-mode-hook #'electric-quote-local-mode)
