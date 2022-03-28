@@ -152,6 +152,10 @@ Activate this advice with:
 (when (fboundp '+vertico/consult-fd)
   (require 'consult)
   (require 'vertico-directory))
+(after! vertico
+  (map! :map vertico-map
+        "<prior>" #'vertico-scroll-down
+        "<next>" #'vertico-scroll-up))
 
 (after! (counsel org)
   ;; Make counsel-rg work correctly - see
