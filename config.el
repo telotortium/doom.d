@@ -375,9 +375,18 @@ Cask isn’t working correctly on my machine right now."
 
 ;;; Enable pixel-scrolling
 (when (require 'pixel-scroll nil 'noerror)
-  (if (fboundp 'pixel-scroll-precision-mode)
-      (pixel-scroll-precision-mode +1)
-    (pixel-scroll-mode +1)))
+  (let ((mode (if (fboundp 'pixel-scroll-precision-mode)
+                  'pixel-scroll-precision-mode
+                'pixel-scroll-mode)))
+    (funcall mode +1)
+    (add-hook!
+     'minibuffer-setup-hook
+     (defun minibuffer-setup-disable-pixel-scroll ()
+       (funcall mode -1)))
+    (add-hook!
+     'minibuffer-exit-hook
+     (defun minibuffer-exit-disable-pixel-scroll ()
+       (funcall mode +1)))))
 
 (setq! profiler-max-stack-depth 64)
 (setq! adaptive-wrap-extra-indent 2)
