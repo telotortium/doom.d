@@ -164,6 +164,15 @@ Activate this advice with:
         "<prior>" #'vertico-scroll-down
         "<next>" #'vertico-scroll-up))
 
+(defun which-key-show-local-map ()
+  "Show contents of ‘current-local-map’."
+  (interactive)
+  (load "which-key")                    ; Force autoload
+  (which-key--show-keymap 'current-local-map (current-local-map) nil 'all))
+(after! which-key
+  (define-key! help-map
+    "bl"    #'which-key-show-local-map))
+
 (after! (counsel org)
   ;; Make counsel-rg work correctly - see
   ;; https://github.com/hlissner/doom-emacs/issues/3038#issuecomment-624165004.
