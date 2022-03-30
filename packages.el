@@ -130,6 +130,9 @@
 (package! async-await)
 (package! aio)
 
+;; Testing org-gcal
+(package! load-relative)
+
 ;; Anki support
 (package! anki-editor)
 (package! anki-connect)
@@ -142,3 +145,5 @@
 (package! el-patch)
 
 (package! atomic-chrome)
+
+(package! elnode)
