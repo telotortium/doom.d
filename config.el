@@ -311,7 +311,8 @@ Cask isn’t working correctly on my machine right now."
     (setq-local flycheck-emacs-lisp-load-path 'inherit)))
 
 ;; Doesn’t work with Doom because we don’t use ‘package-initialize’.
-(add-to-list 'flycheck-disabled-checkers 'emacs-lisp-package)
+(after! flycheck
+  (add-to-list 'flycheck-disabled-checkers 'emacs-lisp-package))
 
 ;; Enable for quotes in docstrings.
 (add-hook 'emacs-lisp-mode-hook #'electric-quote-local-mode)
