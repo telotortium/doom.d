@@ -22,7 +22,13 @@
            "ITERM_SESSION_ID" "ITERM_PROFILE")))
 
 (setq initial-buffer-choice
-      (lambda () (org-roam-dailies-goto-today "D") (current-buffer)))
+      (lambda ()
+        (when doom-interactive-p
+          (require 'org-roam-dailies)
+          (org-roam-dailies-goto-today "d")
+          (setq initial-buffer-choice nil)
+          (current-buffer))))
+(setq initial-buffer-choice nil)
 
 ;; Previously I kept my ‘doom-emacs-dir’ as a submodule of my private Doom
 ;; configuration. However, according to the maintainer, this might cause issues
