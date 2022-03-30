@@ -66,6 +66,7 @@ Guzey schedule
 (setq! org-pomodoro-ticking-sound-p nil)
 (defvar org-pomodoro-ticking-volume 1.0
   "Volume for ‘my-org-pomodoro-start-tick’. Should be in range 0.0-1.0.")
+(setq! org-pomodoro-ticking-volume 0.2)
 (defconst org-pomodoro-ticking-process-name "*org-pomodoro-ticking-process*"
   "Name of process spawned by ‘my-org-pomodoro-start-tick’")
 (defun my-org-pomodoro-start-tick ()
