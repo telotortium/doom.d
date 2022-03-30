@@ -18,39 +18,46 @@
 Primarily exists to easily find and remove after code is written."
   (apply #'message (concat "[dbgmsg] " format-string) args))
 
-;; Add timestamps to log messages in the "*Messages*" buffer. Taken from
-;; https://emacs.stackexchange.com/a/33523, but improved to highlight the
-;; timestamp and not log for blank or null format strings.
-(defun sh/current-time-microseconds ()
-  "Return the current time formatted to include microseconds."
-  (let* ((nowtime (current-time))
-         (now-ms (nth 2 nowtime)))
-    (concat (format-time-string "[%d %b %T" nowtime) (format ".%d]" now-ms))))
-(defun sh/ad-timestamp-message (FORMAT-STRING &rest args)
+;; Add timestamps to log messages in the "*Messages*" buffer. Override
+;; ‘doom--timestamped-message-a’ to make timestamps millisecond precision and
+;; highlight the timestamp.
+(el-patch-defun doom--timestamped-message-a (format-string &rest args)
   "Advice to run before `message' that prepends a timestamp to each message.
 
 Activate this advice with:
-(advice-add 'message :before 'sh/ad-timestamp-message)"
-  (unless (or (null FORMAT-STRING)
-              (string-equal FORMAT-STRING "%s%s")
-              (string-match-p "\\`[[:blank:]\r\n]*\\'"
-                              (apply #'format-message
-                                     FORMAT-STRING args)))
-    (let ((deactivate-mark nil)
-          (inhibit-read-only t)
-          begin end)
-      (with-current-buffer "*Messages*"
-        (goto-char (point-max))
-        (if (not (bolp))
-            (newline))
-        (setq begin (point))
-        (insert (sh/current-time-microseconds))
-        (setq end (point))
-        ;; Adding the space *before* setting text property is important to
-        ;; ensure the text of the message isn’t colored.
-        (insert " ")
-        (put-text-property begin end 'face 'header-line)))))
-(advice-add 'message :before 'sh/ad-timestamp-message)
+(advice-add 'message :before 'doom--timestamped-message-a)"
+  (when (and (stringp format-string)
+             message-log-max
+             (not (string-equal format-string "%s%s")))
+    (with-current-buffer "*Messages*"
+      (let ((timestamp (format-time-string
+                        (el-patch-swap "[%F %T] " "[%F %T.%3N]")
+                        (current-time)))
+            (deactivate-mark nil))
+        (el-patch-swap
+          (with-silent-modifications
+            (goto-char (point-max))
+            (if (not (bolp))
+                (newline))
+            (insert timestamp))
+          (with-silent-modifications
+            (let (begin end)
+              (goto-char (point-max))
+              (if (not (bolp))
+                  (newline))
+              (setq begin (point))
+              (insert timestamp)
+              (setq end (point))
+              ;; Adding the space *before* setting text property is important to
+              ;; ensure the text of the message isn’t colored.
+              (insert " ")
+              (put-text-property begin end 'face 'header-line))))))
+    (let ((window (get-buffer-window "*Messages*")))
+      (when (and window (not (equal (selected-window) window)))
+        (with-current-buffer "*Messages*"
+          (goto-char (point-max))
+          (set-window-point window (point-max)))))))
+(advice-add 'message :before 'doom--timestamped-message-a)
 (setq message-log-max 20000)
 
 ;; Disabled by Doom Emacs, but I want it.
