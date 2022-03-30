@@ -5,6 +5,8 @@
 
 import argparse
 import csv
+import os
+import os.path
 import logging
 import sys
 
@@ -14,6 +16,9 @@ from oauth2client import client
 
 
 def main(argv):
+    # Change to the directory of the script, so that we have a consistent
+    # location for the `calendar.dat` file created by `sample_tools.init` below.
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     # Authenticate and construct service.
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument(
