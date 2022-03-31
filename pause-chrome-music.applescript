@@ -1,3 +1,9 @@
+(* Script that searches in open Chrome tabs for video or music players it can
+   pause, and then executes Javascript in those tabs to pause the player.
+
+   Will display a dialog if a tab can't be paused due to a timeout. This can
+   happen if Chrome has just restarted and you haven't navigated to the tab.
+*)
 tell application "Google Chrome"
 	repeat with w in windows
 		tell w
@@ -26,7 +32,7 @@ tell application "Google Chrome"
 						end timeout
 					end if
 				on error number -1712
-					display dialog "Timeout when trying to pause " & tabURL
+					display dialog ("Timeout when trying to pause " & tabURL) giving up after 2
 				end try
 			end repeat
 		end tell
