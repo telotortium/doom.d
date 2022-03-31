@@ -232,7 +232,7 @@ If NO-LOCK is non-nil, don’t lock screen."
          (async-start-process "pause-chrome-music"
           "osascript"
           'ignore
-          (expand-file-name "pause-chrome-music.scpt" doom-private-dir))
+          (expand-file-name "pause-chrome-music.applescript" doom-private-dir))
          nil)
         (t
          (display-warning
