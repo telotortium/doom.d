@@ -720,6 +720,7 @@ current ‘org-pomodoro-end-time’."
 (add-hook 'org-pomodoro-break-finished-hook #'my-org-pomodoro-break-finished-cancel-timers)
 (add-hook 'org-pomodoro-third-time-modify-end-time-hook
           #'my-org-pomodoro-modify-end-time-hook)
+(add-hook 'kill-emacs-hook #'org-pomodoro-kill-running)
 
 ;; Patch org-pomodoro to remove calls to ‘org-agenda-maybe-redo’.
 (el-patch-feature org-pomodoro)
