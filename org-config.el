@@ -449,6 +449,7 @@ headline under the headline at the current point."
                              (org-refile-get-targets)))
 (defun my-org-git-sync ()
   "Run org-syncup-full script to save Org buffers and then org-git-sync."
+  (interactive)
   (let ((c (current-window-configuration)))
     (message "my-org-git-sync: launching - will restore window configuration afterward.")
     (deferred:try
