@@ -3246,6 +3246,35 @@ The exporting happens only when Org Capture is not in progress."
           (org-hugo-export-wim-to-md)
           (org-hugo-export-wim-to-md nil 'async))))))
 
+;; Link to commit by commit message rather than commit (which isn’t stable when
+;; I rebase.)
+(defadvice! my-orgit-rev-store-by-commit-message ()
+  :override #'orgit-rev-store
+  "Store a link to a Magit-Revision mode buffer.
+This advice overrides ‘orgit-rev-store’ to refer to the commit using the commit
+message rather than the commit hash."
+  (cond ((eq major-mode 'magit-revision-mode)
+         (my-orgit-rev-store-by-commit-message-1 magit-buffer-revision))
+        ((derived-mode-p 'magit-mode)
+         (when-let ((revs (magit-region-values 'commit)))
+           (mapc 'my-orgit-rev-store-by-commit-message-1 revs)
+           t))))
+(defun my-orgit-rev-store-by-commit-message-1 (rev)
+  (let* ((repo (orgit--current-repository))
+         (summary (magit-git-str "log" "--pretty=%s" "-n1" rev))
+         (ref (format ":/^%s"
+                      (replace-regexp-in-string
+                       "[][\\/^.$|()*+?{}]"
+                       "[\\1]"
+                       summary))))
+    (org-link-store-props
+     :type        "orgit-rev"
+     :link        (format "orgit-rev:%s::%s" repo
+                          (or ref (magit-rev-parse rev)))
+     :description (format-spec
+                   (magit-rev-format "%%N - magit-rev %s" ref)
+                   `((?N . ,repo))))))
+
 ;;; Local Variables:
 ;;; outline-regexp: ";;;\\*+\\|\\`"
 ;;; End:
