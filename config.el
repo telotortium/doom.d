@@ -516,6 +516,64 @@ sound support.  Currently supports only :file and :volume entries in ‘sound’
 
 (atomic-chrome-start-server)
 
+;; Fix ‘ask-user-about-supersession-threat’ for indirect buffers.
+(defadvice! fix-supersession-for-indirect-buffers (origfn &rest args)
+  :around #'ask-user-about-supersession-threat
+  "Fix ‘ask-user-about-supersession-threat’ for indirect buffers.
+Original function ORIGFN is called with ARGS.
+
+Needs to be fixed because ‘visited-file-modtime’ returns 0 for indirect buffers.
+These are often used by Org mode, so I run into this situation a lot."
+  (let* ((filename (car args))
+         (buf (or (buffer-base-buffer (current-buffer))
+                  (current-buffer))))
+    (unless (equal (with-current-buffer buf (visited-file-modtime))
+                   (file-attribute-modification-time
+                    (file-attributes filename)))
+      (apply origfn args))))
+
+(defun ask-user-about-supersession-threat (filename)
+  "Ask a user who is about to modify an obsolete buffer what to do.
+This function has two choices: it can return, in which case the modification
+of the buffer will proceed, or it can (signal \\='file-supersession (file)),
+in which case the proposed buffer modification will not be made.
+
+You can rewrite this to use any criterion you like to choose which one to do.
+The buffer in question is current when this function is called."
+  (discard-input)
+  (save-window-excursion
+    (let ((prompt
+           (format "%s changed on disk; \
+really edit the buffer? (%s, %s, %s or %s) "
+                   (file-name-nondirectory filename)
+                   (userlock--fontify-key "y")
+                   (userlock--fontify-key "n")
+                   (userlock--fontify-key "r")
+                   ;; FIXME: Why do we use "C-h" here and "?" above?
+                   (userlock--fontify-key "C-h")))
+          (choices '(?y ?n ?r ?? ?\C-h))
+          answer)
+      (when noninteractive
+        (message "%s" prompt)
+        (error "Cannot resolve conflict in batch mode"))
+      (while (null answer)
+        (setq answer (read-char-choice prompt choices))
+        (cond ((memq answer '(?? ?\C-h))
+               (ask-user-about-supersession-help)
+               (setq answer nil))
+              ((eq answer ?r)
+          ;; Ask for confirmation if buffer modified
+               (revert-buffer nil (not (buffer-modified-p)))
+               (signal 'file-supersession
+                  (list "File reverted" filename)))
+              ((eq answer ?n)
+               (signal 'file-supersession
+                  (list "File changed on disk" filename)))
+              ((eq answer ?y))
+              (t (setq answer nil))))
+      (message
+       "File on disk now will become a backup file if you save these changes.")
+      (setq buffer-backed-up nil))))
 ;;;* Local configuration
 
 ;;; Allow users to provide an optional "config-local" containing personal settings
