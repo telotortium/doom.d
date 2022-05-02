@@ -1810,7 +1810,10 @@ SCOPE, DRILL-MATCH, RESUME-P, and CRAM passed to ‘org-drill'."
   ;; Initialize
  (anki-editor-reset-cloze-number))
 
+;; TODO: replace with implementation from ‘org-generic-id-update-id-locations’ once
+;; it’s merged upstream.
 (require 'persist)
+(require 'org-generic-id)
 (persist-defvar anki-editor-push-agenda-fast--last-pushed-time nil
                 "Time at which ‘anki-editor-push-agenda-fast’ last completed.")
 (defun anki-editor-push-agenda-fast ()
@@ -1821,27 +1824,15 @@ notes in those files."
   (interactive)
   (require 's)
   (require 'anki-editor)
-  (dolist (f (s-split "\n"
-                      (shell-command-to-string "rg -l -e :ANKI_NOTE_TYPE: ~/Documents/org")
-                      'omit-nulls))
+  (dolist
+      (f
+       (org-generic-id-files-modified-since-modtime
+        anki-editor-push-agenda-fast--last-pushed-time
+        (s-split "\n"
+                 (shell-command-to-string "rg -l -e :ANKI_NOTE_TYPE: ~/Documents/org")
+                 'omit-nulls)))
     (save-excursion
-      (when-let*
-          ((buf (org-find-base-buffer-visiting f))
-           ((or buf
-                (or
-                 (null anki-editor-push-agenda-fast--last-pushed-time)
-                 (time-less-p
-                  anki-editor-push-agenda-fast--last-pushed-time
-                  (file-attribute-modification-time
-                   (file-attributes f))))))
-           (buf (or buf (find-file-noselect f)))
-           ((or
-             (buffer-modified-p buf)
-             (or
-              (null anki-editor-push-agenda-fast--last-pushed-time)
-              (time-less-p
-               anki-editor-push-agenda-fast--last-pushed-time
-               (with-current-buffer buf (visited-file-modtime)))))))
+      (when-let* ((buf (org-find-base-buffer-visiting f)))
         (with-current-buffer buf
           (anki-editor-push-notes nil nil 'file)))))
   (setq anki-editor-push-agenda-fast--last-pushed-time (current-time))
