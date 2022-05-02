@@ -1443,14 +1443,7 @@ Default suggestions (in the absence of existing data in the entry):
     (org-back-to-heading)
     (let* ((elem (org-element-at-point))
            (tobj (org-element-property :scheduled elem))
-           (duration (org-element-property :EFFORT elem))
-           (calendar-id
-            (org-entry-get (point) "calendar-id")))
-      (unless calendar-id
-        (setq calendar-id
-              (read-from-minibuffer "Calendar ID: "
-                                    (caar org-gcal-file-alist)))
-        (org-entry-put (point) org-gcal-calendar-id-property calendar-id))
+           (duration (org-element-property :EFFORT elem)))
       ;; Set SCHEDULED time if not already present.
       (unless (plist-get (cadr tobj) :hour-start)
         (org-schedule nil "+1d 10:00")
