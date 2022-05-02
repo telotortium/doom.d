@@ -64,6 +64,15 @@ cd %1$s && git reset --hard %3$s
        (error "Doom Git repo in %1$s at commit %2$s - want %3$s"
               doom-emacs-dir actual-commit doom-expected-commit)))))
 
+;; Work around https://github.com/doomemacs/doomemacs/issues/5592
+(when NATIVECOMP
+  (with-eval-after-load 'comp
+    ;; HACK Disable native-compilation for some troublesome packages
+    (mapc (apply-partially #'add-to-list 'native-comp-deferred-compilation-deny-list)
+          (let ((local-dir-re (concat "\\`" (regexp-quote doom-local-dir))))
+            (list (concat local-dir-re ".*/doom-themes-ext-visual-bell\\.el\\'"))))))
+
+
 (doom! :input
        ;;chinese
        ;;japanese
