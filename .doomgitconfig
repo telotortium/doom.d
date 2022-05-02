@@ -1,0 +1,8 @@
+# -*- gitconfig -*-
+# vim: set ft=gitconfig:
+#
+# Git config file for Doom when running Straight. Set environment variable
+# DOOMGITCONFIG to this file's location.
+[user]
+    email = rirelan@gmail.com
+    name = Robert Irelan
