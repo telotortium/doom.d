@@ -82,7 +82,9 @@ clocktables in the currently visible portion of the buffer."
       (goto-char (point-min))
       (while (re-search-forward "#\\\+BEGIN: clocktable" nil t)
         (org-clock-report)
-        (forward-line 1)))))
+        (forward-line 1))))
+  (alert "org-clock-report-buffer complete")
+  nil)
 (defun org-timestamp-add-days (ts days)
   "Return timestamp TS shifted by a number of days.
 
