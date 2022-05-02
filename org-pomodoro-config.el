@@ -498,6 +498,7 @@ killed."
          (remove?
           (set event-id-var nil))
          (event-id nil)
+         ((equal "" (string-trim output)) nil)
          (t
           (set event-id-var
                (string-trim output))))))))
