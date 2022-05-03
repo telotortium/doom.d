@@ -269,6 +269,7 @@ near the edge of the frame, so it may be a culprit. Work around this by using
 (line-number-mode 1)
 (column-number-mode 1)
 
+(require 'visual-fill-column)
 (setq! visual-fill-column-width 120)
 (add-hook 'text-mode-hook #'visual-fill-column-mode)
 
