@@ -9,6 +9,7 @@
       "S-<f11>" #'org-clock-goto
       "C-<f11>" #'my-org-clock-in
       "C-S-<f11>" #'my-org-goto-heading
+      :n "zs" #'org-save-all-org-buffers
       :mode org-mode
       "C-c C-x C-i" #'org-clock-in
       "C-c C-x <C-i>" #'org-clock-in
