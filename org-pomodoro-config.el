@@ -733,6 +733,12 @@ current ‘org-pomodoro-end-time’."
           #'my-org-pomodoro-modify-end-time-hook)
 (add-hook 'kill-emacs-hook #'org-pomodoro-kill-running)
 
+(map! :leader
+      "t e a" #'org-pomodoro-third-time-end-at
+      "t e i" #'org-pomodoro-third-time-end-in
+      "t e n" #'org-pomodoro-third-time-end-now
+      "t k" #'org-pomodoro-kill-running)
+
 ;; Patch org-pomodoro to remove calls to ‘org-agenda-maybe-redo’.
 (el-patch-feature org-pomodoro)
 (after! org-pomodoro
@@ -782,4 +788,5 @@ This may send a notification, play a sound and start a pomodoro break."
 (unless (and (boundp 'org-pomodoro-third-time-mode)
              org-pomodoro-third-time-mode)
   (org-pomodoro-third-time-mode +1))
+
 (provide 'org-pomodoro-config)
