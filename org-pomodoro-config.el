@@ -167,6 +167,15 @@ If NO-LOCK is non-nil, don’t lock screen."
 (setq org-agenda-skip-function-global #'my-org-agenda-skip-pomodoro-break)
 
 (defvar my-org-pomodoro-inhibit-lock nil)
+(defun my-org-pomodoro-inhibit-lock-on-process ()
+  "Inhibit lock when certain processes are running."
+  (if (equal ""
+             (shell-command-to-string
+              ;; “Lark Helper (Iron)” is “Lark Meetings”.
+              "ps -ef | grep -i '[M]acOS/Lark Helper (Iron)'"))
+      (setq my-org-pomodoro-inhibit-lock nil)
+    (setq my-org-pomodoro-inhibit-lock t)))
+(run-at-time nil 10 #'my-org-pomodoro-inhibit-lock-on-process)
 (cl-defun my-org-pomodoro-finished-lock-screen ()
   "Lock screen at the end of each Pomodoro work session."
   (when my-org-pomodoro-inhibit-lock
