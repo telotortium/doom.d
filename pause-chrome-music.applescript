@@ -17,6 +17,13 @@ tell application "Google Chrome"
 							end tell
 						end timeout
 					end if
+					if tabURL contains ".substack.com/" then
+						with timeout of 2 seconds
+							tell t
+								execute javascript "var x = document.querySelector('.audio-player-play.pause > a'); if (x !== null) { x.click(); }"
+							end tell
+						end timeout
+					end if
 					if tabURL starts with "https://music.youtube.com" then
 						with timeout of 2 seconds
 							tell t
