@@ -685,6 +685,7 @@ Use `org-ql-search' to search."
       (not (tags "REFILE" "dailylog" "ARCHIVE"))
       (ts :to -30)
       (not (ts :from -30))
+      (not (path ".*/roam/.*"))         ; Roam files don’t have archive files
       (not (property "recurrence"))     ; Exclude parents of recurring events
       (or (done)
           (and (tags "gcal")
