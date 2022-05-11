@@ -758,9 +758,13 @@ current ‘org-pomodoro-end-time’."
 (add-hook 'kill-emacs-hook #'org-pomodoro-kill-running)
 
 (map! :leader
+      :desc "Pomo end at"
       "t e a" #'org-pomodoro-third-time-end-at
+      :desc "Pomo end in"
       "t e i" #'org-pomodoro-third-time-end-in
+      :desc "Pomo end now"
       "t e n" #'org-pomodoro-third-time-end-now
+      :desc "Pomo kill"
       "t k" #'org-pomodoro-kill-running)
 
 ;; Patch org-pomodoro to remove calls to ‘org-agenda-maybe-redo’.
