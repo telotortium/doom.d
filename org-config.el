@@ -766,9 +766,16 @@ Use ‘org-ql-search' to search."
       (not (property "recurrence"))     ; Exclude parents of recurring events
       (not (property "ID"))             ; Exclude events that might be linked to
       (not (property "CUSTOM_ID"))
+      (or
+       ;; The following two lines correspond to most newly-fetched tasks.
+       (not (todo))
+       (todo "MEETING")
+       ;; This will catch tasks that were pulled into recurring.org by
+       ;; ‘my-org-gcal-set-next’.
+       (tags "recurring"))
       (not (clocked))
       (not (closed))
-      (not (todo))
+      (not (regexp org-logbook-drawer-re))
       (not (children)))
     :buffer (or buffer org-ql-view-buffer)
     :super-groups '((:auto-ts))
