@@ -440,6 +440,11 @@ will work as designed."
           ;; Rate limit reminders in last minute to once every 5 seconds.
           (setq my-org-pomodoro-current-task-reminder-next-time
                 (car (cl-floor (+ (float-time) 5))))
+          (when (my-org-pomodoro-in-real-meeting)
+           (start-process-shell-command
+            "*org-pomodoro-tick-beep*" nil
+            (format "play -n synth 0.75 sine A3 gain -3 fade q 0.1 -0 0.2 vol %f"
+                    org-pomodoro-ticking-volume)))
           (org-pomodoro-notify
            (format "Pomodoro in progress - %ds to break" remainder)
            (format "%s%s"
@@ -715,16 +720,23 @@ current ‘org-pomodoro-end-time’."
 (defun my-org-pomodoro-pomodoro-light-clock-in-hook ()
   "Turn on Pomodoro light lamp when in a meeting and off otherwise."
   (when (eq org-pomodoro-state :pomodoro)
-    (if (and
-         (org-clocking-p)
-         (org-with-point-at org-clock-hd-marker
-           (and
-            (string=
-             "MEETING"
-             (org-get-todo-state))
-            (not (member "recurring" (org-get-tags))))))
+    (if (my-org-pomodoro-in-real-meeting)
         (my-org-pomodoro-pomodoro-light-on)
       (my-org-pomodoro-pomodoro-light-off))))
+(defun my-org-pomodoro-in-real-meeting ()
+  "Check if we’re in a real meeting.
+
+That is, whether we’re clocking a task with the MEETING todo state that’s not
+tagged with “recurring”."
+  (and
+   (org-clocking-p)
+   (org-with-point-at org-clock-hd-marker
+     (and
+      (string=
+       "MEETING"
+       (org-get-todo-state))
+      (not (member "recurring" (org-get-tags)))))))
+
 
 (defun my-org-pomodoro-set-start-time ()
   "Set start time of current Pomodoro to a prompted time.."
