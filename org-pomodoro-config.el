@@ -712,6 +712,19 @@ current ‘org-pomodoro-end-time’."
   "kasa"
   "--alias=Pomodoro light"
   "off"))
+(defun my-org-pomodoro-pomodoro-light-clock-in-hook ()
+  "Turn on Pomodoro light lamp when in a meeting and off otherwise."
+  (when (eq org-pomodoro-state :pomodoro)
+    (if (and
+         (org-clocking-p)
+         (org-with-point-at org-clock-hd-marker
+           (and
+            (string=
+             "MEETING"
+             (org-get-todo-state))
+            (not (member "recurring" (org-get-tags))))))
+        (my-org-pomodoro-pomodoro-light-on)
+      (my-org-pomodoro-pomodoro-light-off))))
 
 (defun my-org-pomodoro-set-start-time ()
   "Set start time of current Pomodoro to a prompted time.."
@@ -727,8 +740,8 @@ current ‘org-pomodoro-end-time’."
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-create-log-event)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-break-reminder-prompt-hook)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-punch-in)
-(add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-pomodoro-light-on)
-(remove-hook 'org-pomodoro-started-hook #'my-org-pomodoro-start-tick)
+(add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-pomodoro-light-clock-in-hook)
+(add-hook 'org-clock-in-hook #'my-org-pomodoro-pomodoro-light-clock-in-hook)
 (add-hook 'org-clock-in-hook #'my-org-pomodoro-update-log-event-titles)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-ended-update-log-event)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-remove-break-end-alarm)
