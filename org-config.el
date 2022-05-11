@@ -1422,6 +1422,18 @@ instead of the agenda files."
         (org-todo "NEXT"))))
   (add-hook 'org-gcal-after-update-entry-functions #'my-org-gcal-set-next)
 
+  (defun my-org-gcal-default-todo-meeting (_calendar-id event _update-mode)
+    "Set all events with no TODO heading to be MEETING by default.
+Applies only for files in ‘org-gcal-fetch-file-alist’."
+    (when-let* ((title (plist-get event :summary))
+                ((member (abbreviate-file-name buffer-file-name)
+                         (mapcar #'cdr org-gcal-fetch-file-alist)))
+                ((not (string= "" (org-get-todo-state)))))
+      (let ((org-inhibit-logging t))
+        (org-todo "MEETING"))))
+  (add-hook 'org-gcal-after-update-entry-functions
+            #'my-org-gcal-default-todo-meeting)
+
   (defun my-org-gcal-exclude-corp-personal-events (event)
     "Remove events from corp calendar with summary \"*Personal*\."
     (let* ((summary (or (plist-get event :summary)
