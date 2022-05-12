@@ -129,6 +129,13 @@ Otherwise, add ENTRY to TEMPLATE."
 " :clock-in t :clock-resume t :jump-to-captured t))
  (org-capture-templates-put-entry
   org-capture-templates
+  `("p" "Phone (interrupt)" entry (file (lambda () (f-join org-directory "home-org" "inbox.org")))
+    "
+* PHONE %?%^{Title}
+%u
+" :clock-in t :clock-resume t :jump-to-captured t))
+ (org-capture-templates-put-entry
+  org-capture-templates
   `("n" "Note" entry (file (lambda () (f-join org-directory "home-org" "inbox.org")))
     "
 * %u %?
@@ -268,8 +275,11 @@ Checklist:
 " :time-prompt t :immediate-finish t))
  (org-capture-templates-put-entry
   org-capture-templates
-  `("p" "Link and Text" entry (file+headline org-default-notes-file "Links")
-    "
+  `("P" "org-protocol"))
+ (org-capture-templates-put-entry
+   org-capture-templates
+   `("Pp" "Link and Text" entry (file+headline org-default-notes-file "Links")
+     "
 * %?REPLACE_ME
 Source: [[%:link][%:description]]
 #+BEGIN_SRC html
@@ -282,7 +292,7 @@ Source: [[%:link][%:description]]
 "))
  (org-capture-templates-put-entry
   org-capture-templates
-  `("L" "Link" entry (file+headline org-default-notes-file "Links")
+  `("PL" "Link" entry (file+headline org-default-notes-file "Links")
     "\
 * %?%:description
 :PROPERTIES:

@@ -732,9 +732,7 @@ tagged with “recurring”."
    (org-clocking-p)
    (org-with-point-at org-clock-hd-marker
      (and
-      (string=
-       "MEETING"
-       (org-get-todo-state))
+      (member (org-get-todo-state) '("MEETING" "PHONE"))
       (not (member "recurring" (org-get-tags)))))))
 
 
