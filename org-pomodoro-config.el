@@ -736,14 +736,14 @@ tagged with “recurring”."
       (not (member "recurring" (org-get-tags)))))))
 
 
-(defun my-org-pomodoro-set-start-time ()
-  "Set start time of current Pomodoro to a prompted time.."
-  (interactive)
+(defun my-org-pomodoro-set-start-time (&optional start-time)
+  "Set start time of current Pomodoro to a prompted time."
+  (interactive
+   (list (org-read-date t t nil "Start time: ")))
   (unless (org-pomodoro-active-p)
     (user-error "Pomodoro must be active"))
-  (let ((start-time (org-read-date 'with-time 'to-time)))
-    (setq my-org-pomodoro-log-event-start-time start-time
-          org-pomodoro-third-time--start-time start-time))
+  (setq my-org-pomodoro-log-event-start-time start-time
+        org-pomodoro-third-time--start-time start-time)
   (run-hooks 'org-pomodoro-third-time-modify-end-time-hook))
 
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-clear-break-end-alarm-id)
