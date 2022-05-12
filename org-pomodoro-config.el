@@ -786,6 +786,8 @@ tagged with “recurring”."
       :desc "Pomo end in"
       "t e i" #'org-pomodoro-third-time-end-in
       :desc "Pomo end now"
+      "t e l" #'org-pomodoro-third-time-long-break
+      :desc "Pomo long break"
       "t e n" #'org-pomodoro-third-time-end-now
       :desc "Pomo kill"
       "t k" #'org-pomodoro-kill-running)
