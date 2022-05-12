@@ -734,7 +734,24 @@ tagged with “recurring”."
      (and
       (member (org-get-todo-state) '("MEETING" "PHONE"))
       (not (member "recurring" (org-get-tags)))))))
-
+(defun my-org-pomodoro-end-at-meeting-end ()
+  "End Pomodoro at the end of a meeting."
+  (require 'org-gcal)
+  (when (and (eq org-pomodoro-state :pomodoro)
+             (my-org-pomodoro-in-real-meeting))
+    (org-with-point-at org-clock-hd-marker
+      (org-back-to-heading)
+      (when-let*
+          ((time-desc (org-gcal--get-time-and-desc))
+           (end-time-string (plist-get time-desc :end))
+           (end-time (parse-iso8601-time-string end-time-string)))
+        ;; Duplicate body of ‘org-pomodoro-third-time-end-at’ until I can add a
+        ;; non-interactive version of that.
+        ;;
+        ;; We set the end time to 5 minutes past the meeting end time, since
+        ;; they tend to run long.
+        (setq org-pomodoro-end-time (time-add end-time (* 5 60)))
+        (run-hooks 'org-pomodoro-third-time-modify-end-time-hook)))))
 
 (defun my-org-pomodoro-set-start-time (&optional start-time)
   "Set start time of current Pomodoro to a prompted time."
@@ -751,6 +768,7 @@ tagged with “recurring”."
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-break-reminder-prompt-hook)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-punch-in)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-pomodoro-light-clock-in-hook)
+(add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-end-at-meeting-end)
 (add-hook 'org-clock-in-hook #'my-org-pomodoro-pomodoro-light-clock-in-hook)
 (add-hook 'org-clock-in-hook #'my-org-pomodoro-update-log-event-titles)
 (add-hook 'org-pomodoro-killed-hook #'my-org-pomodoro-ended-update-log-event)
