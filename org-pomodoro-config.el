@@ -805,6 +805,10 @@ tagged with “recurring”."
           #'my-org-pomodoro-modify-end-time-hook)
 (add-hook 'kill-emacs-hook #'org-pomodoro-kill-running)
 
+(defun my-org-pomodoro-third-time-reset-bank ()
+  "Just an interactive wrapper for ‘org-pomodoro-third-time--reset-bank'."
+  (interactive)
+  (org-pomodoro-third-time--reset-bank))
 (map! :leader
       :desc "Pomo end at"
       "t e a" #'org-pomodoro-third-time-end-at
@@ -814,6 +818,8 @@ tagged with “recurring”."
       "t e l" #'org-pomodoro-third-time-long-break
       :desc "Pomo long break"
       "t e n" #'org-pomodoro-third-time-end-now
+      :desc "Pomo reset bank"
+      "t e r" #'my-org-pomodoro-third-time-reset-bank
       :desc "Pomo kill"
       "t k" #'org-pomodoro-kill-running)
 
