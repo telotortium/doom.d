@@ -3190,6 +3190,39 @@ with empty todo checkboxes."
                                   org-blocker-hook)))
     (apply _orig-fn _args)))
 
+(defadvice! my-org-agenda-goto-today-refresh (_orig-fn &rest _args)
+  "Refresh agenda if ‘org-agenda-goto-today’ doesn’t go to today’s agenda.
+
+There is a bug that appears when ‘org-agenda-sticky’ is enabled where, sometimes,
+calling ‘org-agenda-goto-today’ in the agenda goes to the line containing the
+agenda date, but doesn’t change to whatever today’s date is.  The workaround
+is to refresh the agenda and call ‘org-agenda-goto-today’ again."
+  :around #'org-agenda-goto-today
+  (apply _orig-fn _args)
+  (forward-line 0)
+  (if (looking-at "^\\w+ +\\([0-9]+ \\w+ [0-9]+\\) ")
+    (let* ((agenda-date-string (match-string-no-properties 1))
+           (agenda-date
+            (cl-subseq
+             (timezone-parse-date (format "%s 00:00" agenda-date-string))
+             0 3))
+           (current-date
+            (cl-subseq
+             (timezone-parse-date
+              (format-time-string
+               (concat org-super-agenda-date-format " %H:%M")))
+             0 3)))
+      (when (not (equal agenda-date current-date))
+        (clog/msg "agenda-date != current-date, refreshing: %S %S"
+                  agenda-date current-date)
+        (org-agenda-redo)
+        (apply _orig-fn _args)))
+    (message "Did not find date on current agenda line: %S %s"
+             (point-marker)
+             (buffer-substring-no-properties
+              (point-at-bol) (point-at-eol)))
+    (debug)))
+
 (setq! org-list-allow-alphabetical t)
 
 ;; See https://github.com/hlissner/doom-emacs/issues/3185
