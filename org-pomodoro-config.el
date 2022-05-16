@@ -410,11 +410,18 @@ will work as designed."
                             (round my-org-pomodoro-time-today-var))))))))))))
 (defun my-org-pomodoro-finished-info-today ()
   "Run ‘my-org-pomodoro-info-today’ when Pomodoro finishes."
-  (display-warning
-   'org-pomodoro-config
-   (condition-case-unless-debug err
-      (my-org-pomodoro-info-today)
-     (t (format "Error: %S" err)))))
+  ;; Occasionally the first run of this command doesn’t work, so try a few
+  ;; times.
+  (cl-loop for i below 3
+            with res = (my-org-pomodoro-info-today)
+            until (not (s-blank? res))
+            finally
+            (display-warning
+                      'org-pomodoro-config
+                      (if (s-blank? res)
+                          (format "Unexpected result: %S" res)
+                          res))))
+
 (defvar my-org-pomodoro-current-task-reminder-next-time nil)
 (defun my-org-pomodoro-tick-current-task-reminder ()
   "Prod me with reminders of my current task to stop me from being distracted."
