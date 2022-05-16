@@ -1994,7 +1994,11 @@ particular, that means Emacsclient will return immediately."
           :desc "Capture today"      "T" #'org-roam-dailies-capture-today
           :desc "Goto yesterday"     "y" #'org-roam-dailies-goto-yesterday
           :desc "Capture yesterday"  "Y" #'org-roam-dailies-capture-yesterday
-          :desc "Find directory"     "-" #'org-roam-dailies-find-directory)))
+          :desc "Find directory"     "-" #'org-roam-dailies-find-directory)
+         (:prefix ("s" . "Promnesia search")
+          :desc "Personal Promnesia search"     "p" #'my-promnesia-search-personal
+          :desc "Corp Promnesia search"         "c" #'my-promnesia-search-corp
+          :desc "All profiles Promnesia search" "a" #'my-promnesia-search-all)))
   (map! (:map org-mode-map
            :prefix ("C-c n" . "org-roam")
            "D" #'org-roam-demote-entire-buffer
@@ -2266,6 +2270,43 @@ Create the entry if it does not exist."
          (org-link-make-string ref title)
          ref)))))
  nil)                                  ; To make eval-region on previous block easier
+
+(defconst my-promnesia-extension-url-release
+  "chrome-extension://kdmegllpofldcpaclldkopnnjjljoiio")
+(defconst my-promnesia-extension-url-dev
+  "chrome-extension://epkkfejibedemmekobfclekmekmdmeep")
+(defcustom my-promnesia-extension-url my-promnesia-extension-url-dev
+  "URL to open Promnesia extension in Chrome.")
+(defun my-promnesia-search-url-with-query (query)
+  "Format URL for Promnesia Search, with QUERY if non-nil and non-empty."
+  (let ((query-string
+         (when (and (stringp query) (not (string-empty-p query)))
+           (url-build-query-string `((q ,query))))))
+    (format "%s/search.html%s" my-promnesia-extension-url
+            (if query-string (concat "?" query-string) ""))))
+(defun my-promnesia-search-personal (&optional query)
+  "Search Promnesia in personal profile."
+  (interactive "sPromesia search query: ")
+  (start-process
+   "promnesia-search-personal"
+   "*promnesia-search-personal*"
+   (expand-file-name "google-chrome-personal"
+                     doom-private-dir)
+   (my-promnesia-search-url-with-query query)))
+(defun my-promnesia-search-corp (&optional query)
+  "Search Promnesia in corp profile."
+  (interactive "sPromesia search query: ")
+  (start-process
+   "promnesia-search-corp"
+   "*promnesia-search-corp*"
+   (expand-file-name "google-chrome-corp"
+                     doom-private-dir)
+   (my-promnesia-search-url-with-query query)))
+(defun my-promnesia-search-all (&optional query)
+ "Search Promnesia in corp profile."
+ (interactive "sPromesia search query: ")
+ (dolist (f '(my-promnesia-search-personal my-promnesia-search-corp))
+   (funcall f query)))
 
 (defun my-org-html-to-org-quote ()
   "Change an HTML blockquote to Org quote.
