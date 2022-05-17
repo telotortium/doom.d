@@ -541,6 +541,19 @@ capture, so I run into this situation a lot."
       (with-current-buffer buf
         (apply origfn buffer-file-name (cdr-safe args)))))))
 
+(when (eq system-type 'darwin)
+  (defun emacs-macos-menu-bar-search ()
+    "Focus menu bar search of macOS Emacs"
+    (interactive)
+    (async-start-process
+     "emacs-menu-bar-search"
+     "osascript"
+     'ignore
+     (expand-file-name "emacs-menu-bar-search.applescript" doom-private-dir)))
+  ;; Match MacOS menu bar search keybinding (Shift+Command+/)
+  (global-set-key (kbd "s-?") #'emacs-macos-menu-bar-search))
+
+
 ;;;* Local configuration
 
 ;;; Allow users to provide an optional "config-local" containing personal settings
