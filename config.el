@@ -21,11 +21,15 @@ Primarily exists to easily find and remove after code is written."
 ;; Add timestamps to log messages in the "*Messages*" buffer. Override
 ;; ‘doom--timestamped-message-a’ to make timestamps millisecond precision and
 ;; highlight the timestamp.
+(defvar doom--timestamped-message-a-window-configuration nil)
 (el-patch-defun doom--timestamped-message-a (format-string &rest args)
   "Advice to run before `message' that prepends a timestamp to each message.
 
 Activate this advice with:
-(advice-add 'message :before 'doom--timestamped-message-a)"
+(advice-add 'message :before 'doom--timestamped-message-a)
+
+Also need to activate ‘doom--timestamped-message-a-after’."
+  (setq doom--timestamped-message-a-window-configuration nil)
   (when (and (stringp format-string)
              message-log-max
              (not (string-equal format-string "%s%s")))
@@ -54,10 +58,65 @@ Activate this advice with:
               (put-text-property begin end 'face 'header-line))))))
     (let ((window (get-buffer-window "*Messages*")))
       (when (and window (not (equal (selected-window) window)))
-        (with-current-buffer "*Messages*"
-          (goto-char (point-max))
-          (set-window-point window (point-max)))))))
+        (el-patch-swap
+          (with-current-buffer "*Messages*"
+            (goto-char (point-max))
+            (set-window-point window (point-max)))
+          (progn
+            (setq doom--timestamped-message-a-window-configuration
+                  (current-window-configuration))
+            (with-current-buffer "*Messages*"
+                (goto-char (point-max))
+                (set-window-point window (point-max)))))))))
+(defun doom--timestamped-message-a-after (format-string &rest args)
+  "Advice to run after `message' that prepends a timestamp to each message.
+
+Activate this advice with:
+(advice-add 'message :after 'doom--timestamped-message-a-after)
+
+Also need to activate ‘doom--timestamped-message-a’."
+  (when (window-configuration-p doom--timestamped-message-a-window-configuration)
+    (set-window-configuration doom--timestamped-message-a-window-configuration))
+  (setq doom--timestamped-message-a-window-configuration nil))
 (advice-add 'message :before 'doom--timestamped-message-a)
+(advice-add 'message :after 'doom--timestamped-message-a-after)
+;;(advice-remove 'message 'doom--timestamped-message-a)
+;;(advice-remove 'message 'doom--timestamped-message-a-after)
+(defun doom--timestamped-message-a-around (orig-fn format-string &rest args)
+  "Advice to run before `message' that prepends a timestamp to each message.
+
+Activate this advice with:
+(advice-add 'message :around 'doom--timestamped-message-a-around)"
+  (when (and (stringp format-string)
+             message-log-max
+             (not (string-equal format-string "%s%s")))
+    (with-current-buffer "*Messages*"
+      (let ((timestamp (format-time-string
+                         "[%F %T.%3N]"
+                        (current-time)))
+            (deactivate-mark nil))
+         (with-silent-modifications
+          (let (begin end)
+            (goto-char (point-max))
+            (if (not (bolp))
+                (newline))
+            (setq begin (point))
+            (insert timestamp)
+            (setq end (point))
+            ;; Adding the space *before* setting text property is important to
+            ;; ensure the text of the message isn’t colored.
+            (insert " ")
+            (put-text-property begin end 'face 'header-line)))))
+    (let ((window (get-buffer-window "*Messages*")))
+      (when (and window (not (equal (selected-window) window)))
+         (save-window-excursion
+          (with-current-buffer "*Messages*"
+           (goto-char (point-max))
+           (set-window-point window (point-max)))
+          (apply orig-fn format-string args))))))
+;; Currently disabled in favor of ‘doom--timestamped-message-a’.
+;;(advice-add 'message :around 'doom--timestamped-message-a-around)
+;;(advice-remove 'message 'doom--timestamped-message-a-around)
 (setq message-log-max 20000)
 
 ;; Disabled by Doom Emacs, but I want it.
