@@ -132,7 +132,7 @@ Otherwise, add ENTRY to TEMPLATE."
   `("p" "Phone (interrupt)" entry (file (lambda () (f-join org-directory "home-org" "inbox.org")))
     "
 * PHONE %?%^{Title}
-%u
+%U
 " :clock-in t :clock-resume t :jump-to-captured t))
  (org-capture-templates-put-entry
   org-capture-templates
