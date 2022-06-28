@@ -52,7 +52,7 @@ Guzey schedule
               org-pomodoro-expiry-time
               (org-pomodoro-expires-p))))
     (apply fn r)
-    (when half-p
+    (when (and half-p (not (my-org-pomodoro-in-real-meeting)))
       (my-org-pomodoro-start-half))))
 (advice-add #'org-pomodoro :around #'my-org-pomodoro-half-on-expiry)
 
@@ -724,12 +724,20 @@ current ‘org-pomodoro-end-time’."
   "kasa"
   "--alias=Pomodoro light"
   "off"))
-(defun my-org-pomodoro-pomodoro-light-clock-in-hook ()
-  "Turn on Pomodoro light lamp when in a meeting and off otherwise."
+(defun my-org-pomodoro-pomodoro-light-started-hook ()
+  (my-org-pomodoro-pomodoro-light-clock-in-hook 'no-start-tick))
+(defun my-org-pomodoro-pomodoro-light-clock-in-hook (&optional no-start-tick)
+  "Turn on Pomodoro light lamp when in a meeting and off otherwise.
+
+NO-START-TICK does what it says."
   (when (eq org-pomodoro-state :pomodoro)
     (if (my-org-pomodoro-in-real-meeting)
-        (my-org-pomodoro-pomodoro-light-on)
-      (my-org-pomodoro-pomodoro-light-off))))
+        (progn
+          (my-org-pomodoro-pomodoro-light-on)
+          (my-org-pomodoro-stop-tick))
+      (my-org-pomodoro-pomodoro-light-off)
+      (unless no-start-tick
+        (my-org-pomodoro-start-tick)))))
 (defun my-org-pomodoro-in-real-meeting ()
   "Check if we’re in a real meeting.
 
@@ -774,7 +782,7 @@ tagged with “recurring”."
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-create-log-event)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-break-reminder-prompt-hook)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-started-punch-in)
-(add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-pomodoro-light-clock-in-hook)
+(add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-pomodoro-light-started-hook)
 (add-hook 'org-pomodoro-started-hook #'my-org-pomodoro-end-at-meeting-end)
 (add-hook 'org-clock-in-hook #'my-org-pomodoro-pomodoro-light-clock-in-hook)
 (add-hook 'org-clock-in-hook #'my-org-pomodoro-update-log-event-titles)
