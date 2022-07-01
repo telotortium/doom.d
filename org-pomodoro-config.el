@@ -78,6 +78,7 @@ Requires the \"play\" executable from the SoX package
   (when (not (and (executable-find "play")
                   (executable-find "python3")))
     (user-error "my-org-pomodoro-start-tick: python3 and play (from SoX) must be on PATH"))
+  (my-org-pomodoro-stop-tick)
   (let ((cmd
          ;; Pad with 0.79 seconds of silence because tick.wav included with
          ;; ‘org-pomodoro’ is 0.21 seconds long, to get a 1-second tick.
