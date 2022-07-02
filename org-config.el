@@ -2171,6 +2171,19 @@ Create the entry if it does not exist."
 #+date: %U
 
 * ${title}"))
+  (setf (alist-get "D" org-roam-capture-templates nil nil #'equal)
+        (cons
+         "TikTok"
+         (cdr (cl-copy-list
+               (alist-get "d" org-roam-capture-templates nil nil #'equal)))))
+  (let* ((rval (nthcdr 4 (assoc "D" org-roam-capture-templates)))
+         (target (cl-copy-list (plist-get rval :target))))
+    (plist-put! rval
+                :target
+                (list
+                 (nth 0 target)
+                 "tiktok-org/roam/${slug}.org"
+                 (nth 2 target))))
  (defun org-capture-plist-dump ()
    "Dump variables for org-roam-capture plists for debugging."
   (message "org-capture-plist: %s"
