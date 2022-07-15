@@ -363,16 +363,22 @@ will work as designed."
                             (or date (org-current-effective-time)))))))
     (when my-org-pomodoro-browser
       (setenv "BROWSER" my-org-pomodoro-browser))
+    (unless (executable-find "timeout")
+      (user-error "Require “timeout” command"))
     (with-current-buffer (generate-new-buffer "*org_pomodoro_calendar_log_sum.py*")
       (let*
-          ((proc
+          ((timeout 5)
+           (proc
             (apply
              #'start-process
              "org_pomodoro_calendar_log_sum.py"
              (current-buffer)
-             (expand-file-name "org_pomodoro_calendar_log_sum.py" doom-private-dir)
+             "timeout"
              (append
               (list
+               "-14"   ; SIGALRM
+               (format "%d" timeout)  ; Wait up to TIMEOUT seconds
+               (expand-file-name "org_pomodoro_calendar_log_sum.py" doom-private-dir)
                "--calendar_id" my-org-pomodoro-log-gcal-calendar-id
                "--state" ":pomodoro"
                "--start_timestamp" (format-time-string "%FT%T%z"
@@ -388,27 +394,31 @@ will work as designed."
         ;; This process timeout code from
         ;; https://emacs.stackexchange.com/a/10295/17182. Not using CLI
         ;; ‘timeout’ program because it doesn’t exist on macOS.
-        (with-timeout (5.0
-                       (kill-process proc)
-                       (error "my-org-pomodoro-info-today: process timeout after 5.0 seconds"))
-          (while (process-live-p proc)
-            (sit-for 0.05))
-          (when (= 0 (process-exit-status proc))
-            (with-current-buffer (process-buffer proc)
-              (let* ((out
-                      (string-trim (buffer-substring-no-properties
-                                    (point-min) (point-max))))
-                     (result-list (s-split "," out)))
-                (when (= 2 (length result-list))
-                  (setq my-org-pomodoro-count-today-var
-                        (string-to-number (nth 0 result-list))
-                        my-org-pomodoro-time-today-var
-                        (string-to-number (nth 1 result-list)))
-                  (message "Org Pomodoro %s - Count: %2d, Time: %s"
-                           (format-time-string "%Y-%m-%d" (encode-time today-start))
-                           my-org-pomodoro-count-today-var
-                           (org-timer-secs-to-hms
-                            (round my-org-pomodoro-time-today-var))))))))))))
+        (while (process-live-p proc)
+          (sit-for 0.05))
+        (cond
+         ((= 14 (process-exit-status proc))
+          (error "my-org-pomodoro-info-today: process timeout after %d seconds"
+                 timeout))
+         ((= 0 (process-exit-status proc))
+          (with-current-buffer (process-buffer proc)
+            (let* ((out
+                    (string-trim (buffer-substring-no-properties
+                                  (point-min) (point-max))))
+                   (result-list (s-split "," out)))
+              (when (= 2 (length result-list))
+                (setq my-org-pomodoro-count-today-var
+                      (string-to-number (nth 0 result-list))
+                      my-org-pomodoro-time-today-var
+                      (string-to-number (nth 1 result-list)))
+                (message "Org Pomodoro %s - Count: %2d, Time: %s"
+                         (format-time-string "%Y-%m-%d" (encode-time today-start))
+                         my-org-pomodoro-count-today-var
+                         (org-timer-secs-to-hms
+                          (round my-org-pomodoro-time-today-var)))))))
+         (t
+          (error "my-org-pomodoro-info-today: process exit code %S"
+                 (process-exit-status proc))))))))
 (defun my-org-pomodoro-finished-info-today ()
   "Run ‘my-org-pomodoro-info-today’ when Pomodoro finishes."
   ;; Occasionally the first run of this command doesn’t work, so try a few
