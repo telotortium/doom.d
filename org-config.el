@@ -3280,8 +3280,8 @@ is to refresh the agenda and call ‘org-agenda-goto-today’ again."
     (message "Did not find date on current agenda line: %S %s"
              (point-marker)
              (buffer-substring-no-properties
-              (point-at-bol) (point-at-eol)))
-    (debug)))
+              (point-at-bol) (point-at-eol)))))
+
 
 (setq! org-list-allow-alphabetical t)
 
