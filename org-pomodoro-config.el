@@ -638,12 +638,13 @@ current ‘my-org-pomodoro-log-event-titles'."
   ;; Use run-at-time to allow other hooks to run per
   ;; https://emacs.stackexchange.com/a/70970/17182.
   (run-at-time 0.1 nil
-                 (lambda ()
-                   (condition-case-unless-debug err
-                       (progn
-                         (call-interactively #'my-org-pomodoro-started-break-reminder-prompt)
-                         (my-org-pomodoro-start-tick))
-                     (t . (message "my-org-pomodoro-started-break-reminder-hook: error: %S" err))))))
+               (lambda ()
+                 (condition-case-unless-debug err
+                     (progn
+                       (call-interactively #'my-org-pomodoro-started-break-reminder-prompt)
+                       (unless (my-org-pomodoro-in-real-meeting)
+                         (my-org-pomodoro-start-tick)))
+                   (t . (message "my-org-pomodoro-started-break-reminder-hook: error: %S" err))))))
 (defun my-org-pomodoro-remove-break-reminder-alarm ()
  "Remove alarm from ‘my-org-pomodoro-break-reminder-event-id’ when Pomodoro
 killed."
