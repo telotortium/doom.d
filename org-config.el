@@ -1486,6 +1486,19 @@ Applies only for files in ‘org-gcal-fetch-file-alist’."
    (org-agenda-redo)
    (org-agenda-goto-today)))
 
+;;; FIXME: remove this once I’ve debugged why plstore secret entries are being
+;;; inserted into my Org mode buffers.  This is somehow caused by ‘oauth2-auto’,
+;;; which I’ve added as a dependency for ‘org-gcal’.
+(defadvice! insert-break-on-secret-entries (&rest args)
+  "Break if trying to insert secret entries outside of plstore buffer."
+  :before #'insert
+  (when
+    (and
+      (stringp (buffer-file-name))
+      (not (string-match-p "oauth2-auto.plist" (buffer-file-name)))
+      (equal ";;; secret entries\n" (nth 0 args)))
+    (debug)))
+
 (defun my-org-gcal-schedule ()
   "Suggest a default schedule time for the event at point and create/update it \
 using ‘org-gcal-post-at-point’.
