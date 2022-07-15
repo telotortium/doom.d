@@ -147,3 +147,10 @@
 (package! atomic-chrome)
 
 (package! elnode)
+
+(package! oauth2-auto
+  :recipe (:host github :repo "rhaps0dy/emacs-oauth2-auto"
+           :branch "main"
+           :fork (:host nil :repo "git@github.com:telotortium/emacs-oauth2-auto"
+                  :branch "main")
+           :depth full))
