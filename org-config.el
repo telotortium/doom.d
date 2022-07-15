@@ -1402,16 +1402,18 @@ instead of the agenda files."
                ((eq system-type 'darwin)
                 'notifier)
                (t 'message))))
+(setq! org-gcal-config-file (expand-file-name "org-gcal-config.el" doom-private-dir))
+(when (file-exists-p org-gcal-config-file)
+ (load org-gcal-config-file))
+;; Ensure plstore doesn’t keep prompting for password.
+(setq! plstore-cache-passphrase-for-symmetric-encryption t)
 (after! org-gcal
-  (setq! org-gcal-config-file (expand-file-name "org-gcal-config.el" doom-private-dir))
   ;; Disable Auto Archive - my gcal.org_archive is so big that this majorly
   ;; slows down every fetch. Instead, I'll just archive old entries once a
   ;; month along with the rest of the entries to be archived.
   (setq! org-gcal-auto-archive nil)
   (setq! org-gcal-remove-api-cancelled-events nil)
   (setq! org-gcal-recurring-events-mode 'nested)
-  (when (file-exists-p org-gcal-config-file)
-    (load org-gcal-config-file))
   (defun my-org-gcal-set-effort (_calendar-id event _update-mode)
     "Set Effort property based on EVENT if not already set."
     (when-let* ((stime (plist-get (plist-get event :start)
