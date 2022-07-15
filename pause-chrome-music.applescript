@@ -11,28 +11,28 @@ tell application "Google Chrome"
 				set tabURL to (URL of t)
 				try
 					if tabURL starts with "https://somafm.com" then
-						with timeout of 2 seconds
+						with timeout of 1 seconds
 							tell t
 								execute javascript "var x = document.querySelector('[ng-if=\"$root.playingStation.playing\"]'); if (x !== null) { x.click(); }"
 							end tell
 						end timeout
 					end if
 					if tabURL contains ".substack.com/" then
-						with timeout of 2 seconds
+						with timeout of 1 seconds
 							tell t
 								execute javascript "var x = document.querySelector('.audio-player-play.pause > a'); if (x !== null) { x.click(); }"
 							end tell
 						end timeout
 					end if
 					if tabURL starts with "https://music.youtube.com" then
-						with timeout of 2 seconds
+						with timeout of 1 seconds
 							tell t
 								execute javascript "var x = document.getElementById('play-pause-button'); if (x !== null && x.getAttribute('aria-label').match(/Pause/i)) { x.click(); }"
 							end tell
 						end timeout
 					end if
 					if tabURL starts with "https://youtube.com" or URL of t starts with "https://www.youtube.com" then
-						with timeout of 2 seconds
+						with timeout of 1 seconds
 							tell t
 								execute javascript "var x = document.querySelector('.ytp-play-button'); var y = document.getElementById('movie_player'); if (x !== null && x.getAttribute('aria-label').match(/Pause/i) && (y === null || y.classList.contains('playing-mode'))) { x.click(); }"
 							end tell
