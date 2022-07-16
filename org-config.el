@@ -1455,6 +1455,14 @@ Applies only for files in ‘org-gcal-fetch-file-alist’."
   (add-hook 'org-gcal-after-update-entry-functions
             #'my-org-gcal-default-todo-meeting)
 
+  (defun my-org-gcal-recurrence-no-update-effort-from-children
+      (_calendar-id _event _update-mode)
+    "Set Org property “effort-no-update-from-children” on all events with “recurrence” property."
+    (when (org-entry-get (point) "recurrence")
+      (org-entry-put (point) "effort-no-update-from-children" "t")))
+  (add-hook 'org-gcal-after-update-entry-functions
+            #'my-org-gcal-recurrence-no-update-effort-from-children)
+
   (defun my-org-gcal-exclude-corp-personal-events (event)
     "Remove events from corp calendar with summary \"*Personal*\."
     (let* ((summary (or (plist-get event :summary)
