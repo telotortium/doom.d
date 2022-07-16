@@ -14,12 +14,15 @@
 ;;      Alternatively, press 'gd' (or 'C-c g d') on a module to browse its
 ;;      directory (for easy access to its source code).
 
-;; Blacklist some environment variables for `doom env`
-(when (boundp 'doom-env-blacklist)
-  (nconc doom-env-blacklist
-         '("DISPLAY" "LaunchInstanceId" "SECURITYSESSIONID" "XPC_SERVICE_NAME"
-           "XPC_FLAGS" "TERM_SESSION_ID" "TMPDIR"
-           "ITERM_SESSION_ID" "ITERM_PROFILE")))
+;; Deny some environment variables for `doom env`
+(after! core-cli-env
+  (nconc doom-env-deny
+         ;; Make sure each variable in the following list matches exactly that
+         ;; environment variable name.
+         (mapcar (lambda (var) (format "^%s$" (regexp-quote var)))
+                 '("LaunchInstanceId" "SECURITYSESSIONID" "XPC_SERVICE_NAME"
+                   "XPC_FLAGS" "TERM_SESSION_ID" "TMPDIR"
+                   "ITERM_SESSION_ID" "ITERM_PROFILE"))))
 
 (setq initial-buffer-choice
       (lambda ()
