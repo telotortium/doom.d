@@ -623,29 +623,29 @@ capture, so I run into this situation a lot."
        (laquote (shell-quote-argument launch-agent)))
     ;; Initialize empty plist - first in JSON, then convert it to XML for ease
     ;; of reading.
-    (call-process-shell-command
+    (my-check-call-process-shell-command
      (format "echo '{}' > %s" laquote))
-    (call-process-shell-command
+    (my-check-call-process-shell-command
      (format "plutil -convert xml1 %s" laquote))
-    (call-process-shell-command
+    (my-check-call-process-shell-command
      (format "plutil -replace Label -string io.github.telotortium.environment %s"
              laquote))
-    (call-process-shell-command
+    (my-check-call-process-shell-command
      (format "plutil -replace RunAtLoad -bool true %s" laquote))
-    (call-process-shell-command
+    (my-check-call-process-shell-command
      (format "plutil -replace ProgramArguments -array %s" laquote))
-    (call-process-shell-command
+    (my-check-call-process-shell-command
      (format "plutil -insert ProgramArguments -string sh -append %s"
              laquote))
-    (call-process-shell-command
+    (my-check-call-process-shell-command
      (format "plutil -insert ProgramArguments -string -c -append %s"
              laquote))
-    (call-process-shell-command
+    (my-check-call-process-shell-command
      (format "plutil -insert ProgramArguments -string %s -append %s"
              (shell-quote-argument
               "while [ $# -ge 2 ]; do launchctl setenv \"$1\" \"$2\"; shift 2; done")
              laquote))
-    (call-process-shell-command
+    (my-check-call-process-shell-command
      (format "plutil -insert ProgramArguments -string %s -append %s"
              (shell-quote-argument "__dollar_sign_0__") laquote))
     ;; Nice to have the list sorted by variable in case you want to compare two
@@ -656,12 +656,19 @@ capture, so I run into this situation a lot."
         (let* ((var (match-string 1 entry))
                (val (match-string 2 entry)))
           (when t
-            (call-process-shell-command
+            (my-check-call-process-shell-command
              (format "plutil -insert ProgramArguments -string %s -append %s"
                      (shell-quote-argument var) laquote))
-            (call-process-shell-command
+            (my-check-call-process-shell-command
              (format "plutil -insert ProgramArguments -string %s -append %s"
                      (shell-quote-argument val) laquote))))))))
+
+(defun my-check-call-process-shell-command (&rest args)
+  "Call ‘call-process-shell-command’ with ARGS; throw error for nonzero exit."
+  (let ((exit-status (apply #'call-process-shell-command args)))
+    (unless (= exit-status 0)
+      (error "Shell command %S exited unsuccessfully: exit status %S"
+             (car args) exit-status))))
 
 ;;;* Local configuration
 
