@@ -15,7 +15,7 @@
 ;;      directory (for easy access to its source code).
 
 ;; Deny some environment variables for `doom env`
-(after! core-cli-env
+(after! doom-cli-env
   (nconc doom-env-deny
          ;; Make sure each variable in the following list matches exactly that
          ;; environment variable name.
@@ -26,7 +26,7 @@
 
 (setq initial-buffer-choice
       (lambda ()
-        (when doom-interactive-p
+        (unless noninteractive
           (require 'org-roam-dailies)
           (org-roam-dailies-goto-today "d")
           (setq initial-buffer-choice nil)
@@ -40,7 +40,7 @@
 ;; Therefore, I’ve decided to move my config outside of my ‘doom-private-dir’,
 ;; and manually check the commit instead in order to make sure ‘doom-emacs-dir’
 ;; is as my private configuration expects.
-(let* ((doom-expected-commit "c2f8476c8641fcc9a1371d873ed3b5924952a059")
+(let* ((doom-expected-commit "a71e757c8d14fbe0eb7187b9bd6d317edf302f27")
        actual-commit)
   (condition-case err
       (when-let
@@ -50,7 +50,8 @@
              ""
              (shell-command-to-string
               (format "cd %s && git rev-parse HEAD"
-                      (shell-quote-argument doom-emacs-dir))))))
+                      (shell-quote-argument
+                        (expand-file-name doom-emacs-dir)))))))
         (setq actual-commit result))
     (error
      (error "Verifying commit of %1$s failed: %2$S
@@ -201,7 +202,7 @@ cd %1$s && git reset --hard %3$s
        ;;lua               ; one-based indices? one-based indices
        markdown          ; writing docs for people to ignore
        ;;nim               ; python + lisp at the speed of c
-       nix               ; I hereby declare "nix geht mehr!"
+       (nix +lsp)          ; I hereby declare "nix geht mehr!"
        ;;ocaml             ; an objective camel
        (org              ; organize your plain life in plain text
         +dragndrop       ; drag & drop files/images into org buffers
