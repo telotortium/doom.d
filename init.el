@@ -95,7 +95,7 @@ cd %1$s && git reset --hard %3$s
        doom                ; what makes DOOM look the way it does
        doom-dashboard      ; a nifty splash screen for Emacs
        doom-quit           ; DOOM quit-message prompts when you quit Emacs
-       ;;(emoji +unicode)  ; 🙂
+       (emoji +unicode)    ; 🙂
        fill-column         ; a `fill-column' indicator
        hl-todo             ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
        ;;hydra
@@ -207,7 +207,7 @@ cd %1$s && git reset --hard %3$s
        ;;idris             ; a language you can depend on
        (java +meghanada +lsp) ; the poster child for carpal tunnel syndrome
        (javascript +lsp)   ; all(hope(abandon(ye(who(enter(here))))))
-       ;;json              ; At least it ain't XML
+       (json +lsp)         ; At least it ain't XML
        ;;julia             ; a better, faster MATLAB
        ;;kotlin            ; a better, slicker Java(Script)
        latex               ; writing papers in Emacs has never been so fun
