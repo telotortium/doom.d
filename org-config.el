@@ -708,7 +708,8 @@ Use `org-ql-search' to search."
           (descendants
            (and (not (todo))
                 (ts :to -30)
-                (not (ts :from -30))))))
+                (not (ts :from -30)))))
+      t)
     :buffer (or buffer org-ql-view-buffer)
     :super-groups '((:auto-map my-org-super-agenda-group-by-project-or-task-group))
     :sort 'date
@@ -2315,6 +2316,35 @@ Create the entry if it does not exist."
          (org-link-make-string ref title)
          ref)))))
  nil)                                  ; To make eval-region on previous block easier
+
+
+(defun my-org-roam-capture-daily-from-file (input)
+  "Run ‘org-roam-dailies-capture-today’ using input from file INPUT.
+File INPUT has the heading on the first line and content on the following lines.
+Contents are inserted literally, so make sure they are valid Org-mode syntax."
+  (let* ((input-buf (find-file-noselect input)))
+    (save-window-excursion
+      (save-excursion
+        (let (title body marker)
+          (org-roam-dailies-capture-today)
+          (save-excursion
+            (with-current-buffer input-buf
+              (setq-local buffer-read-only t)
+              (goto-char (point-min))
+              (setq title (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
+              (forward-line 1)
+              (setq body (buffer-substring-no-properties (point-at-bol) (point-max)))))
+          ;; Ensure point is at end of line so that I can insert the title.
+          (end-of-line)
+          (unless (equal ?\s (char-before))
+            (insert " "))
+          (insert (string-trim title))
+          (newline)
+          (insert (string-trim body))
+          (newline)
+          (when org-capture-mode
+            (org-capture-finalize)))))
+    (kill-buffer input-buf)))
 
 (defconst my-promnesia-extension-url-release
   "chrome-extension://kdmegllpofldcpaclldkopnnjjljoiio")
