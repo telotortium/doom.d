@@ -3461,6 +3461,14 @@ message rather than the commit hash."
                    (magit-rev-format "%%N - magit-rev %s" ref)
                    `((?N . ,repo))))))
 
+(defun cancel-and-move-to-next (&optional count)
+  "Cancel current heading and move to next one."
+  (interactive "p")
+  (let ((macro [109 98 47 111 114 103 45 103 99 97 108 58 return 106 94 108 118 116 62 34 97 121 32 117 21 21 3 20 99 3 11 39 98 106 94 102 91 108 118 105 93 34 97 112 70 45 100 116 93 3 14]))
+    (org-back-to-heading)
+    (org-fold-show-all)
+    (evil-execute-macro (or count 1) macro)))
+
 ;;; Local Variables:
 ;;; outline-regexp: ";;;\\*+\\|\\`"
 ;;; End:
