@@ -2426,13 +2426,16 @@ to this:
               "\
 #+BEGIN_QUOTE
 %s#+END_QUOTE"                          ; Pandoc output has final newline
-              (with-temp-buffer
-                (insert m)
-                (call-process-region
-                 (point-min) (point-max)
-                 "pandoc" t t t
-                 "-f" "html" "-t" "org" "--wrap=preserve")
-                (buffer-string)))
+              ;; Must save match data so that ‘replace-match’ can work, because
+              ;; the manipulations in the temp buffer can change it.
+              (save-match-data
+               (with-temp-buffer
+                 (insert m)
+                 (call-process-region
+                  (point-min) (point-max)
+                  "pandoc" t t t
+                  "-f" "html" "-t" "org" "--wrap=preserve")
+                 (buffer-string))))
              nil t)))))))
 
 (after! org-roam-node
