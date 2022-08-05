@@ -3264,14 +3264,18 @@ Follows the same rules as `org-agenda-files'"
             (:tag "ARCHIVE"
              :and
              (:todo "CANCELLED")
-             :and
-             (
-               ;; TODO: replace with ~:property "recurrence"~ once I upgrade to
-               ;; ‘org-super-agenda' 1.3.
-               :regexp "^[ \t]*:recurrence:"
-               :not (:todo t)
-               :not (:log t)
-               :not (:habit t))
+             ;; TODO: re-enable once
+             ;; https://github.com/alphapapa/org-super-agenda/issues/227 is
+             ;; fixed and the fix present in the installed version of
+             ;; ‘org-super-agenda’.
+             ;; :and
+             ;; (
+             ;;   ;; Not using ~:property "recurrence"~ because the properties
+             ;;   ;; there are inherited, which means it will match all the
+             ;;   ;; children too.
+             ;;   :regexp "^[ \t]*:recurrence:"
+             ;;   :not (:log t)
+             ;;   :not (:habit t))
              :and
              (:tag "inbox")))
            (:name "Today"  ; Optionally specify section name
