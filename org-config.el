@@ -464,14 +464,16 @@ headline under the headline at the current point."
   "Run org-syncup-full script to save Org buffers and then org-git-sync."
   (interactive)
   (let ((c (current-window-configuration)))
-    (message "my-org-git-sync: launching - will restore window configuration afterward.")
+    (let ((minibuffer-auto-raise nil))
+      (message "my-org-git-sync: launching - will restore window configuration afterward."))
     (deferred:try
       (deferred:process-shell
         "~/bin/org-syncup-full -n -g -P")
       :finally
       (lambda (_)
         (set-window-configuration c)
-        (message "my-org-git-sync: restored window configuration")
+        (let ((minibuffer-auto-raise nil))
+          (message "my-org-git-sync: restored window configuration"))
         (start-process-shell-command "promesia-index" nil "promnesia index")))))
 (run-with-idle-timer 300 t #'my-org-git-sync)
 
