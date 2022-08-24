@@ -475,7 +475,13 @@ headline under the headline at the current point."
           (let ((minibuffer-auto-raise nil))
             (set-window-configuration c)
             (message "my-org-git-sync: restored window configuration")
-            (start-process-shell-command "promesia-index" nil "promnesia index")))))))
+            (start-process-shell-command
+             "promesia-index" nil
+             (format "%s promnesia index --source home-org tiktok-org"
+                     (cond
+                      (IS-MAC "nice -n19 taskpolicy -d throttle")
+                      (IS-LINUX "nice -n19 ionice -c idle")
+                      (t ""))))))))))
 (run-with-idle-timer 300 t #'my-org-git-sync)
 
 (setq! org-alphabetical-lists t)
