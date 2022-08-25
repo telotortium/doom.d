@@ -670,6 +670,9 @@ capture, so I run into this situation a lot."
       (error "Shell command %S exited unsuccessfully: exit status %S"
              (car args) exit-status))))
 
+;; Attempt to work around https://github.com/doomemacs/doomemacs/issues/6725.
+(add-to-list '+format-on-save-enabled-modes 'minibuffer-mode 'append)
+
 ;;;* Local configuration
 
 ;;; Allow users to provide an optional "config-local" containing personal settings
