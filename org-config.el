@@ -2103,6 +2103,7 @@ particular, that means Emacsclient will return immediately."
                 (title (my-org-roam-get-first-node-title)))
        (rename-buffer title))))
   (add-hook 'find-file-hook #'my-org-roam-set-buffer-name-hook)
+  (add-hook 'after-save-hook #'my-org-roam-set-buffer-name-hook)
   (defun my-org-hugo-get-roam-title (fn &optional backend subtreep ext-plist)
     "Set title for ‘org-export’ according to ‘my-org-roam-get-first-node-title’."
     (let ((info (funcall fn backend subtreep ext-plist)))
