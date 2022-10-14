@@ -1490,12 +1490,13 @@ Applies only for files in ‘org-gcal-fetch-file-alist’."
          (append '(0 0 8) (nthcdr 3 now-decoded)))
         (now (encode-time now-decoded))
         (today-8am (encode-time today-8am-decoded)))
-       (if (time-less-p now today-8am)
-           today-8am
-         (time-add today-8am (* 24 60 60))))
+   (if (time-less-p now today-8am)
+       today-8am
+     (time-add today-8am (* 24 60 60))))
  (* 24 60 60)
  (defun my-org-gcal-sync-clear-token ()
    "Sync calendar, clearing tokens first."
+   (interactive)
    (require 'org-gcal)
    (when org-gcal--sync-lock
      (warn "%s" "‘my-org-gcal-sync-clear-token’: ‘org-gcal--sync-lock’ not nil - calling ‘org-gcal--sync-unlock’.")
