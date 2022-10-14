@@ -2016,6 +2016,16 @@ particular, that means Emacsclient will return immediately."
   :config
   (setq! od2ae-deck "/"))
 
+;;;* Khoj
+(defvar khoj-server-port 23078)
+(setq khoj-server-url (format "http://localhost:%d" khoj-server-port))
+(setq khoj-server-buffer-name nil)
+(defun khoj-server-start ()
+  "Start ‘khoj’ server on ‘khoj-server-port’."
+  (interactive)
+  (start-process "khoj" khoj-server-buffer-name
+                 "khoj" (format "--port=%d" khoj-server-port)))
+
 ;;;* Org-roam
 ;; Needed by ‘org-roam-setup' - for some reason this is not being loaded.
 (require 'org-duration)
@@ -2071,7 +2081,8 @@ particular, that means Emacsclient will return immediately."
          (:prefix ("s" . "Promnesia search")
           :desc "Personal Promnesia search"     "p" #'my-promnesia-search-personal
           :desc "Corp Promnesia search"         "c" #'my-promnesia-search-corp
-          :desc "All profiles Promnesia search" "a" #'my-promnesia-search-all)))
+          :desc "All profiles Promnesia search" "a" #'my-promnesia-search-all
+          :desc "Khoj"                          "k" #'khoj)))
       ;; (defun my-org-roam-capture-split-window (&rest _args)
       ;;   "Split current window and select new window."
       ;;   (unless (eq org-roam-capture--context 'ref)
