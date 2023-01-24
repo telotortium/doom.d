@@ -193,9 +193,9 @@ Activate this advice with:
                     (server-port (nth 1 (process-contact server-process)))
                     (server-file (plist-get (process-plist server-process)
                                             :server-file)))
-          (and (= port server-port)
-               (= pid (emacs-pid))
-               (string= server-file file)))))))
+          (and (equal port server-port)
+               (equal pid (emacs-pid))
+               (equal server-file file)))))))
 (after! server
   :config
   (setq! server-name "server")
