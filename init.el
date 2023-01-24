@@ -40,7 +40,7 @@
 ;; Therefore, I’ve decided to move my config outside of my ‘doom-private-dir’,
 ;; and manually check the commit instead in order to make sure ‘doom-emacs-dir’
 ;; is as my private configuration expects.
-(let* ((doom-expected-commit "a71e757c8d14fbe0eb7187b9bd6d317edf302f27")
+(let* ((doom-expected-commit "e96624926d724aff98e862221422cd7124a99c19")
        actual-commit)
   (condition-case err
       (when-let
@@ -96,7 +96,6 @@ cd %1$s && git reset --hard %3$s
        doom-dashboard      ; a nifty splash screen for Emacs
        doom-quit           ; DOOM quit-message prompts when you quit Emacs
        (emoji +unicode)    ; 🙂
-       fill-column         ; a `fill-column' indicator
        hl-todo             ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
        ;;hydra
        ;;indent-guides     ; highlighted indent columns
