@@ -1457,7 +1457,7 @@ Applies only for files in ‘org-gcal-fetch-file-alist’."
     (when-let* ((title (plist-get event :summary))
                 ((member (abbreviate-file-name buffer-file-name)
                          (mapcar #'cdr org-gcal-fetch-file-alist)))
-                ((not (string= "" (org-get-todo-state))))
+                ((string= "" (org-get-todo-state)))
                 ((not (string= "transparent"
                                (org-entry-get (point) "TRANSPARENCY")))))
       (let ((org-inhibit-logging t))
