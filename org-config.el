@@ -1497,12 +1497,16 @@ Applies only for files in ‘org-gcal-fetch-file-alist’."
  (defun my-org-gcal-sync-clear-token ()
    "Sync calendar, clearing tokens first."
    (require 'org-gcal)
+   (when org-gcal--sync-lock
+     (warn "%s" "‘my-org-gcal-sync-clear-token’: ‘org-gcal--sync-lock’ not nil - calling ‘org-gcal--sync-unlock’.")
+     (org-gcal--sync-unlock))
    (org-gcal-sync-tokens-clear)
    (org-gcal-sync)
-   (org-agenda nil "a")
-   (switch-to-buffer org-agenda-buffer)
-   (org-agenda-redo)
-   (org-agenda-goto-today)))
+   ;; (org-agenda nil "a")
+   ;; (switch-to-buffer org-agenda-buffer)
+   ;; (org-agenda-redo)
+   ;; (org-agenda-goto-today)
+   nil))
 
 (defun my-org-gcal-schedule ()
   "Suggest a default schedule time for the event at point and create/update it \
