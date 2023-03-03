@@ -893,4 +893,48 @@ This may send a notification, play a sound and start a pomodoro break."
              org-pomodoro-third-time-mode)
   (org-pomodoro-third-time-mode +1))
 
+;; org-pomodoro-state server
+(defvar my-org-pomodoro-state-port 7345)
+(defvar my-org-pomodoro-state--restarted nil)
+(defun my-org-pomodoro-state--filter (proc _chunk)
+  "Respond with the value of ‘org-pomodoro-state’.
+
+PROC is the server process; _CHUNK is the request (ignored).
+Output a JSON object with key ‘org-pomodoro-state’ and value as that variable’s
+current value, as a string."
+  (let ((response
+         (json-serialize
+          (append
+           `(:org-pomodoro-state ,(symbol-name org-pomodoro-state))
+           (when my-org-pomodoro-state--restarted
+             `(:restarted t))))))
+    (process-send-string
+     proc
+     (concat "HTTP/1.0 200 OK\n"
+             "Content-Type: application/json; charset=utf-8\n"
+             "Access-Control-Allow-Origin: *\n"
+             (format "Content-Length: %i\n\n" (length response))
+             response
+             "\n\n"))
+    (process-send-eof proc)))
+(defun my-org-pomodoro-state-start ()
+  "Start (or restart) my-org-pomodoro-state HTTP server.
+
+Runs on ‘my-org-pomodoro-state-port‘."
+  (interactive)
+  (when (process-status "my-org-pomodoro-state")
+    (delete-process "my-org-pomodoro-state"))
+  (make-network-process
+   :name     "my-org-pomodoro-state"
+   :service  my-org-pomodoro-state-port
+   :server   t
+   :host     "localhost"
+   :family   'ipv4
+   :filter   'my-org-pomodoro-state--filter)
+  (setq my-org-pomodoro-state--restarted t)
+  (run-at-time 15 nil
+               (lambda () (setq my-org-pomodoro-state--restarted nil))))
+(my-org-pomodoro-state-start)
+
+
 (provide 'org-pomodoro-config)
