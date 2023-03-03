@@ -373,9 +373,11 @@ will work as designed."
              #'start-process
              "org_pomodoro_calendar_log_sum.py"
              (current-buffer)
-             "timeout"
+             "env"
              (append
+              (my-org-pomodoro--maybe-proxy)
               (list
+               "timeout"
                "-14"   ; SIGALRM
                (format "%d" timeout)  ; Wait up to TIMEOUT seconds
                (expand-file-name "org_pomodoro_calendar_log_sum.py" doom-private-dir)
@@ -528,9 +530,11 @@ killed."
         (setenv "BROWSER" my-org-pomodoro-browser))
       (apply
        #'deferred:process
-       (expand-file-name "org_pomodoro_schedule_alarm.py" doom-private-dir)
+       "env"
        (append
+        (my-org-pomodoro--maybe-proxy)
         (list
+         (expand-file-name "org_pomodoro_schedule_alarm.py" doom-private-dir)
          "--calendar_id" calendar-id
          "--timestamp" (format-time-string "%FT%T%z" time))
         (when title
@@ -598,6 +602,12 @@ current ‘my-org-pomodoro-log-event-titles'."
   ;; Output current value of variable for easier debugging.
   my-org-pomodoro-log-event-titles)
 
+(defun my-org-pomodoro--maybe-proxy ()
+  "Enable https_proxy with SOCKS5 if listening on port 9090."
+  (when (equal 0
+               (call-process-shell-command
+                "lsof -iTCP:9090 -sTCP:LISTEN" nil nil))
+    (list "https_proxy=socks5h://localhost:9090")))
 (defun my-org-pomodoro--create-log-event
     (calendar-id state clocked-events event-id start-time end-time)
   (deferred:$
@@ -606,9 +616,11 @@ current ‘my-org-pomodoro-log-event-titles'."
         (setenv "BROWSER" my-org-pomodoro-browser))
       (apply
        #'deferred:process
-       (expand-file-name "org_pomodoro_calendar_export.py" doom-private-dir)
+       "env"
        (append
+        (my-org-pomodoro--maybe-proxy)
         (list
+         (expand-file-name "org_pomodoro_calendar_export.py" doom-private-dir)
          "--calendar_id" calendar-id
          "--state" (format "%s" state)
          "--start_timestamp" (format-time-string "%FT%T%z" start-time)
