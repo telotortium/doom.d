@@ -1,13 +1,12 @@
-#!/usr/bin/env python3.8
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """Export Org Pomodoro sessions to Google Calendar.
 
-Dependencies (MacPorts):
-
-- py38-dateutil
-- py38-google-api
-- py38-oauth2client
+Installation:
+    - Set up virtualenv at `venv` in the script directory:
+    - Install dependencies in `venv` from `requirements.txt` in the script
+      directory.
 
 Last supported version is Python 3.8. In Python 3.9+, you get the following
 stack trace:
@@ -48,13 +47,24 @@ __main__:1: DeprecationWarning: Using or importing the ABCs from 'collections' i
 ```
 """
 
+import os
+import os.path
+import sys
+
+# Run script in correct virtualenv relative to script file.
+if 'VIRTUAL_ENV' not in os.environ:
+    venv_bin = os.path.join(os.path.dirname(__file__), 'venv', 'bin')
+    venv_activate = os.path.join(venv_bin, 'activate')
+    venv_python3 = os.path.join(venv_bin, 'python3')
+    os.execvp('bash', [
+        'bash', '-euc', 'source "$1"; shift; exec "$@"',
+        'DUMMY_ARG0', venv_activate, venv_python3, __file__,
+    ] + sys.argv[1:])
+
 import argparse
 import csv
 import html
 import logging
-import os
-import os.path
-import sys
 
 from datetime import datetime, timedelta
 from googleapiclient import sample_tools
