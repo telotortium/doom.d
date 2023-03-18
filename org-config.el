@@ -2017,7 +2017,9 @@ particular, that means Emacsclient will return immediately."
   "Start ‘khoj’ server on ‘khoj-server-port’."
   (interactive)
   (start-process "khoj" khoj-server-buffer-name
-                 "khoj" (format "--port=%d" khoj-server-port)))
+                 "khoj"
+                 (format "--port=%d" khoj-server-port)
+                 "--host=0.0.0.0" "-vv"))
 
 ;;;* Org-roam
 ;; Needed by ‘org-roam-setup' - for some reason this is not being loaded.
