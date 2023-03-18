@@ -383,6 +383,7 @@ will work as designed."
     (with-current-buffer (generate-new-buffer "*org_pomodoro_calendar_log_sum.py*")
       (let*
           ((timeout 5)
+           (sit-time 0.05)
            (proc
             (apply
              #'start-process
@@ -411,10 +412,11 @@ will work as designed."
         ;; This process timeout code from
         ;; https://emacs.stackexchange.com/a/10295/17182. Not using CLI
         ;; ‘timeout’ program because it doesn’t exist on macOS.
-        (while (process-live-p proc)
-          (sit-for 0.05))
+        (cl-loop repeat (ceiling (/ timeout sit-time))
+                 while (process-live-p proc)
+                 do (sit-for sit-time))
         (cond
-         ((= 14 (process-exit-status proc))
+         ((or (process-live-p proc) (= 14 (process-exit-status proc)))
           (error "my-org-pomodoro-info-today: process timeout after %d seconds"
                  timeout))
          ((= 0 (process-exit-status proc))
@@ -436,19 +438,21 @@ will work as designed."
          (t
           (error "my-org-pomodoro-info-today: process exit code %S"
                  (process-exit-status proc))))))))
+
+
 (defun my-org-pomodoro-finished-info-today ()
   "Run ‘my-org-pomodoro-info-today’ when Pomodoro finishes."
   ;; Occasionally the first run of this command doesn’t work, so try a few
   ;; times.
   (cl-loop for i below 3
-            with res = (my-org-pomodoro-info-today)
-            until (not (s-blank? res))
-            finally
-            (display-warning
-                      'org-pomodoro-config
-                      (if (s-blank? res)
-                          (format "Unexpected result: %S" res)
-                          res))))
+           with res = (my-org-pomodoro-info-today)
+           until (not (s-blank? res))
+           finally
+           (display-warning
+            'org-pomodoro-config
+            (if (s-blank? res)
+                (format "Unexpected result: %S" res)
+             res))))
 
 (defvar my-org-pomodoro-current-task-reminder-next-time nil)
 (defun my-org-pomodoro-tick-current-task-reminder ()
