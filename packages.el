@@ -151,7 +151,7 @@
 (package! khoj
   :recipe (:host github :repo "debanjum/khoj"
            :files (:defaults "src/interface/emacs/khoj.el")
-           :fork (:host nil :repo "git@github.com:telotortium/khoj"
-                  :branch "method"
-                  :files (:defaults "src/interface/emacs/khoj.el"))
+           ;; :fork (:host nil :repo "git@github.com:telotortium/khoj"
+           ;;        :branch "method"
+           ;;        :files (:defaults "src/interface/emacs/khoj.el"))
            :depth full))
