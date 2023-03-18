@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+# Script to adapt SoX to use system audio player tools (aplay and afplay)
+# instead of the SoX "play" tool, which can be unreliable (for example, on macOS
+# "play" sometimes hangs).
+#
+# Creates a temporary audio file from the output of SoX and then plays it. The
+# output file is cached in between runs.
+
+set -eu -o pipefail
+
+outfile="/tmp/$(basename "$0")-$(echo "$@" | shasum -a 256 | awk '{print $1}').wav"
+if ! [[ -s "${outfile}" ]]; then
+    # Volume options (and similar global options) are special - they must come
+    # at the beginning. So we need to separate them in order to identify the
+    # input file.
+    gopts=()
+    while [[ "$1" = "--volume" ]] || [[ "$1" = "-v" ]]; do
+        gopts+=("$1" "$2")
+        shift
+        shift
+    done
+    input="$1"
+    shift
+    sox "${gopts[@]}" "$input" "$outfile" "$@"
+fi
+command_on_path() { command -v "$1" &>/dev/null; }
+if command_on_path afplay; then
+    afplay "$outfile"
+elif command_on_path aplay; then
+    aplay "$outfile"
+else
+    play "$outfile"
+fi

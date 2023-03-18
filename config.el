@@ -555,12 +555,8 @@ PARINFER-RUST-VERSION and LIB-NAME currently ignored."
      (defun +follow-set-modeline ()
        (doom-modeline-set-modeline 'follow)))))
 
-(when
-    (and (not (fboundp 'play-sound-internal))
-         (executable-find "play"))
-  (defadvice! play-sound-sox (sound)
-    :override #'play-sound
-    "Implement ‘play-sound’ using ‘play’ binary from SoX.
+(defun play-sound-sox (sound)
+ "Implement ‘play-sound’ using ‘play’ binary from SoX.
 
 This replaces the use of ‘play-sound-internal’ when Emacs is compiled without
 sound support.  Currently supports only :file and :volume entries in ‘sound’."
@@ -572,7 +568,28 @@ sound support.  Currently supports only :file and :volume entries in ‘sound’
               (append
                (list "play" file)
                (when volume
-                (list "vol" volume))))))))
+                (list "vol" volume)))))))
+(defun play-sound-afplay (sound)
+ "Implement ‘play-sound’ using ‘afplay’ binary on macOS.
+
+This replaces the use of ‘play-sound-internal’ when Emacs is compiled without
+sound support.  Currently supports only :file and :volume entries in ‘sound’."
+    (when-let* (((eq (car-safe sound) 'sound))
+                (args (cdr-safe sound)))
+      (let* ((file (plist-get args :file))
+             (volume (plist-get args :volume)))
+        (apply #'start-process "play-sound-afplay" nil
+              (append
+               (list "afplay")
+               (when volume
+                (list "vol" volume))
+               (list file))))))
+(when (not (fboundp 'play-sound-internal))
+  (cond
+   ((executable-find "afplay")
+    (advice-add #'play-sound :override #'play-sound-afplay))
+   ((executable-find "play")
+    (advice-add #'play-sound :override #'play-sound-sox))))
 
 (atomic-chrome-start-server)
 

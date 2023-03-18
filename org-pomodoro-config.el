@@ -63,6 +63,10 @@ Guzey schedule
 ;;
 ;; but use \"play\" from the SoX package so that playback is smoother and
 ;; takes less CPU.
+(defvar my-sox-play (expand-file-name "sox-play" doom-private-dir)
+  "Replacement executable for SoX \"play\".
+Cache output of \"sox\" and play using system audio player rather than \"play\".
+Workaround for \"play\" hanging on some systems.")
 (setq! org-pomodoro-ticking-sound-p nil)
 (defvar org-pomodoro-ticking-volume 1.0
   "Volume for ‘my-org-pomodoro-start-tick’. Should be in range 0.0-1.0.")
@@ -72,38 +76,49 @@ Guzey schedule
 (defun my-org-pomodoro-start-tick ()
   "Start ticks for org-pomodoro-mode.
 
-Requires the \"play\" executable from the SoX package
+Requires the \"sox\" executable from the SoX package
 \(http://sox.sourceforge.net/sox.html)."
   (interactive)
-  (when (not (and (executable-find "play")
+  (when (not (and (executable-find "sox")
                   (executable-find "python3")))
-    (user-error "my-org-pomodoro-start-tick: python3 and play (from SoX) must be on PATH"))
+    (user-error "my-org-pomodoro-start-tick: python3 and sox (from SoX) must be on PATH"))
   (my-org-pomodoro-stop-tick)
   (let ((cmd
          ;; Pad with 0.79 seconds of silence because tick.wav included with
          ;; ‘org-pomodoro’ is 0.21 seconds long, to get a 1-second tick.
-         (format "play --volume %f %s pad 0 0.79 repeat - </dev/null >/dev/null 2>&1"
-                 org-pomodoro-ticking-volume
-                 (shell-quote-argument org-pomodoro-ticking-sound))))
+         ;; Repeat to fill up 60 seconds.
+         (format "%s --volume %f %s pad 0 0.79 repeat 60"
+                          (shell-quote-argument my-sox-play)
+                          org-pomodoro-ticking-volume
+                          (shell-quote-argument org-pomodoro-ticking-sound))))
     (start-process
      org-pomodoro-ticking-process-name
      org-pomodoro-ticking-process-name
      "python3"
      "-c"
-     (format
-      "\
+     "\
 import os, signal, subprocess, sys, time
-x = subprocess.Popen(r'''%s''', shell=True)
-while True:
-    # Kill process tree if parent process exits.
-    if os.getppid() == 1:
-        os.killpg(os.getpgid(os.getpid()), signal.SIGKILL)
-    # Exit if child exits.
-    if x.poll() is not None:
-        sys.exit(x.returncode)
-    time.sleep(1)
+def main(argv):
+    print(argv[1])
+    i = 0
+    start = time.monotonic()
+    while True:
+        i += 1
+        # Kill process tree if parent process exits.
+        if os.getppid() == 1:
+                os.killpg(os.getpgid(os.getpid()), signal.SIGKILL)
+        proc = subprocess.Popen(argv[1], shell=True)
+        try:
+                proc.communicate(timeout=(60-0.3))
+        except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.communicate()
+
+        duration = start + i*60 - time.monotonic(); print(i, duration);
+        if duration > 0: time.sleep(duration)
+main(sys.argv)
 "
-      cmd))))
+     cmd)))
 (defun my-org-pomodoro-stop-tick ()
   (interactive)
   "Stop ticks for org-pomodoro-mode."
@@ -463,7 +478,8 @@ will work as designed."
           (when (my-org-pomodoro-in-real-meeting)
            (start-process-shell-command
             "*org-pomodoro-tick-beep*" nil
-            (format "play -n synth 0.75 sine A3 gain -3 fade q 0.1 -0 0.2 vol %f"
+            (format "%s -n synth 0.75 sine A3 gain -3 fade q 0.1 -0 0.2 vol %f"
+                    (shell-quote-argument my-sox-play)
                     org-pomodoro-ticking-volume)))
           (org-pomodoro-notify
            (format "Pomodoro in progress - %ds to break" remainder)
