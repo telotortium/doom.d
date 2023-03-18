@@ -276,7 +276,7 @@ See `consult-grep' for more details."
         (setq consult-ripgrep-args
               (concat consult-ripgrep-args
                       " -g!*.org_archive")))
-      (consult--grep "Ripgrep Org" #'consult--ripgrep-builder
+      (consult--grep "Ripgrep Org" (consult--ripgrep-make-builder)
                      "~/Documents/org" initial)))
   (map! "C-c q" #'consult-ripgrep-org))
 
