@@ -961,6 +961,7 @@ Runs on ‘my-org-pomodoro-state-port‘."
   (make-network-process
    :name     "my-org-pomodoro-state"
    :service  my-org-pomodoro-state-port
+   :noquery  t
    :server   t
    :host     "localhost"
    :family   'ipv4
