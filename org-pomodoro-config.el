@@ -756,6 +756,7 @@ current ‘org-pomodoro-end-time’."
    "*pomodoro-light-on*"
    "chronic"  ;; Don’t show output unless command fails
    "kasa"
+   "--target=10.0.0.255"
    "--alias=Pomodoro light"
    "on"))
 (defun my-org-pomodoro-pomodoro-light-off ()
@@ -766,6 +767,7 @@ current ‘org-pomodoro-end-time’."
   "*pomodoro-light-off*"
   "chronic"  ;; Don’t show output unless command fails
   "kasa"
+   "--target=10.0.0.255"
   "--alias=Pomodoro light"
   "off"))
 (defun my-org-pomodoro-pomodoro-light-started-hook ()
