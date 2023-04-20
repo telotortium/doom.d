@@ -142,7 +142,8 @@ Activate this advice with:
   (add-to-list 'evil-emacs-state-modes 'Custom-mode)
   (add-to-list 'evil-emacs-state-modes 'profiler-report-mode)
   (add-to-list 'evil-emacs-state-modes 'pocket-reader-mode)
-  (add-to-list 'evil-emacs-state-modes 'rmail-mode))
+  (add-to-list 'evil-emacs-state-modes 'rmail-mode)
+  (add-to-list 'evil-emacs-state-modes 'rmail-summary-mode))
 (after! evil-collection
   (setq! evil-collection-setup-minibuffer t)
   (add-to-list '+evil-collection-disabled-list 'magit)
