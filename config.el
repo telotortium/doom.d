@@ -278,7 +278,7 @@ See `consult-grep' for more details."
               (concat consult-ripgrep-args
                       " -g!*.org_archive")))
       (consult--grep "Ripgrep Org" #'consult--ripgrep-make-builder
-                     "~/Documents/org" initial))
+                     "~/Documents/org" initial)))
   (map! "C-c q" #'consult-ripgrep-org))
 
 (after! fd-dired
