@@ -1416,8 +1416,18 @@ instead of the agenda files."
 (setq! org-gcal-config-file (expand-file-name "org-gcal-config.el" doom-private-dir))
 (when (file-exists-p org-gcal-config-file)
  (load org-gcal-config-file))
-;; Ensure plstore doesn’t keep prompting for password.
-(setq! plstore-cache-passphrase-for-symmetric-encryption t)
+(after! org-gcal
+  ;; By default, set up symmetric encryption (i.e., password encryption). To
+  ;; enable asymmetric encryption, which lets you use pinentry to store the
+  ;; encryption password in the login desktop environment keychain, set
+  ;; ‘plstore-encrypt-to’ to a non-nil value.
+  ;;
+  ;; Setting the below variable ensures that plstore doesn’t keep prompting for
+  ;; password multiple times during a single ‘org-gcal’ sync.
+  (setq! plstore-cache-passphrase-for-symmetric-encryption t)
+  ;; Enable use of pinentry-mac so that the password can be stored in the
+  ;; Keychain: https://gist.github.com/koshatul/2427643668d4e89c0086f297f9ed2130
+ (setq! epg-pinentry-mode 'ask))
 (after! org-gcal
   ;; Disable Auto Archive - my gcal.org_archive is so big that this majorly
   ;; slows down every fetch. Instead, I'll just archive old entries once a
