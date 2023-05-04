@@ -956,8 +956,7 @@ current value, as a string."
 
 Runs on ‘my-org-pomodoro-state-port‘."
   (interactive)
-  (when (process-status "my-org-pomodoro-state")
-    (delete-process "my-org-pomodoro-state"))
+  (my-org-pomodoro-state-stop)
   (make-network-process
    :name     "my-org-pomodoro-state"
    :service  my-org-pomodoro-state-port
@@ -969,6 +968,13 @@ Runs on ‘my-org-pomodoro-state-port‘."
   (setq my-org-pomodoro-state--restarted t)
   (run-at-time 15 nil
                (lambda () (setq my-org-pomodoro-state--restarted nil))))
+(defun my-org-pomodoro-state-stop ()
+  "Stop my-org-pomodoro-state HTTP server.
+
+Runs on ‘my-org-pomodoro-state-port‘."
+  (interactive)
+  (when (process-status "my-org-pomodoro-state")
+    (delete-process "my-org-pomodoro-state")))
 (my-org-pomodoro-state-start)
 
 
