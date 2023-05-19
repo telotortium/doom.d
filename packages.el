@@ -155,3 +155,5 @@
            ;;        :branch "method"
            ;;        :files (:defaults "src/interface/emacs/khoj.el"))
            :depth full))
+
+(package! gptel)
