@@ -1496,14 +1496,15 @@ Applies only for files in ‘org-gcal-fetch-file-alist’."
 ;; Run ‘org-gcal-sync’ regularly not at startup, but at 8 AM every day,
 ;; starting the next time 8 AM arrives.
 (run-at-time
- (let* ((now-decoded (decode-time))
-        (today-8am-decoded
-         (append '(0 0 8) (nthcdr 3 now-decoded)))
-        (now (encode-time now-decoded))
-        (today-8am (encode-time today-8am-decoded)))
+ (let* ((now (decode-time))
+        (today-8am
+         (append '(0 0 8) (nthcdr 3 now))))
    (if (time-less-p now today-8am)
        today-8am
-     (time-add today-8am (* 24 60 60))))
+     ;; ‘time-add’ doesn’t work with decoded-time format, so need to encode
+     ;; that. Also, it returns Unix timestamp, so pass to ‘decode-time’, or else
+     ;; ‘run-at-time’ interprets it as a number of seconds from now.
+     (decode-time (time-add (encode-time today-8am) (* 24 60 60)))))
  (* 24 60 60)
  (defun my-org-gcal-sync-clear-token ()
    "Sync calendar, clearing tokens first."
