@@ -535,7 +535,8 @@ headline under the headline at the current point."
 (setq! org-agenda-todo-ignore-scheduled 'future)
 
 (defcustom my-org-agenda-active-days 14
-  "Number of days in the past to search for active projects.")
+  "Number of days in the past to search for active projects."
+  :type 'natnum)
 (defun my-org-list-all-org-files-under (directory &optional archives)
   "List all Org files under DIRECTORY, recursively.
 If ARCHIVES set, include archives too."
