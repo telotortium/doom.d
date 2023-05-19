@@ -69,7 +69,7 @@ cd %1$s && git reset --hard %3$s
               doom-emacs-dir actual-commit doom-expected-commit)))))
 
 ;; Work around https://github.com/doomemacs/doomemacs/issues/5592
-(when NATIVECOMP
+(when (featurep 'native-compile)
   (with-eval-after-load 'comp
     ;; HACK Disable native-compilation for some troublesome packages
     (mapc (apply-partially #'add-to-list 'native-comp-deferred-compilation-deny-list)
