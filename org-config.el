@@ -1495,32 +1495,49 @@ Applies only for files in ‘org-gcal-fetch-file-alist’."
 
 ;; Run ‘org-gcal-sync’ regularly not at startup, but at 8 AM every day,
 ;; starting the next time 8 AM arrives.
-(run-at-time
- (let* ((now (decode-time))
-        (today-8am
-         (append '(0 0 8) (nthcdr 3 now))))
-   (if (time-less-p now today-8am)
-       today-8am
-     ;; ‘time-add’ doesn’t work with decoded-time format, so need to encode
-     ;; that. Also, it returns Unix timestamp, so pass to ‘decode-time’, or else
-     ;; ‘run-at-time’ interprets it as a number of seconds from now.
-     (decode-time (time-add (encode-time today-8am) (* 24 60 60)))))
- (* 24 60 60)
- (defun my-org-gcal-sync-clear-token ()
-   "Sync calendar, clearing tokens first."
-   (interactive)
-   (require 'org-gcal)
-   (when org-gcal--sync-lock
-     (warn "%s" "‘my-org-gcal-sync-clear-token’: ‘org-gcal--sync-lock’ not nil - calling ‘org-gcal--sync-unlock’.")
-     (org-gcal--sync-unlock))
-   (org-gcal-sync-tokens-clear)
-   (run-at-time (* 60 15) nil #'org-gcal-sync)
-   (org-gcal-fetch)
-   ;; (org-agenda nil "a")
-   ;; (switch-to-buffer org-agenda-buffer)
-   ;; (org-agenda-redo)
-   ;; (org-agenda-goto-today)
-   nil))
+(defvar my-org-gcal-sync-clear-token-timer nil)
+(defun my-timer-active-p (timer)
+  "Is timer active?"
+  (require 'timer)
+  (timer--check timer)
+  (or (memq timer timer-list)
+      (memq timer timer-idle-list)))
+(defun my-org-gcal-sync-clear-token ()
+  "Sync calendar, clearing tokens first."
+  (interactive)
+  (require 'org-gcal)
+  (when org-gcal--sync-lock
+    (warn "%s" "‘my-org-gcal-sync-clear-token’: ‘org-gcal--sync-lock’ not nil - calling ‘org-gcal--sync-unlock’.")
+    (org-gcal--sync-unlock))
+  (org-gcal-sync-tokens-clear)
+  (run-at-time (* 60 15) nil #'org-gcal-sync)
+  (org-gcal-fetch)
+  ;; (org-agenda nil "a")
+  ;; (switch-to-buffer org-agenda-buffer)
+  ;; (org-agenda-redo)
+  ;; (org-agenda-goto-today)
+  nil)
+(unless (and my-org-gcal-sync-clear-token-timer
+             (my-timer-active-p
+              my-org-gcal-sync-clear-token-timer))
+  (setq
+   my-org-gcal-sync-clear-token-timer
+   (run-at-time
+    (let*
+        ((now (decode-time))
+         (today-8am
+          (append '(0 0 8) (nthcdr 3 now)))
+         (start-time
+          (if (time-less-p now today-8am)
+              today-8am
+            ;; ‘time-add’ doesn’t work with decoded-time format, so need to encode
+            ;; that. Also, it returns Unix timestamp, so pass to ‘decode-time’, or else
+            ;; ‘run-at-time’ interprets it as a number of seconds from now.
+            (decode-time (time-add (encode-time today-8am) (* 24 60 60))))))
+      (message "start time: %S" start-time)
+      (encode-time start-time))
+    (* 24 60 60)
+    #'my-org-gcal-sync-clear-token)))
 
 (defun my-org-gcal-schedule ()
   "Suggest a default schedule time for the event at point and create/update it \
