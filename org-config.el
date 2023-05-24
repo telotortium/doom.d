@@ -1516,10 +1516,19 @@ Format is the first 3 entries of the result of ‘decode-time’,
   (org-gcal-sync-tokens-clear)
   (run-at-time (* 60 15) nil #'org-gcal-sync)
   (org-gcal-fetch)
-  ;; (org-agenda nil "a")
-  ;; (switch-to-buffer org-agenda-buffer)
-  ;; (org-agenda-redo)
-  ;; (org-agenda-goto-today)
+  (run-at-time
+   (* 60 20) nil
+   (lambda ()
+     (condition-case err
+         (progn
+           (org-agenda nil "a")
+           (switch-to-buffer org-agenda-buffer)
+           (org-agenda-redo)
+           (org-agenda-goto-today))
+       (error
+        (message
+         "my-org-gcal-sync-clear-token: refreshing agenda failed: %S"
+         err)))))
   nil)
 (defun my-org-gcal-sync-clear-token-timer-init ()
   "Schedule ‘my-org-gcal-sync-clear-token-timer’ if not set.
