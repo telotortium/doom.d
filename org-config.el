@@ -469,7 +469,7 @@ headline under the headline at the current point."
       (deferred:try
         (let ((minibuffer-auto-raise nil))
           (deferred:process-shell
-            "~/bin/org-syncup-full -n -g -P"))
+            "~/bin/org-syncup-full -n -g"))
         :finally
         (lambda (_)
           (let ((minibuffer-auto-raise nil))
