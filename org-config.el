@@ -460,8 +460,9 @@ headline under the headline at the current point."
 (run-with-idle-timer 300 t (lambda ()
                              (org-refile-cache-clear)
                              (org-refile-get-targets)))
-(defun my-org-git-sync ()
-  "Run org-syncup-full script to save Org buffers and then org-git-sync."
+(defun my-org-git-sync (&optional no-promnesia-index)
+  "Run org-syncup-full script to save Org buffers and then org-git-sync.
+Set NO-PROMNESIA-INDEX to non-nil to skip Promnesia index update."
   (interactive)
   (let ((minibuffer-auto-raise nil))
     (let ((c (current-window-configuration)))
@@ -475,13 +476,14 @@ headline under the headline at the current point."
           (let ((minibuffer-auto-raise nil))
             (set-window-configuration c)
             (message "my-org-git-sync: restored window configuration")
-            (start-process-shell-command
-             "promesia-index" nil
-             (format "%s promnesia index --source home-org tiktok-org"
-                     (cond
-                      (IS-MAC "nice -n19 taskpolicy -d throttle")
-                      (IS-LINUX "nice -n19 ionice -c idle")
-                      (t ""))))))))))
+            (unless no-promnesia-index
+              (start-process-shell-command
+               "promesia-index" nil
+               (format "%s promnesia index --source home-org tiktok-org"
+                       (cond
+                        (IS-MAC "nice -n19 taskpolicy -d throttle")
+                        (IS-LINUX "nice -n19 ionice -c idle")
+                        (t "")))))))))))
 (run-with-idle-timer 300 t #'my-org-git-sync)
 
 (setq! org-alphabetical-lists t)
@@ -1513,6 +1515,7 @@ Format is the first 3 entries of the result of ‘decode-time’,
   (when org-gcal--sync-lock
     (warn "%s" "‘my-org-gcal-sync-clear-token’: ‘org-gcal--sync-lock’ not nil - calling ‘org-gcal--sync-unlock’.")
     (org-gcal--sync-unlock))
+  (deferred:sync! (my-org-git-sync 'no-promnesia-index)) ; Save and revert buffers.
   (org-gcal-sync-tokens-clear)
   (run-at-time (* 60 15) nil #'org-gcal-sync)
   (org-gcal-fetch)
@@ -1521,6 +1524,7 @@ Format is the first 3 entries of the result of ‘decode-time’,
    (lambda ()
      (condition-case err
          (progn
+           (deferred:sync! (my-org-git-sync 'no-promnesia-index)) ; Save and revert buffers.
            (org-agenda nil "a")
            (switch-to-buffer org-agenda-buffer)
            (org-agenda-redo)
