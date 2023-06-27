@@ -2577,7 +2577,9 @@ to this:
           (let
               ((files
                 (f-files dir
-                         (lambda (f) (s-ends-with? ".org" f))
+                         (lambda (f)
+                           (and (s-ends-with? ".org" f)
+                                (not (s-contains? ".stversions" f))))
                          'recursive)))
             (push files text-search)
             (push
