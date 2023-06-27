@@ -695,6 +695,14 @@ capture, so I run into this situation a lot."
   :config
   (load! "gptel-api-key.el" nil 'noerror))
 
+(defun my-ns-power-off ()
+  "Quit Emacs without confirming exit on macOS shutdown."
+  (interactive)
+  (setq confirm-kill-emacs nil
+        confirm-kill-processes nil)
+  (save-buffers-kill-emacs 'save-files))
+(map! "<ns-power-off>" #'my-ns-power-off)
+
 ;;;* Local configuration
 
 ;;; Allow users to provide an optional "config-local" containing personal settings
