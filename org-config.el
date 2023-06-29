@@ -2579,7 +2579,8 @@ to this:
                 (f-files dir
                          (lambda (f)
                            (and (s-ends-with? ".org" f)
-                                (not (s-contains? ".stversions" f))))
+                                (not (s-contains? ".stversions" f))
+                                (not (s-contains? ".sync-confict-" f))))
                          'recursive)))
             (push files text-search)
             (push
