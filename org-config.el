@@ -2,6 +2,7 @@
 
 ;;; Configuration for Org mode
 
+(require 'org-indent)
 (map! "C-c a" #'org-agenda
       "C-c b" #'org-switchb
       "C-c c" #'org-capture
