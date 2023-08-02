@@ -703,6 +703,11 @@ capture, so I run into this situation a lot."
   (save-buffers-kill-emacs 'save-files))
 (map! "<ns-power-off>" #'my-ns-power-off)
 
+;; Enable tree-sitter syntax highlighting (per
+;; https://emacs-tree-sitter.github.io/syntax-highlighting/).
+(global-tree-sitter-mode)
+(add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+
 ;;;* Local configuration
 
 ;;; Allow users to provide an optional "config-local" containing personal settings
