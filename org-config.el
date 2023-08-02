@@ -2588,7 +2588,7 @@ to this:
              (org-ql-select
                 files
                 `(or
-                  (ts :from -60)
+                  (ts :from -45)
                   (tags-local "inbox" "drill"))
                 :action
                 (lambda () (buffer-file-name (current-buffer))))
