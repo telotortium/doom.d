@@ -976,7 +976,12 @@ Runs on ‘my-org-pomodoro-state-port‘."
   (interactive)
   (when (process-status "my-org-pomodoro-state")
     (delete-process "my-org-pomodoro-state")))
-(my-org-pomodoro-state-start)
+(condition-case err
+    (my-org-pomodoro-state-start)
+  (error
+   (display-warning
+    'org-pomodoro-config
+    (format "my-org-pomodoro-state-start failed: %S" err))))
 
 
 (provide 'org-pomodoro-config)
