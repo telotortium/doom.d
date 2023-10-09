@@ -3394,6 +3394,7 @@ calling ‘org-agenda-goto-today’ in the agenda goes to the line containing th
 agenda date, but doesn’t change to whatever today’s date is.  The workaround
 is to refresh the agenda and call ‘org-agenda-goto-today’ again."
   :around #'org-agenda-goto-today
+  (require 'timezone)
   (apply _orig-fn _args)
   (forward-line 0)
   (if (looking-at "^\\w+ +\\([0-9]+ \\w+ [0-9]+\\) ")
