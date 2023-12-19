@@ -40,7 +40,7 @@
 ;; Therefore, I’ve decided to move my config outside of my ‘doom-private-dir’,
 ;; and manually check the commit instead in order to make sure ‘doom-emacs-dir’
 ;; is as my private configuration expects.
-(let* ((doom-expected-commit "24601b300e87e909340524476713dcaaa5d095cd")
+(let* ((doom-expected-commit "abd29569a6b78515599c2133fcb06da3e06bee14")
        actual-commit)
   (condition-case err
       (when-let
