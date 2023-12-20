@@ -688,9 +688,6 @@ capture, so I run into this situation a lot."
       (error "Shell command %S exited unsuccessfully: exit status %S"
              (car args) exit-status))))
 
-;; Attempt to work around https://github.com/doomemacs/doomemacs/issues/6725.
-(add-to-list '+format-on-save-enabled-modes 'minibuffer-mode 'append)
-
 (use-package! gptel
   :config
   (load! "gptel-api-key.el" nil 'noerror))
