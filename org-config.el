@@ -2569,6 +2569,7 @@ to this:
   (async-start
    `(lambda ()
       ,(async-inject-variables "^\\(load-path\\|my-org-roam-directories\\)$")
+      (require 'org-hugo-auto-export-mode)
       (require 'cl-lib)
       (require 'org-ql)
       (require 'f)
@@ -3502,6 +3503,8 @@ is to refresh the agenda and call ‘org-agenda-goto-today’ again."
 
 ;; Override org-hugo-auto-export-mode to export asynchronously (why on earth is
 ;; this not the default?)
+(after! ox
+  (require 'ox-hugo))
 (el-patch-feature org-hugo-auto-export-mode)
 (after! org-hugo-auto-export-mode
   (el-patch-defun org-hugo-export-wim-to-md-after-save ()
