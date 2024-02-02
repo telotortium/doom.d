@@ -18,7 +18,7 @@
       "C-c C-x C-o" #'org-clock-out
       "C-c C-x o" #'org-clock-in)
 (use-package! evil-org
-  :hook (org-mode))
+  :hook (org-mode . evil-org-mode))
 (after! (evil-core evil-org)
   (map! :map evil-org-mode-map
         (:when IS-MAC
