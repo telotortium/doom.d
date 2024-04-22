@@ -2566,46 +2566,51 @@ to this:
 (defun my-org-roam-agenda-file-hook ()
   "Add recently-modified org-roam files to ‘org-agenda-files’."
   (interactive)
-  (async-start
-   `(lambda ()
-      ,(async-inject-variables "^\\(load-path\\|my-org-roam-directories\\)$")
-      (require 'org-hugo-auto-export-mode)
-      (require 'cl-lib)
-      (require 'org-ql)
-      (require 'f)
-      (require 's)
-      (let* (text-search agenda)
-        (dolist (dir my-org-roam-directories)
-          (let
-              ((files
-                (f-files dir
-                         (lambda (f)
-                           (and (s-ends-with? ".org" f)
-                                (not (s-contains? ".stversions" f))
-                                (not (s-contains? ".sync-confict-" f))))
-                         'recursive)))
-            (push files text-search)
-            (push
-             (org-ql-select
-                files
-                `(or
-                  (ts :from -45)
-                  (tags-local "inbox" "drill"))
-                :action
-                (lambda () (buffer-file-name (current-buffer))))
-             agenda)))
-        (delete-dups agenda)
-        (delete-dups text-search)
-        (list agenda text-search)))
-   (lambda (res)
-     (setq!
-      org-agenda-files
-      (apply #'append (org-agenda-expand-files-name) (nth 0 res)))
-     (setq!
-      org-agenda-text-search-extra-files
-      (apply #'append org-agenda-text-search-extra-files (nth 1 res)))
-     (delete-dups org-agenda-files)
-     (delete-dups org-agenda-text-search-extra-files))))
+  (let
+      ((proc
+        (async-start
+         `(lambda ()
+            ,(async-inject-variables "^\\(load-path\\|my-org-roam-directories\\)$")
+            (require 'org-hugo-auto-export-mode)
+            (require 'cl-lib)
+            (require 'org-ql)
+            (require 'f)
+            (require 's)
+            (let* (text-search agenda)
+              (dolist (dir my-org-roam-directories)
+                (let
+                    ((files
+                      (f-files dir
+                               (lambda (f)
+                                 (and (s-ends-with? ".org" f)
+                                      (not (s-contains? ".stversions" f))
+                                      (not (s-contains? ".sync-confict-" f))))
+                               'recursive)))
+                  (push files text-search)
+                  (push
+                   (org-ql-select
+                     files
+                     `(or
+                       (ts :from -45)
+                       (tags-local "inbox" "drill"))
+                     :action
+                     (lambda () (buffer-file-name (current-buffer))))
+                   agenda)))
+              (delete-dups agenda)
+              (delete-dups text-search)
+              (list agenda text-search)))
+         (lambda (res)
+           (setq!
+            org-agenda-files
+            (apply #'append (org-agenda-expand-files-name) (nth 0 res)))
+           (setq!
+            org-agenda-text-search-extra-files
+            (apply #'append org-agenda-text-search-extra-files (nth 1 res)))
+           (delete-dups org-agenda-files)
+           (delete-dups org-agenda-text-search-extra-files)))))
+    (call-process "renice" nil nil nil "-n20" (format "%d" (process-id proc)))
+    proc))
+
 
 (run-with-idle-timer 5 nil #'my-org-roam-agenda-file-hook)
 (run-with-idle-timer (* 60 3) t #'my-org-roam-agenda-file-hook)
