@@ -22,8 +22,8 @@
 (after! (evil-core evil-org)
   (map! :map evil-org-mode-map
         (:when IS-MAC
-         :mi "<s-up>" #'org-backward-element
-         :mi "<s-down>" #'org-forward-element))
+          :mi "<s-up>" #'org-backward-element
+          :mi "<s-down>" #'org-forward-element))
   (map! :m "<C-i>" #'better-jumper-jump-forward)
   (evil-define-key 'motion evil-org-mode-map
     (kbd (concat "g" (alist-get 'up evil-org-movement-bindings))) nil
@@ -117,40 +117,40 @@ an entry with those keys exists, replace it with the contents of ENTRY (which
 are copied so that TEMPLATES can be mutated later without affecting ENTRY).
 Otherwise, add ENTRY to TEMPLATE."
   `(progn
-    (require 'cl-lib)
-    (setf (alist-get (car ,entry) ,templates nil nil #'equal)
-          (cl-copy-list (cdr ,entry)))))
+     (require 'cl-lib)
+     (setf (alist-get (car ,entry) ,templates nil nil #'equal)
+           (cl-copy-list (cdr ,entry)))))
 (after! org-capture
- (org-capture-templates-put-entry
-  org-capture-templates
-  `("t" "Task" entry (file (lambda () (f-join org-directory "home-org" "inbox.org")))
-    "
+  (org-capture-templates-put-entry
+   org-capture-templates
+   `("t" "Task" entry (file (lambda () (f-join org-directory "home-org" "inbox.org")))
+     "
 * TODO %?%^{Title}
 %u
 " :clock-in t :clock-resume t :jump-to-captured t))
- (org-capture-templates-put-entry
-  org-capture-templates
-  `("p" "Phone (interrupt)" entry (file (lambda () (f-join org-directory "home-org" "inbox.org")))
-    "
+  (org-capture-templates-put-entry
+   org-capture-templates
+   `("p" "Phone (interrupt)" entry (file (lambda () (f-join org-directory "home-org" "inbox.org")))
+     "
 * PHONE %?%^{Title}
 %U
 " :clock-in t :clock-resume t :jump-to-captured t))
- (org-capture-templates-put-entry
-  org-capture-templates
-  `("n" "Note" entry (file (lambda () (f-join org-directory "home-org" "inbox.org")))
-    "
+  (org-capture-templates-put-entry
+   org-capture-templates
+   `("n" "Note" entry (file (lambda () (f-join org-directory "home-org" "inbox.org")))
+     "
 * %u %?
 " :jump-to-captured t))
- (org-capture-templates-put-entry
-  org-capture-templates
-  `("i" "Idea" entry (file (lambda () (f-join org-directory "home-org" "inbox.org")))
-    "
+  (org-capture-templates-put-entry
+   org-capture-templates
+   `("i" "Idea" entry (file (lambda () (f-join org-directory "home-org" "inbox.org")))
+     "
 * %u %?REPLACE_ME                      :IDEA:
 " :clock-in t :clock-resume t))
- (org-capture-templates-put-entry
-  org-capture-templates
-  `("j" "Journal" plain (file+weektree (lambda () (f-join org-directory "home-org" "journal.org")))
-    "
+  (org-capture-templates-put-entry
+   org-capture-templates
+   `("j" "Journal" plain (file+weektree (lambda () (f-join org-directory "home-org" "journal.org")))
+     "
 * %U %^{Title}                 :journal:
 :PROPERTIES:
 :Effort: 9999:00
@@ -158,10 +158,10 @@ Otherwise, add ENTRY to TEMPLATE."
 
 %?
 " :clock-in t :clock-resume t))
- (org-capture-templates-put-entry
-  org-capture-templates
-  `("d" "Drill" entry (file+headline org-default-notes-file "Drill")
-    "
+  (org-capture-templates-put-entry
+   org-capture-templates
+   `("d" "Drill" entry (file+headline org-default-notes-file "Drill")
+     "
 * Drill entry        :drill:
 :PROPERTIES:
 :DRILL_CARD_TYPE: hide1cloze
@@ -169,11 +169,11 @@ Otherwise, add ENTRY to TEMPLATE."
 :END:
 %?!|2 + 2|! equals !|4|!.
 " :clock-in t :clock-resume t :jump-to-captured t))
- (org-capture-templates-put-entry
-  org-capture-templates
-  `("D" "Daily Log" plain
-    (file my-org-roam-daily-for-overriding-time)
-    "\
+  (org-capture-templates-put-entry
+   org-capture-templates
+   `("D" "Daily Log" plain
+     (file my-org-roam-daily-for-overriding-time)
+     "\
 * %u Daily log
 :PROPERTIES:
 :Effort: 0:05
@@ -194,11 +194,11 @@ Advance to NEXT once filled out
 #+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :block %<%F> :link t :match \"-TikTok-break\" :narrow 60!
 #+END: clocktable
 " :time-prompt t :clock-in t :clock-resume t :jump-to-captured t))
- (org-capture-templates-put-entry
-  org-capture-templates
-  `("W" "GTD weekly review" plain
-    (file my-org-roam-daily-for-overriding-time)
-    "\
+  (org-capture-templates-put-entry
+   org-capture-templates
+   `("W" "GTD weekly review" plain
+     (file my-org-roam-daily-for-overriding-time)
+     "\
 * NEXT %u GTD weekly review
 SCHEDULED: <%<%Y-%m-%d %a 13:00-14:00>>
 :PROPERTIES:
@@ -274,10 +274,10 @@ Checklist:
 #+BEGIN: clocktable :maxlevel 9 :emphasize nil :scope agenda :stepskip0 t :fileskip0 t :tstart \"%(org-timestamp-add-days \"%<%F>\" -6)\" :tend \"%<%F>\" :link t :match \"-TikTok-break\" :narrow 60!
 #+END: clocktable
 " :time-prompt t :immediate-finish t))
- (org-capture-templates-put-entry
-  org-capture-templates
-  `("P" "org-protocol"))
- (org-capture-templates-put-entry
+  (org-capture-templates-put-entry
+   org-capture-templates
+   `("P" "org-protocol"))
+  (org-capture-templates-put-entry
    org-capture-templates
    `("Pp" "Link and Text" entry (file+headline org-default-notes-file "Links")
      "
@@ -291,10 +291,10 @@ Source: [[%:link][%:description]]
 
 %U
 "))
- (org-capture-templates-put-entry
-  org-capture-templates
-  `("PL" "Link" entry (file+headline org-default-notes-file "Links")
-    "\
+  (org-capture-templates-put-entry
+   org-capture-templates
+   `("PL" "Link" entry (file+headline org-default-notes-file "Links")
+     "\
 * %?%:description
 :PROPERTIES:
 :ID: %(org-id-new)
@@ -315,11 +315,11 @@ Source: [[%:link][%:description]]
                             (expand-file-name
                              org-roam-dailies-directory
                              org-roam-directory))))
-     (when (org-roam-capture--new-file-p daily-file)
+    (when (org-roam-capture--new-file-p daily-file)
       (save-excursion
         (save-restriction
           (org-roam-dailies--capture time 'goto))))
-     daily-file))
+    daily-file))
 
 ;; Create ‘C-u 2 M-x org-capture’ command to refile org-capture template under
 ;; headline at point.
@@ -469,22 +469,22 @@ Set NO-PROMNESIA-INDEX to non-nil to skip Promnesia index update."
     (let ((c (current-window-configuration)))
       (message "my-org-git-sync: launching - will restore window configuration afterward.")
       (deferred:try
-        (let ((minibuffer-auto-raise nil))
-          (deferred:process-shell
-            "~/bin/org-syncup-full -n -g"))
-        :finally
-        (lambda (_)
-          (let ((minibuffer-auto-raise nil))
-            (set-window-configuration c)
-            (message "my-org-git-sync: restored window configuration")
-            (unless no-promnesia-index
-              (start-process-shell-command
-               "promesia-index" nil
-               (format "%s promnesia index --source home-org tiktok-org"
-                       (cond
-                        (IS-MAC "nice -n19 taskpolicy -d throttle")
-                        (IS-LINUX "nice -n19 ionice -c idle")
-                        (t "")))))))))))
+       (let ((minibuffer-auto-raise nil))
+         (deferred:process-shell
+          "~/bin/org-syncup-full -n -g"))
+       :finally
+       (lambda (_)
+         (let ((minibuffer-auto-raise nil))
+           (set-window-configuration c)
+           (message "my-org-git-sync: restored window configuration")
+           (unless no-promnesia-index
+             (start-process-shell-command
+              "promesia-index" nil
+              (format "%s promnesia index --source home-org tiktok-org"
+                      (cond
+                       (IS-MAC "nice -n19 taskpolicy -d throttle")
+                       (IS-LINUX "nice -n19 ionice -c idle")
+                       (t "")))))))))))
 (run-with-idle-timer 300 t #'my-org-git-sync)
 
 (setq! org-alphabetical-lists t)
@@ -603,31 +603,31 @@ Use `org-ql-search' to search for all loose TODOs."
     :buffer (or buffer org-ql-view-buffer)))
 (defconst my-org-agenda-inbox-query
   `(and
-     (tags-local "inbox" "REFILE")
-     (not (scheduled :from 1))
-     (not (tags "HOLD" "CANCELLED" "ARCHIVED"))))
+    (tags-local "inbox" "REFILE")
+    (not (scheduled :from 1))
+    (not (tags "HOLD" "CANCELLED" "ARCHIVED"))))
 (cl-defun my-org-agenda-inbox (&optional buffer)
- "Show agenda for inbox entries not scheduled for future."
- (interactive)
- (org-ql-search
-   (org-agenda-files)
-   my-org-agenda-inbox-query
-   :super-groups '((:auto-ts t))
-   :title "Inbox entries"
-   :buffer (or buffer org-ql-view-buffer)))
+  "Show agenda for inbox entries not scheduled for future."
+  (interactive)
+  (org-ql-search
+    (org-agenda-files)
+    my-org-agenda-inbox-query
+    :super-groups '((:auto-ts t))
+    :title "Inbox entries"
+    :buffer (or buffer org-ql-view-buffer)))
 (cl-defun my-org-agenda-inbox-recent (&optional buffer)
- "Show agenda for recent inbox entries.
+  "Show agenda for recent inbox entries.
 Like ‘my-org-agenda-inbox’, but only for entries from the past
 ‘my-org-agenda-active-days'."
- (interactive)
- (org-ql-search
-   (org-agenda-files)
-   (append
-    my-org-agenda-inbox-query
-    `((ts :from ,(- my-org-agenda-active-days))))
-   :super-groups '((:auto-ts t))
-   :title "Inbox entries"
-   :buffer (or buffer org-ql-view-buffer)))
+  (interactive)
+  (org-ql-search
+    (org-agenda-files)
+    (append
+     my-org-agenda-inbox-query
+     `((ts :from ,(- my-org-agenda-active-days))))
+    :super-groups '((:auto-ts t))
+    :title "Inbox entries"
+    :buffer (or buffer org-ql-view-buffer)))
 (cl-defun my-org-agenda-loose-todos (&optional buffer)
   "Show agenda for Loose TODOs (those not part of projects)
 
@@ -806,7 +806,7 @@ Use ‘org-ql-search' to search."
     :sort 'date
     :title "Old GCal tasks to delete."))
 (cl-defun my-org-agenda-ancient-tasks (&optional buffer)
- "Show agenda for ancient tasks.
+  "Show agenda for ancient tasks.
 
 Look for tasks with property ‘org-gcal-calendar-id-property' that are older than
 90 days, have never been clocked, have no children, and are not parents of
@@ -815,21 +815,21 @@ Calendar that I’ve never interacted with, and can thus be deleted without any
 ill effect.
 
 Use ‘org-ql-search' to search."
- (interactive)
- (require 'org-gcal)
- (org-ql-search
-   (my-org-list-all-org-files-under org-directory)
-   `(and
-     (ts :to -365)
-     (not (ts :from -365))
-     (or
-      (todo)
-      (tags-local "REFILE" "inbox"))
-     (not (parent (tags "REFILE" "inbox" "HOLD" "WAITING"))))
-   :buffer (or buffer org-ql-view-buffer)
-   :super-groups '((:auto-ts))
-   :sort 'date
-   :title "Ancient tasks, to re-triage or archive"))
+  (interactive)
+  (require 'org-gcal)
+  (org-ql-search
+    (my-org-list-all-org-files-under org-directory)
+    `(and
+      (ts :to -365)
+      (not (ts :from -365))
+      (or
+       (todo)
+       (tags-local "REFILE" "inbox"))
+      (not (parent (tags "REFILE" "inbox" "HOLD" "WAITING"))))
+    :buffer (or buffer org-ql-view-buffer)
+    :super-groups '((:auto-ts))
+    :sort 'date
+    :title "Ancient tasks, to re-triage or archive"))
 (defmacro my-org-agenda-ql-wrapper (wrapper-name wrapped-func-name)
   "Defines a wrapper for use in `org-agenda-custom-commands'.
 
@@ -916,8 +916,8 @@ argument when called in `org-agenda-custom-commands'."
                  my-org-agenda-export-options))
                "~/Downloads/agenda-P-export.pdf"))
 (add-to-list 'org-agenda-custom-commands
- `("I" "Inbox"
-   ((my-org-agenda-inbox-agenda-command ""))))
+             `("I" "Inbox"
+               ((my-org-agenda-inbox-agenda-command ""))))
 (add-to-list 'org-agenda-custom-commands
              `("U" "Loose TODOs (not part of projects)"
                ((my-org-agenda-loose-todos-agenda-command ""))
@@ -999,9 +999,9 @@ argument when called in `org-agenda-custom-commands'."
          ;; in terms of more primitive functions - currently just
          ;; ‘org-agenda-bulk-unmark-all'.
          (all-buffer-funcs
-                   (mapcar (lambda (sym)
-                             (advice--cd*r (symbol-function sym)))
-                           '(org-agenda-bulk-unmark-all)))
+          (mapcar (lambda (sym)
+                    (advice--cd*r (symbol-function sym)))
+                  '(org-agenda-bulk-unmark-all)))
          (begin
           (cond
            ((member oldfun all-buffer-funcs) (point-min))
@@ -1043,7 +1043,7 @@ argument when called in `org-agenda-custom-commands'."
 ;; ‘org-agenda-bulk-mark’, and ‘org-agend-bulk-toggle’, so
 ;; they don't need to be advised.
 (dolist (cmd '(org-agenda-bulk-mark org-agenda-bulk-toggle
-                    org-agenda-bulk-unmark org-agenda-bulk-unmark-all))
+               org-agenda-bulk-unmark org-agenda-bulk-unmark-all))
   (advice-add cmd :around #'my-org-agenda-highlight-marked))
 
 (setq! org-stuck-projects
@@ -1163,16 +1163,16 @@ Overrides built-in version in order to also show clocked time."
       (if (setq org-clock-task-overrun
                 (if (or (null effort-in-minutes) (zerop effort-in-minutes))
                     nil
-                 (>= clocked-time effort-in-minutes)))
+                  (>= clocked-time effort-in-minutes)))
           (unless org-clock-notification-was-shown
-               (setq org-clock-notification-was-shown t)
-               (org-notify
-                 (format-message "Task `%s' should be finished by now. (%s/%s)"
-                                org-clock-heading
-                                (apply #'format "%d:%d"
-                                       (cl-floor clocked-time 60))
-                                org-clock-effort)
-                 org-clock-sound))
+            (setq org-clock-notification-was-shown t)
+            (org-notify
+             (format-message "Task `%s' should be finished by now. (%s/%s)"
+                             org-clock-heading
+                             (apply #'format "%d:%d"
+                                    (cl-floor clocked-time 60))
+                             org-clock-effort)
+             org-clock-sound))
         (setq org-clock-notification-was-shown nil)))))
 (defvar my-org-clock-nag-after-expiry--timer nil
   "Used by ‘my-org-clock-nag-after-expiry’, for which see.")
@@ -1199,12 +1199,12 @@ off if the property is inherited."
               (nag-minutes (string-to-number nag-prop)))
     (setq my-org-clock-nag-after-expiry--timer
           (run-at-time
-                ;; Subtract 1 from nag-minutes because the clock time is checked
-                ;; by default every 60 seconds (see ‘org-clock-update-period’).
-                (* 60 (max 0 (- nag-minutes 1)))
-                nil
-                #'my-org-clock-nag-after-expiry--reset
-                (copy-marker org-clock-marker)))))
+           ;; Subtract 1 from nag-minutes because the clock time is checked
+           ;; by default every 60 seconds (see ‘org-clock-update-period’).
+           (* 60 (max 0 (- nag-minutes 1)))
+           nil
+           #'my-org-clock-nag-after-expiry--reset
+           (copy-marker org-clock-marker)))))
 (defun my-org-clock-nag-after-expiry--reset (clock-marker)
   "Function called by timer set up in ‘my-org-clock-nag-after-expiry'.
 
@@ -1418,7 +1418,7 @@ instead of the agenda files."
                (t 'message))))
 (setq! org-gcal-config-file (expand-file-name "org-gcal-config.el" doom-private-dir))
 (when (file-exists-p org-gcal-config-file)
- (load org-gcal-config-file))
+  (load org-gcal-config-file))
 (after! org-gcal
   ;; By default, set up symmetric encryption (i.e., password encryption). To
   ;; enable asymmetric encryption, which lets you use pinentry to store the
@@ -1430,7 +1430,7 @@ instead of the agenda files."
   (setq! plstore-cache-passphrase-for-symmetric-encryption t)
   ;; Enable use of pinentry-mac so that the password can be stored in the
   ;; Keychain: https://gist.github.com/koshatul/2427643668d4e89c0086f297f9ed2130
- (setq! epg-pinentry-mode 'ask))
+  (setq! epg-pinentry-mode 'ask))
 (after! org-gcal
   ;; Disable Auto Archive - my gcal.org_archive is so big that this majorly
   ;; slows down every fetch. Instead, I'll just archive old entries once a
@@ -1441,7 +1441,7 @@ instead of the agenda files."
   (defun my-org-gcal-set-effort (_calendar-id event _update-mode)
     "Set Effort property based on EVENT if not already set."
     (when-let* ((stime (plist-get (plist-get event :start)
-                             :dateTime))
+                                  :dateTime))
                 (etime (plist-get (plist-get event :end)
                                   :dateTime))
                 (diff (float-time
@@ -1492,7 +1492,7 @@ Applies only for files in ‘org-gcal-fetch-file-alist’."
     (let* ((summary (or (plist-get event :summary)
                         "busy"))
            (include (not (string= summary "*Personal*"))))
-       include))
+      include))
   (add-hook 'org-gcal-fetch-event-filters
             #'my-org-gcal-exclude-corp-personal-events))
 
@@ -1693,9 +1693,9 @@ Default suggestions (in the absence of existing data in the entry):
           ;; Delete following blank line if present
           (when (eolp) (kill-whole-line))
           (org-schedule nil ts))
-       (org-with-point-at (point)
-         (user-error "Not an org-gcal entry with a timestamp in org-gcal drawer at %S"
-                     (point-marker))))))
+      (org-with-point-at (point)
+        (user-error "Not an org-gcal entry with a timestamp in org-gcal drawer at %S"
+                    (point-marker))))))
 (defun my-org-gcal--has-unscheduled-timestamp (&optional point)
   "Is entry an org-gcal entry with an unscheduled timestamp?
 
@@ -1723,9 +1723,9 @@ In general, does *not* preserve point or match data."
                (org-back-to-heading)
                (org-narrow-to-element)
                (re-search-forward
-                    (format "^[ \t]*:%s:[ \t]*$" org-gcal-drawer-name)
-                    (point-max)
-                    'noerror))))
+                (format "^[ \t]*:%s:[ \t]*$" org-gcal-drawer-name)
+                (point-max)
+                'noerror))))
       (my-org-gcal-unschedule-timestamp)
     (apply fn arg r)))
 (advice-add #'org-schedule :around #'my-org-gcal-unscheduled-toggle-timestamp)
@@ -1779,9 +1779,9 @@ don't support wrapping."
             (apply fn r))
         (when my-org-drill-clock-heading-id
           (if clocking?
-               (org-with-point-at org-clock-interrupted-task
-                     (org-clock-in))
-             (org-clock-out))))))
+              (org-with-point-at org-clock-interrupted-task
+                (org-clock-in))
+            (org-clock-out))))))
   (advice-add #'org-drill :around #'my-org-drill-maximize-frame)
   (advice-add #'org-drill :around #'my-org-drill-clock-time)
   (defun my-org-drill-rebind-keys (fn &rest r)
@@ -1850,11 +1850,11 @@ SCOPE, DRILL-MATCH, RESUME-P, and CRAM passed to ‘org-drill'."
         (call-interactively #'org-drill)
       (funcall #'org-drill scope drill-match resume-p cram))))
 (defun org-drill-resume-inbox ()
- "Resume reviewing inbox cards."
- (interactive)
- (require 'org-drill)
- (let ((org-drill-question-tag "inbox"))
-   (call-interactively #'org-drill-resume)))
+  "Resume reviewing inbox cards."
+  (interactive)
+  (require 'org-drill)
+  (let ((org-drill-question-tag "inbox"))
+    (call-interactively #'org-drill-resume)))
 ;; Need to eagerly load because my Org files call functions declared by this
 ;; file in their local variables.
 (require 'org-drill)
@@ -1874,10 +1874,10 @@ SCOPE, DRILL-MATCH, RESUME-P, and CRAM passed to ‘org-drill'."
   :init
   (require 'org-capture)
   (org-capture-templates-put-entry
-    org-capture-templates
+   org-capture-templates
    `("a" "anki-editor"))
   (org-capture-templates-put-entry
-    org-capture-templates
+   org-capture-templates
    `("ab" "Anki basic"
      entry
      (file+headline org-default-notes-file "Drill")
@@ -1895,7 +1895,7 @@ SCOPE, DRILL-MATCH, RESUME-P, and CRAM passed to ‘org-drill'."
 "
      :jump-to-captured t))
   (org-capture-templates-put-entry
-    org-capture-templates
+   org-capture-templates
    `("ac" "Anki cloze"
      entry
      (file+headline org-default-notes-file "Drill")
@@ -1911,50 +1911,50 @@ SCOPE, DRILL-MATCH, RESUME-P, and CRAM passed to ‘org-drill'."
 ** Extra
 "
      :jump-to-captured t))
- (setq anki-editor-create-decks t ;; Allow anki-editor to create a new deck if it doesn't exist
-  anki-editor-org-tags-as-anki-tags t
-  anki-editor-use-math-jax t)
- :config
- (add-to-list
-  'anki-editor-ignored-org-tags
-  "drill" 'append)
- (add-to-list
-  'anki-editor-ignored-org-tags
-  "inbox" 'append)
+  (setq anki-editor-create-decks t ;; Allow anki-editor to create a new deck if it doesn't exist
+        anki-editor-org-tags-as-anki-tags t
+        anki-editor-use-math-jax t)
+  :config
+  (add-to-list
+   'anki-editor-ignored-org-tags
+   "drill" 'append)
+  (add-to-list
+   'anki-editor-ignored-org-tags
+   "inbox" 'append)
 
- (defun anki-editor-push-tree ()
-   "Push the current tree using ‘anki-editor-push-notes’."
-   (interactive)
-   (funcall-interactively #'anki-editor-push-notes '(4)))
- (defun anki-editor-cloze-region-auto-incr (&optional arg)
-   "Cloze region without hint and increase card number."
-   (interactive)
-   (anki-editor-cloze-region my-anki-editor-cloze-number "")
-   (setq my-anki-editor-cloze-number (1+ my-anki-editor-cloze-number))
-   (forward-sexp))
- (defun anki-editor-cloze-region-dont-incr (&optional arg)
-   "Cloze region without hint using the previous card number."
-   (interactive)
-   (anki-editor-cloze-region (1- my-anki-editor-cloze-number) "")
-   (forward-sexp))
- (defun anki-editor-reset-cloze-number (&optional arg)
-   "Reset cloze number to ARG or 1"
-   (interactive)
-   (setq my-anki-editor-cloze-number (or arg 1)))
- (defun anki-editor-push-tree ()
-   "Push all notes under a tree."
-   (interactive)
-   (anki-editor-push-notes '(4))
-   (anki-editor-reset-cloze-number))
+  (defun anki-editor-push-tree ()
+    "Push the current tree using ‘anki-editor-push-notes’."
+    (interactive)
+    (funcall-interactively #'anki-editor-push-notes '(4)))
+  (defun anki-editor-cloze-region-auto-incr (&optional arg)
+    "Cloze region without hint and increase card number."
+    (interactive)
+    (anki-editor-cloze-region my-anki-editor-cloze-number "")
+    (setq my-anki-editor-cloze-number (1+ my-anki-editor-cloze-number))
+    (forward-sexp))
+  (defun anki-editor-cloze-region-dont-incr (&optional arg)
+    "Cloze region without hint using the previous card number."
+    (interactive)
+    (anki-editor-cloze-region (1- my-anki-editor-cloze-number) "")
+    (forward-sexp))
+  (defun anki-editor-reset-cloze-number (&optional arg)
+    "Reset cloze number to ARG or 1"
+    (interactive)
+    (setq my-anki-editor-cloze-number (or arg 1)))
+  (defun anki-editor-push-tree ()
+    "Push all notes under a tree."
+    (interactive)
+    (anki-editor-push-notes '(4))
+    (anki-editor-reset-cloze-number))
   ;; Initialize
- (anki-editor-reset-cloze-number))
+  (anki-editor-reset-cloze-number))
 
 ;; TODO: replace with implementation from ‘org-generic-id-update-id-locations’ once
 ;; it’s merged upstream.
 (require 'persist)
 (require 'org-generic-id)
 (persist-defvar anki-editor-push-agenda-fast--last-pushed-time nil
-                "Time at which ‘anki-editor-push-agenda-fast’ last completed.")
+  "Time at which ‘anki-editor-push-agenda-fast’ last completed.")
 (defun anki-editor-push-agenda-fast ()
   "Push all anki-files fast.
 
@@ -1983,15 +1983,15 @@ notes in those files."
       (anki-editor--anki-connect-invoke-result
        'guiBrowse
        `((query . ,(format "nid:%s" nid))))
-      t
+    t
     (user-error "Must be on an Org headline that contains the property ‘%s’"
                 anki-editor-prop-note-id)))
 
 ;; org-protocol support for opening a file - needed for ‘my-anki-editor-backlink’.
 (after! org-protocol
- (add-to-list
-  'org-protocol-protocol-alist
-  '("org-open-file" :protocol "open-file" :function org-protocol-open-file)))
+  (add-to-list
+   'org-protocol-protocol-alist
+   '("org-open-file" :protocol "open-file" :function org-protocol-open-file)))
 (defun org-protocol-open-file (fname)
   "Process an org-protocol://open-file?file= style URL with FNAME.
 
@@ -2005,9 +2005,9 @@ Returns the file name to open, or NIL if no file is to be opened."
                        :file))))
     f))
 (after! org-protocol
- (add-to-list
-  'org-protocol-protocol-alist
-  '("org-open-org-link" :protocol "open-org-link" :function org-protocol-open-org-link)))
+  (add-to-list
+   'org-protocol-protocol-alist
+   '("org-open-org-link" :protocol "open-org-link" :function org-protocol-open-org-link)))
 (defun org-protocol-open-org-link (fname)
   "Process an org-protocol://open-org-link?link= style URL with FNAME.
 
@@ -2054,11 +2054,11 @@ particular, that means Emacsclient will return immediately."
                             (org-html-encode-plain-text current-file)))))
     fields))
 (defadvice! my-anki-editor-fix-attach-dir (fn &rest r)
- "Make ‘org-attach-id-dir’ absolute in ‘anki-editor-note-at-point’."
- :around #'anki-editor-note-at-point
- (require 'org-attach)
- (let ((org-attach-id-dir (file-truename org-attach-id-dir)))
-   (apply fn r)))
+  "Make ‘org-attach-id-dir’ absolute in ‘anki-editor-note-at-point’."
+  :around #'anki-editor-note-at-point
+  (require 'org-attach)
+  (let ((org-attach-id-dir (file-truename org-attach-id-dir)))
+    (apply fn r)))
 
 (use-package! od2ae
   :commands (od2ae-convert-entry-to-anki od2ae-convert-all-notes)
@@ -2093,52 +2093,52 @@ particular, that means Emacsclient will return immediately."
   ;; (setq! org-roam-db-node-include-function
   ;;        (lambda ()
   ;;         (not (member "drill" (org-get-tags)))))
- nil)
+  nil)
 (after! org-roam
   (require 'org-roam-compat)
   ;; Copied from doom.emacs.d/modules/lang/org/contrib/roam2.el
   (map! (:prefix ("C-c n" . "org-roam")
-         "D" #'org-roam-demote-entire-buffer
-         "f" #'org-roam-node-find
-         "F" #'org-roam-ref-find
-         "g" #'org-roam-graph
-         "i" #'org-roam-node-insert
-         "I" #'org-id-get-create
-         "m" #'org-roam-buffer-toggle
-         "M" #'org-roam-buffer-display-dedicated
-         "n" #'org-roam-capture
-         "r" #'org-roam-refile
-         "R" #'org-roam-link-replace-all
-         (:prefix ("d" . "by date")
-          :desc "Goto previous note" "b" #'org-roam-dailies-goto-previous-note
-          :desc "Goto date"          "d" #'org-roam-dailies-goto-date
-          :desc "Capture date"       "D" #'org-roam-dailies-capture-date
-          :desc "Goto next note"     "f" #'org-roam-dailies-goto-next-note
-          :desc "Goto tomorrow"      "m" #'org-roam-dailies-goto-tomorrow
-          :desc "Capture tomorrow"   "M" #'org-roam-dailies-capture-tomorrow
-          :desc "Capture today"      "n" #'org-roam-dailies-capture-today
-          :desc "Goto today"         "t" #'org-roam-dailies-goto-today
-          :desc "Capture today"      "T" #'org-roam-dailies-capture-today
-          :desc "Goto yesterday"     "y" #'org-roam-dailies-goto-yesterday
-          :desc "Capture yesterday"  "Y" #'org-roam-dailies-capture-yesterday
-          :desc "Find directory"     "-" #'org-roam-dailies-find-directory)
-         (:prefix ("o" . "node properties")
-          "a" #'org-roam-alias-add
-          "A" #'org-roam-alias-remove
-          "t" #'org-roam-tag-add
-          "T" #'org-roam-tag-remove
-          "r" #'org-roam-ref-add
-          "R" #'org-roam-ref-remove)
-         (:prefix ("s" . "Promnesia search")
-          :desc "Personal Promnesia search"     "p" #'my-promnesia-search-personal
-          :desc "Corp Promnesia search"         "c" #'my-promnesia-search-corp
-          :desc "All profiles Promnesia search" "a" #'my-promnesia-search-all
-          :desc "Khoj"                          "k" #'khoj)))
-      ;; (defun my-org-roam-capture-split-window (&rest _args)
-      ;;   "Split current window and select new window."
-      ;;   (unless (eq org-roam-capture--context 'ref)
-      ;;     (select-window (split-window))))
-      ;; (advice-add 'org-roam--capture :before #'my-org-roam-capture-split-window)
+                 "D" #'org-roam-demote-entire-buffer
+                 "f" #'org-roam-node-find
+                 "F" #'org-roam-ref-find
+                 "g" #'org-roam-graph
+                 "i" #'org-roam-node-insert
+                 "I" #'org-id-get-create
+                 "m" #'org-roam-buffer-toggle
+                 "M" #'org-roam-buffer-display-dedicated
+                 "n" #'org-roam-capture
+                 "r" #'org-roam-refile
+                 "R" #'org-roam-link-replace-all
+                 (:prefix ("d" . "by date")
+                  :desc "Goto previous note" "b" #'org-roam-dailies-goto-previous-note
+                  :desc "Goto date"          "d" #'org-roam-dailies-goto-date
+                  :desc "Capture date"       "D" #'org-roam-dailies-capture-date
+                  :desc "Goto next note"     "f" #'org-roam-dailies-goto-next-note
+                  :desc "Goto tomorrow"      "m" #'org-roam-dailies-goto-tomorrow
+                  :desc "Capture tomorrow"   "M" #'org-roam-dailies-capture-tomorrow
+                  :desc "Capture today"      "n" #'org-roam-dailies-capture-today
+                  :desc "Goto today"         "t" #'org-roam-dailies-goto-today
+                  :desc "Capture today"      "T" #'org-roam-dailies-capture-today
+                  :desc "Goto yesterday"     "y" #'org-roam-dailies-goto-yesterday
+                  :desc "Capture yesterday"  "Y" #'org-roam-dailies-capture-yesterday
+                  :desc "Find directory"     "-" #'org-roam-dailies-find-directory)
+                 (:prefix ("o" . "node properties")
+                          "a" #'org-roam-alias-add
+                          "A" #'org-roam-alias-remove
+                          "t" #'org-roam-tag-add
+                          "T" #'org-roam-tag-remove
+                          "r" #'org-roam-ref-add
+                          "R" #'org-roam-ref-remove)
+                 (:prefix ("s" . "Promnesia search")
+                  :desc "Personal Promnesia search"     "p" #'my-promnesia-search-personal
+                  :desc "Corp Promnesia search"         "c" #'my-promnesia-search-corp
+                  :desc "All profiles Promnesia search" "a" #'my-promnesia-search-all
+                  :desc "Khoj"                          "k" #'khoj)))
+  ;; (defun my-org-roam-capture-split-window (&rest _args)
+  ;;   "Split current window and select new window."
+  ;;   (unless (eq org-roam-capture--context 'ref)
+  ;;     (select-window (split-window))))
+  ;; (advice-add 'org-roam--capture :before #'my-org-roam-capture-split-window)
   (defun my-org-roam-get-first-node-title ()
     "Get title from #+title, or from first node in Org-roam file."
     (require 'org-roam-node)
@@ -2151,19 +2151,19 @@ particular, that means Emacsclient will return immediately."
         (let* ((node (org-roam-node-at-point))
                (file-title (org-roam-get-keyword "TITLE")))
           (cond
-            ((and file-title (not (string= "" file-title)))
-             file-title)
-            (node (org-roam-node-title node))
-            (t nil))))))
+           ((and file-title (not (string= "" file-title)))
+            file-title)
+           (node (org-roam-node-title node))
+           (t nil))))))
   (defun my-org-roam-set-buffer-name-hook ()
     "Set buffer name of org-roam files."
     (with-demoted-errors "Error: %S"
-     (when-let (((org-roam-file-p))
-                ((s-contains?
-                  "/roam/"
-                  (buffer-file-name (buffer-base-buffer))))
-                (title (my-org-roam-get-first-node-title)))
-       (rename-buffer title))))
+      (when-let (((org-roam-file-p))
+                 ((s-contains?
+                   "/roam/"
+                   (buffer-file-name (buffer-base-buffer))))
+                 (title (my-org-roam-get-first-node-title)))
+        (rename-buffer title))))
   (add-hook 'find-file-hook #'my-org-roam-set-buffer-name-hook)
   (add-hook 'after-save-hook #'my-org-roam-set-buffer-name-hook)
   (defun my-org-hugo-get-roam-title (fn &optional backend subtreep ext-plist)
@@ -2193,26 +2193,26 @@ particular, that means Emacsclient will return immediately."
         (with-undo-collapse
           (when (save-excursion
                   (re-search-forward org-outline-regexp-bol nil t))
-           (kill-region start (+ end 1))
-           (re-search-forward org-outline-regexp-bol)
-           (end-of-line)
-           (newline)
-           (insert drawer))))))
+            (kill-region start (+ end 1))
+            (re-search-forward org-outline-regexp-bol)
+            (end-of-line)
+            (newline)
+            (insert drawer))))))
   (cl-defun my-org-roam-dailies-today-id ()
     "Return the ID of today’s org-roam dailies entry.
 Create the entry if it does not exist."
     ;; ‘save-window-excursion’ to avoid closing the current capture window if
     ;; used from ‘org-capture’.
     (save-window-excursion
-     (save-excursion
-      (let ((org-roam-dailies-capture-templates
-             (cl-copy-list org-roam-dailies-capture-templates)))
-        (plist-put! (nthcdr 4 (assoc "D" org-roam-dailies-capture-templates))
-                    :immediate-finish t :jump-to-captured t)
-        (org-roam-dailies--capture (org-read-date nil t "%<%y-%m-%d>") t "D"))
-      (goto-char (point-min))
-      (org-next-visible-heading 1)
-      (org-id-get-create))))
+      (save-excursion
+        (let ((org-roam-dailies-capture-templates
+               (cl-copy-list org-roam-dailies-capture-templates)))
+          (plist-put! (nthcdr 4 (assoc "D" org-roam-dailies-capture-templates))
+                      :immediate-finish t :jump-to-captured t)
+          (org-roam-dailies--capture (org-read-date nil t "%<%y-%m-%d>") t "D"))
+        (goto-char (point-min))
+        (org-next-visible-heading 1)
+        (org-id-get-create))))
   (cl-defun my-org-roam-dailies-today-link ()
     "Return a link to today’s ‘org-roam' dailies entry."
     (org-link-make-string
@@ -2281,46 +2281,46 @@ Create the entry if it does not exist."
                  (nth 0 target)
                  "tiktok-org/roam/${slug}.org"
                  (nth 2 target))))
- (defun org-capture-plist-dump ()
-   "Dump variables for org-roam-capture plists for debugging."
-  (message "org-capture-plist: %s"
-           (pp-to-string org-capture-plist))
-  (message "org-capture-current-plist: %s"
-   (pp-to-string org-capture-current-plist))
-  (message "org-roam-capture--info: %s"
-   (pp-to-string org-roam-capture--info))
-  (message "org-roam-capture--node: %s"
-   (pp-to-string org-roam-capture--node))
-  (message "org-capture-templates: %s"
-           (pp-to-string org-capture-templates))
-  (message "org-roam-capture-templates: %s"
-           (pp-to-string org-roam-capture-templates)))
- (cl-defun my-org-roam-after-finalize-link-to-today ()
-   (when-let*
-       (
-        ;; First 2 checks confirm that we’re capturing for ‘org-roam-capture’.
-        ((and org-roam-capture--node))
-        ((org-capture-get :org-roam))
-        (key (org-capture-get :key))
-        (buffer (org-capture-get :buffer)))
-     (save-excursion
-       (with-current-buffer buffer
-         ;; Skip D from ‘org-roam-dailies-capture-templates’.
-         (when (equal "D" key)
-           (cl-return-from my-org-roam-after-finalize-link-to-today nil))
-         (my-org-roam-dailies-link-to-today)
-         (when (member key '("R" "G"))
-           (my-org-roam-add-to-inbox))))))
- (add-hook 'org-capture-after-finalize-hook
-  #'my-org-roam-after-finalize-link-to-today)
- (setq! org-roam-capture-ref-templates
-  (cl-copy-list org-roam-capture-ref-templates))
- (plist-put! (nthcdr 4 (assoc "r" org-roam-capture-ref-templates))
-             :immediate-finish t :jump-to-captured t
-             :target
-             '(file+head
-               "home-org/roam/${slug}.org"
-               "\
+  (defun org-capture-plist-dump ()
+    "Dump variables for org-roam-capture plists for debugging."
+    (message "org-capture-plist: %s"
+             (pp-to-string org-capture-plist))
+    (message "org-capture-current-plist: %s"
+             (pp-to-string org-capture-current-plist))
+    (message "org-roam-capture--info: %s"
+             (pp-to-string org-roam-capture--info))
+    (message "org-roam-capture--node: %s"
+             (pp-to-string org-roam-capture--node))
+    (message "org-capture-templates: %s"
+             (pp-to-string org-capture-templates))
+    (message "org-roam-capture-templates: %s"
+             (pp-to-string org-roam-capture-templates)))
+  (cl-defun my-org-roam-after-finalize-link-to-today ()
+    (when-let*
+        (
+         ;; First 2 checks confirm that we’re capturing for ‘org-roam-capture’.
+         ((and org-roam-capture--node))
+         ((org-capture-get :org-roam))
+         (key (org-capture-get :key))
+         (buffer (org-capture-get :buffer)))
+      (save-excursion
+        (with-current-buffer buffer
+          ;; Skip D from ‘org-roam-dailies-capture-templates’.
+          (when (equal "D" key)
+            (cl-return-from my-org-roam-after-finalize-link-to-today nil))
+          (my-org-roam-dailies-link-to-today)
+          (when (member key '("R" "G"))
+            (my-org-roam-add-to-inbox))))))
+  (add-hook 'org-capture-after-finalize-hook
+            #'my-org-roam-after-finalize-link-to-today)
+  (setq! org-roam-capture-ref-templates
+         (cl-copy-list org-roam-capture-ref-templates))
+  (plist-put! (nthcdr 4 (assoc "r" org-roam-capture-ref-templates))
+              :immediate-finish t :jump-to-captured t
+              :target
+              '(file+head
+                "home-org/roam/${slug}.org"
+                "\
 #+setupfile: common.setup
 #+date: %U
 
@@ -2334,9 +2334,9 @@ Create the entry if it does not exist."
 </blockquote>
 #+END_SRC
 \" body))"))
- (setq! org-roam-dailies-capture-templates
-  '(("D" "default" entry "* %?\n%U" :target
-     (file+head "%<%Y-%m-%d>.org" "\
+  (setq! org-roam-dailies-capture-templates
+         '(("D" "default" entry "* %?\n%U" :target
+            (file+head "%<%Y-%m-%d>.org" "\
 #+setupfile: common.setup
 * %<%Y-%m-%d>
 [[elisp:(let ((org-agenda-sticky nil) (org-agenda-include-inactive-timestamps t) (org-agenda-window-setup 'reorganize-frame)) (message \"org-roam-dailes-capture-templates: overriding time %S\" org-default-overriding-time) (org-agenda-list nil \"%<%Y-%m-%d>\"))][(agenda)]]
@@ -2345,47 +2345,47 @@ Create the entry if it does not exist."
   ;; "R" is like "r" but also runs ‘org-drill-type-inbox-init' - the templates
   ;; are exactly the same, but the behavior is controlled by
   ;; ‘my-org-roam-after-finalize-link-to-today’.
- (setf (alist-get "R" org-roam-capture-ref-templates nil nil #'equal)
-       (cl-copy-list (alist-get "r" org-roam-capture-ref-templates nil nil #'equal)))
+  (setf (alist-get "R" org-roam-capture-ref-templates nil nil #'equal)
+        (cl-copy-list (alist-get "r" org-roam-capture-ref-templates nil nil #'equal)))
   ;; "g" and "G" are exactly like "r" and "R", but they put the captured node in
   ;; the tiktok-org repo instead.
- (progn
-   (setf (alist-get "g" org-roam-capture-ref-templates nil nil #'equal)
-         (cl-copy-list (alist-get "r" org-roam-capture-ref-templates nil nil #'equal)))
-   (let* ((rval (nthcdr 4 (assoc "g" org-roam-capture-ref-templates)))
-          (target (cl-copy-list (plist-get rval :target))))
-     (plist-put! rval
-                 :target
-                 (list
-                  (nth 0 target)
-                  "tiktok-org/roam/${slug}.org"
-                  (nth 2 target))))
-   (setf (alist-get "G" org-roam-capture-ref-templates nil nil #'equal)
-         (cl-copy-list (alist-get "R" org-roam-capture-ref-templates nil nil #'equal)))
-   (let* ((rval (nthcdr 4 (assoc "G" org-roam-capture-ref-templates)))
-          (target (cl-copy-list (plist-get rval :target))))
-     (plist-put! rval
-                 :target
-                 (list
-                  (nth 0 target)
-                  "tiktok-org/roam/${slug}.org"
-                  (nth 2 target)))))
- (el-patch-defun org-roam-protocol--insert-captured-ref-h ()
-   "Insert the ref if any."
-   (message "org-roam-capture--info: %S" org-roam-capture--info)
-   (message "org-roam-capture--node: %S" org-roam-capture--node)
-   (message "title: %S" (and (org-roam-node-p org-roam-capture--node)
-                             (org-roam-node-title org-roam-capture--node)))
-   (when-let ((ref (plist-get org-roam-capture--info :ref)))
-    (el-patch-swap
-     (org-roam-ref-add ref)
-     (org-roam-ref-add
-        (if-let ((title
-                  (when (org-roam-node-p org-roam-capture--node)
-                    (org-roam-node-title org-roam-capture--node))))
-         (org-link-make-string ref title)
-         ref)))))
- nil)                                  ; To make eval-region on previous block easier
+  (progn
+    (setf (alist-get "g" org-roam-capture-ref-templates nil nil #'equal)
+          (cl-copy-list (alist-get "r" org-roam-capture-ref-templates nil nil #'equal)))
+    (let* ((rval (nthcdr 4 (assoc "g" org-roam-capture-ref-templates)))
+           (target (cl-copy-list (plist-get rval :target))))
+      (plist-put! rval
+                  :target
+                  (list
+                   (nth 0 target)
+                   "tiktok-org/roam/${slug}.org"
+                   (nth 2 target))))
+    (setf (alist-get "G" org-roam-capture-ref-templates nil nil #'equal)
+          (cl-copy-list (alist-get "R" org-roam-capture-ref-templates nil nil #'equal)))
+    (let* ((rval (nthcdr 4 (assoc "G" org-roam-capture-ref-templates)))
+           (target (cl-copy-list (plist-get rval :target))))
+      (plist-put! rval
+                  :target
+                  (list
+                   (nth 0 target)
+                   "tiktok-org/roam/${slug}.org"
+                   (nth 2 target)))))
+  (el-patch-defun org-roam-protocol--insert-captured-ref-h ()
+    "Insert the ref if any."
+    (message "org-roam-capture--info: %S" org-roam-capture--info)
+    (message "org-roam-capture--node: %S" org-roam-capture--node)
+    (message "title: %S" (and (org-roam-node-p org-roam-capture--node)
+                              (org-roam-node-title org-roam-capture--node)))
+    (when-let ((ref (plist-get org-roam-capture--info :ref)))
+      (el-patch-swap
+        (org-roam-ref-add ref)
+        (org-roam-ref-add
+         (if-let ((title
+                   (when (org-roam-node-p org-roam-capture--node)
+                     (org-roam-node-title org-roam-capture--node))))
+             (org-link-make-string ref title)
+           ref)))))
+  nil)                                  ; To make eval-region on previous block easier
 
 
 (defun my-org-roam-capture-daily-from-file (input)
@@ -2448,10 +2448,10 @@ Contents are inserted literally, so make sure they are valid Org-mode syntax."
                      doom-private-dir)
    (my-promnesia-search-url-with-query query)))
 (defun my-promnesia-search-all (&optional query)
- "Search Promnesia in corp profile."
- (interactive "sPromesia search query: ")
- (dolist (f '(my-promnesia-search-personal my-promnesia-search-corp))
-   (funcall f query)))
+  "Search Promnesia in corp profile."
+  (interactive "sPromesia search query: ")
+  (dolist (f '(my-promnesia-search-personal my-promnesia-search-corp))
+    (funcall f query)))
 
 (defun my-org-html-to-org-quote ()
   "Change an HTML blockquote to Org quote.
@@ -2499,67 +2499,67 @@ to this:
               ;; Must save match data so that ‘replace-match’ can work, because
               ;; the manipulations in the temp buffer can change it.
               (save-match-data
-               (with-temp-buffer
-                 (insert m)
-                 (call-process-region
-                  (point-min) (point-max)
-                  "pandoc" t t t
-                  "-f" "html" "-t" "org" "--wrap=preserve")
-                 (buffer-string))))
+                (with-temp-buffer
+                  (insert m)
+                  (call-process-region
+                   (point-min) (point-max)
+                   "pandoc" t t t
+                   "-f" "html" "-t" "org" "--wrap=preserve")
+                  (buffer-string))))
              nil t)))))))
 
 (after! org-roam-node
- (el-patch-defun org-roam-extract-subtree ()
-  "Convert current subtree at point to a node, and extract it into a new file."
-  (interactive)
-  (save-excursion
-    (org-back-to-heading-or-point-min t)
-    (when (bobp) (user-error "Already a top-level node"))
-    (org-id-get-create)
-    (save-buffer)
-    (org-roam-db-update-file)
-    (let* ((template-info nil)
-           (node (org-roam-node-at-point))
-           (template (org-roam-format-template
-                      (string-trim (org-capture-fill-template org-roam-extract-new-file-path))
-                      (lambda (key default-val)
-                        (let ((fn (intern key))
-                              (node-fn (intern (concat "org-roam-node-" key)))
-                              (ksym (intern (concat ":" key))))
-                          (cond
-                           ((fboundp fn)
-                            (funcall fn node))
-                           ((fboundp node-fn)
-                            (funcall node-fn node))
-                           (t (let ((r (read-from-minibuffer (format "%s: " key) default-val)))
-                                (plist-put template-info ksym r)
-                                r)))))))
-           (file-path (read-file-name "Extract node to: "
-                                      (file-name-as-directory org-roam-directory) template nil template)))
-      (when (file-exists-p file-path)
-        (user-error "%s exists. Aborting" file-path))
-      (org-cut-subtree)
+  (el-patch-defun org-roam-extract-subtree ()
+    "Convert current subtree at point to a node, and extract it into a new file."
+    (interactive)
+    (save-excursion
+      (org-back-to-heading-or-point-min t)
+      (when (bobp) (user-error "Already a top-level node"))
+      (org-id-get-create)
       (save-buffer)
-      (with-current-buffer (find-file-noselect file-path)
-        (org-paste-subtree)
-        ;; I don’t know why this doesn’t just use my
-        ;; ‘org-roam-capture-templates’, so I have to replicate this on my own.
-        (el-patch-swap
-          (org-roam-promote-entire-buffer)
-          (progn
-            (save-excursion
-              (goto-char (point-min))
-              (insert
-               (format "\
+      (org-roam-db-update-file)
+      (let* ((template-info nil)
+             (node (org-roam-node-at-point))
+             (template (org-roam-format-template
+                        (string-trim (org-capture-fill-template org-roam-extract-new-file-path))
+                        (lambda (key default-val)
+                          (let ((fn (intern key))
+                                (node-fn (intern (concat "org-roam-node-" key)))
+                                (ksym (intern (concat ":" key))))
+                            (cond
+                             ((fboundp fn)
+                              (funcall fn node))
+                             ((fboundp node-fn)
+                              (funcall node-fn node))
+                             (t (let ((r (read-from-minibuffer (format "%s: " key) default-val)))
+                                  (plist-put template-info ksym r)
+                                  r)))))))
+             (file-path (read-file-name "Extract node to: "
+                                        (file-name-as-directory org-roam-directory) template nil template)))
+        (when (file-exists-p file-path)
+          (user-error "%s exists. Aborting" file-path))
+        (org-cut-subtree)
+        (save-buffer)
+        (with-current-buffer (find-file-noselect file-path)
+          (org-paste-subtree)
+          ;; I don’t know why this doesn’t just use my
+          ;; ‘org-roam-capture-templates’, so I have to replicate this on my own.
+          (el-patch-swap
+            (org-roam-promote-entire-buffer)
+            (progn
+              (save-excursion
+                (goto-char (point-min))
+                (insert
+                 (format "\
 #+setupfile: common.setup
 #+date: %s
 
 "
-                       (format-time-string (org-time-stamp-format t t)))))
-            (save-excursion
-               (my-org-roam-dailies-link-to-today))))
-        (save-buffer)))))
- (defalias 'org-roam-create-note-from-headline #'org-roam-extract-subtree))
+                         (format-time-string (org-time-stamp-format t t)))))
+              (save-excursion
+                (my-org-roam-dailies-link-to-today))))
+          (save-buffer)))))
+  (defalias 'org-roam-create-note-from-headline #'org-roam-extract-subtree))
 
 (defcustom my-org-roam-directories (list org-roam-directory)
   "List of org-roam directories to examine in ‘my-org-roam-agenda-file-hook’.")
@@ -2621,8 +2621,8 @@ to this:
   :bind
   ("C-c n j" . org-journal-new-entry)
   (:map org-journal-mode-map
-   ("C-c n p" . org-journal-previous-entry)
-   ("C-c n n" . org-journal-next-entry))
+        ("C-c n p" . org-journal-previous-entry)
+        ("C-c n n" . org-journal-next-entry))
   :custom
   (org-journal-date-prefix "#+title: ")
   (org-journal-file-format "%Y-%m-%d.org")
@@ -2701,31 +2701,31 @@ to this:
   ;; ‘org-clock-csv’ uses ‘org-element’ to read the Org files, it is quite slow
   ;; - I’ve had it take over 30 minutes with my Agenda.
   (deferred:try
-    (deferred:process-shell
-      (format (concat "nice %s %s --batch --eval \"(progn (require 'org-clock-csv) (org-clock-csv-batch-and-exit))\" %s"
-                      "| nice %s --org_clock_csv /dev/stdin --calendar_id %s --logging_level DEBUG")
-              (shell-quote-argument (file-truename
-                                     (expand-file-name invocation-name
-                                                       invocation-directory)))
-              (s-join " "
-                      (mapcar
-                       (lambda (lib)
-                         (format "-L %s"
-                                 (shell-quote-argument
-                                  (file-name-directory
-                                   (locate-library lib)))))
-                       '("s" "org" "org-clock-csv")))
-              (s-join " "
-                      (mapcar #'shell-quote-argument
-                              (org-agenda-files)))
-              (shell-quote-argument
-               (expand-file-name "org_clock_csv_calendar_export.py"
-                                 doom-private-dir))
-              (shell-quote-argument
-               org-clock-csv-calendar-export-id)))
-    :finally
-    (lambda (_)
-      (org-notify "org-clock-csv-calendar-export finished"))))
+   (deferred:process-shell
+    (format (concat "nice %s %s --batch --eval \"(progn (require 'org-clock-csv) (org-clock-csv-batch-and-exit))\" %s"
+                    "| nice %s --org_clock_csv /dev/stdin --calendar_id %s --logging_level DEBUG")
+            (shell-quote-argument (file-truename
+                                   (expand-file-name invocation-name
+                                                     invocation-directory)))
+            (s-join " "
+                    (mapcar
+                     (lambda (lib)
+                       (format "-L %s"
+                               (shell-quote-argument
+                                (file-name-directory
+                                 (locate-library lib)))))
+                     '("s" "org" "org-clock-csv")))
+            (s-join " "
+                    (mapcar #'shell-quote-argument
+                            (org-agenda-files)))
+            (shell-quote-argument
+             (expand-file-name "org_clock_csv_calendar_export.py"
+                               doom-private-dir))
+            (shell-quote-argument
+             org-clock-csv-calendar-export-id)))
+   :finally
+   (lambda (_)
+     (org-notify "org-clock-csv-calendar-export finished"))))
 
 
 ;; Reset day at 4 AM, just like Anki.
@@ -3270,21 +3270,21 @@ you can run this command over and over again as you insert state notes."
       (let ((inhibit-redisplay t))
         (with-undo-collapse
           (while
-                (condition-case nil
-                      (progn (org-previous-item) t)
-                    (error nil))
-              (save-excursion
-                  (org-next-item)
-                  (org-toggle-heading)
-                  ;; Replace item fold characters \\
-                  (replace-regexp
-                     (rx-to-string '(seq (1+ " ") "\\\\" eol)) "" nil
-                     (point-at-bol) (+ 1 (point-at-eol)))))
+              (condition-case nil
+                  (progn (org-previous-item) t)
+                (error nil))
+            (save-excursion
+              (org-next-item)
+              (org-toggle-heading)
+              ;; Replace item fold characters \\
+              (replace-regexp
+               (rx-to-string '(seq (1+ " ") "\\\\" eol)) "" nil
+               (point-at-bol) (+ 1 (point-at-eol)))))
           (org-toggle-heading)
           ;; Replace item fold characters \\
           (replace-regexp
-             (rx-to-string '(seq (1+ " ") "\\\\" eol)) "" nil
-             (point-at-bol) (+ 1 (point-at-eol))))))))
+           (rx-to-string '(seq (1+ " ") "\\\\" eol)) "" nil
+           (point-at-bol) (+ 1 (point-at-eol))))))))
 ;; From https://emacs.stackexchange.com/a/54411/17182
 (defmacro with-undo-collapse (&rest body)
   "Like `progn' but perform BODY with undo collapsed."
@@ -3292,20 +3292,20 @@ you can run this command over and over again as you insert state notes."
   (let ((handle (make-symbol "--change-group-handle--"))
         (success (make-symbol "--change-group-success--")))
     `(let ((,handle (prepare-change-group))
-            ;; Don't truncate any undo data in the middle of this.
+           ;; Don't truncate any undo data in the middle of this.
            (undo-outer-limit nil)
            (undo-limit most-positive-fixnum)
            (undo-strong-limit most-positive-fixnum)
            (,success nil))
        (unwind-protect
-         (progn
-           (activate-change-group ,handle)
-           (prog1 ,(macroexp-progn body)
-             (setq ,success t)))
-         (if ,success
            (progn
-             (accept-change-group ,handle)
-             (undo-amalgamate-change-group ,handle))
+             (activate-change-group ,handle)
+             (prog1 ,(macroexp-progn body)
+               (setq ,success t)))
+         (if ,success
+             (progn
+               (accept-change-group ,handle)
+               (undo-amalgamate-change-group ,handle))
            (cancel-change-group ,handle))))))
 
 ;;; Week in review (https://emacs.stackexchange.com/a/7864)
@@ -3406,22 +3406,22 @@ is to refresh the agenda and call ‘org-agenda-goto-today’ again."
   (apply _orig-fn _args)
   (forward-line 0)
   (if (looking-at "^\\w+ +\\([0-9]+ \\w+ [0-9]+\\) ")
-    (let* ((agenda-date-string (match-string-no-properties 1))
-           (agenda-date
-            (cl-subseq
-             (timezone-parse-date (format "%s 00:00" agenda-date-string))
-             0 3))
-           (current-date
-            (cl-subseq
-             (timezone-parse-date
-              (format-time-string
-               (concat org-super-agenda-date-format " %H:%M")))
-             0 3)))
-      (when (not (equal agenda-date current-date))
-        (clog/msg "agenda-date != current-date, refreshing: %S %S"
-                  agenda-date current-date)
-        (org-agenda-redo)
-        (apply _orig-fn _args)))
+      (let* ((agenda-date-string (match-string-no-properties 1))
+             (agenda-date
+              (cl-subseq
+               (timezone-parse-date (format "%s 00:00" agenda-date-string))
+               0 3))
+             (current-date
+              (cl-subseq
+               (timezone-parse-date
+                (format-time-string
+                 (concat org-super-agenda-date-format " %H:%M")))
+               0 3)))
+        (when (not (equal agenda-date current-date))
+          (clog/msg "agenda-date != current-date, refreshing: %S %S"
+                    agenda-date current-date)
+          (org-agenda-redo)
+          (apply _orig-fn _args)))
     (message "Did not find date on current agenda line: %S %s"
              (point-marker)
              (buffer-substring-no-properties
@@ -3465,13 +3465,13 @@ is to refresh the agenda and call ‘org-agenda-goto-today’ again."
       (let ((case-fold-search t)
             (inhibit-read-only t)
             (default-category
-              (cond ((null org-category)
-                     (if buffer-file-name
-                         (file-name-sans-extension
-                          (file-name-nondirectory buffer-file-name))
-                       "???"))
-                    ((symbolp org-category) (symbol-name org-category))
-                    (t org-category))))
+             (cond ((null org-category)
+                    (if buffer-file-name
+                        (file-name-sans-extension
+                         (file-name-nondirectory buffer-file-name))
+                      "???"))
+                   ((symbolp org-category) (symbol-name org-category))
+                   (t org-category))))
         (with-silent-modifications
           (org-with-wide-buffer
            ;; Set buffer-wide property from keyword.  Search last #+CATEGORY

@@ -66,8 +66,8 @@ Also need to activate ‘doom--timestamped-message-a-after’."
             (setq doom--timestamped-message-a-window-configuration
                   (current-window-configuration))
             (with-current-buffer "*Messages*"
-                (goto-char (point-max))
-                (set-window-point window (point-max)))))))))
+              (goto-char (point-max))
+              (set-window-point window (point-max)))))))))
 (defun doom--timestamped-message-a-after (format-string &rest args)
   "Advice to run after `message' that prepends a timestamp to each message.
 
@@ -92,10 +92,10 @@ Activate this advice with:
              (not (string-equal format-string "%s%s")))
     (with-current-buffer "*Messages*"
       (let ((timestamp (format-time-string
-                         "[%F %T.%3N]"
+                        "[%F %T.%3N]"
                         (current-time)))
             (deactivate-mark nil))
-         (with-silent-modifications
+        (with-silent-modifications
           (let (begin end)
             (goto-char (point-max))
             (if (not (bolp))
@@ -109,10 +109,10 @@ Activate this advice with:
             (put-text-property begin end 'face 'header-line)))))
     (let ((window (get-buffer-window "*Messages*")))
       (when (and window (not (equal (selected-window) window)))
-         (save-window-excursion
+        (save-window-excursion
           (with-current-buffer "*Messages*"
-           (goto-char (point-max))
-           (set-window-point window (point-max)))
+            (goto-char (point-max))
+            (set-window-point window (point-max)))
           (apply orig-fn format-string args))))))
 ;; Currently disabled in favor of ‘doom--timestamped-message-a’.
 ;;(advice-add 'message :around 'doom--timestamped-message-a-around)
@@ -131,10 +131,10 @@ Activate this advice with:
 
 ;; By default, C-i is equivalent to TAB. Remove this.
 (define-key key-translation-map [?\C-i]
-  (λ! (if (and (not (cl-position 'tab    (this-single-command-raw-keys)))
-               (not (cl-position 'kp-tab (this-single-command-raw-keys)))
-               (display-graphic-p))
-          [C-i] [?\C-i])))
+            (λ! (if (and (not (cl-position 'tab    (this-single-command-raw-keys)))
+                         (not (cl-position 'kp-tab (this-single-command-raw-keys)))
+                         (display-graphic-p))
+                    [C-i] [?\C-i])))
 
 (after! evil
   (add-to-list 'evil-emacs-state-modes 'image-mode)
@@ -373,13 +373,13 @@ near the edge of the frame, so it may be a culprit. Work around this by using
 (add-hook!
  'emacs-lisp-mode-hook
  :depth 100
-  (defun flycheck-emacs-lisp-load-path-inherit ()
-    "Inherit Emacs load-path from current session.
+ (defun flycheck-emacs-lisp-load-path-inherit ()
+   "Inherit Emacs load-path from current session.
 Prevents annoying errors from custom packages.
 
 This overrides the changes made by ‘flycheck-cask-setup’, since
 Cask isn’t working correctly on my machine right now."
-    (setq-local flycheck-emacs-lisp-load-path 'inherit)))
+   (setq-local flycheck-emacs-lisp-load-path 'inherit)))
 
 ;; Doesn’t work with Doom because we don’t use ‘package-initialize’.
 (after! flycheck
@@ -493,11 +493,11 @@ Cask isn’t working correctly on my machine right now."
   (format-time-string "%FT%T%z" time))
 
 (defadvice! my-anki-editor-fix-attach-dir (fn &rest r)
- "Make ‘org-attach-id-dir’ absolute in ‘anki-editor-note-at-point’."
- :around #'anki-editor-note-at-point
- (require 'org-attach)
- (let ((org-attach-id-dir (file-truename org-attach-id-dir)))
-   (apply fn r)))
+  "Make ‘org-attach-id-dir’ absolute in ‘anki-editor-note-at-point’."
+  :around #'anki-editor-note-at-point
+  (require 'org-attach)
+  (let ((org-attach-id-dir (file-truename org-attach-id-dir)))
+    (apply fn r)))
 
 ;; Git commits should use Github-flavored Markdown
 (setq! git-commit-major-mode 'gfm-mode)
@@ -544,47 +544,47 @@ PARINFER-RUST-VERSION and LIB-NAME currently ignored."
                (nwindows (length windows))
                (nfollowing (- (length (memq (selected-window) windows))
                               1)))
-         (concat
-          (doom-modeline-spc)
-          (propertize (format "Follow %d/%d" (- nwindows nfollowing) nwindows)
-                      'face 'doom-modeline-buffer-minor-mode)))))
-   ;; Based on the main modeline (see ‘doom-modeline-set-main-modeline').
-   (doom-modeline-def-modeline 'follow
-    '(bar workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
-    '(objed-state misc-info persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs checker))
-   (add-hook! 'follow-mode-hook
-     (defun +follow-set-modeline ()
-       (doom-modeline-set-modeline 'follow)))))
+          (concat
+           (doom-modeline-spc)
+           (propertize (format "Follow %d/%d" (- nwindows nfollowing) nwindows)
+                       'face 'doom-modeline-buffer-minor-mode)))))
+    ;; Based on the main modeline (see ‘doom-modeline-set-main-modeline').
+    (doom-modeline-def-modeline 'follow
+      '(bar workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
+      '(objed-state misc-info persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs checker))
+    (add-hook! 'follow-mode-hook
+      (defun +follow-set-modeline ()
+        (doom-modeline-set-modeline 'follow)))))
 
 (defun play-sound-sox (sound)
- "Implement ‘play-sound’ using ‘play’ binary from SoX.
+  "Implement ‘play-sound’ using ‘play’ binary from SoX.
 
 This replaces the use of ‘play-sound-internal’ when Emacs is compiled without
 sound support.  Currently supports only :file and :volume entries in ‘sound’."
-    (when-let* (((eq (car-safe sound) 'sound))
-                (args (cdr-safe sound)))
-      (let* ((file (plist-get args :file))
-             (volume (plist-get args :volume)))
-        (apply #'start-process "play-sound-sox" nil
-              (append
-               (list "play" file)
-               (when volume
+  (when-let* (((eq (car-safe sound) 'sound))
+              (args (cdr-safe sound)))
+    (let* ((file (plist-get args :file))
+           (volume (plist-get args :volume)))
+      (apply #'start-process "play-sound-sox" nil
+             (append
+              (list "play" file)
+              (when volume
                 (list "vol" volume)))))))
 (defun play-sound-afplay (sound)
- "Implement ‘play-sound’ using ‘afplay’ binary on macOS.
+  "Implement ‘play-sound’ using ‘afplay’ binary on macOS.
 
 This replaces the use of ‘play-sound-internal’ when Emacs is compiled without
 sound support.  Currently supports only :file and :volume entries in ‘sound’."
-    (when-let* (((eq (car-safe sound) 'sound))
-                (args (cdr-safe sound)))
-      (let* ((file (plist-get args :file))
-             (volume (plist-get args :volume)))
-        (apply #'start-process "play-sound-afplay" nil
-              (append
-               (list "afplay")
-               (when volume
+  (when-let* (((eq (car-safe sound) 'sound))
+              (args (cdr-safe sound)))
+    (let* ((file (plist-get args :file))
+           (volume (plist-get args :volume)))
+      (apply #'start-process "play-sound-afplay" nil
+             (append
+              (list "afplay")
+              (when volume
                 (list "vol" volume))
-               (list file))))))
+              (list file))))))
 (when (not (fboundp 'play-sound-internal))
   (cond
    ((executable-find "afplay")
