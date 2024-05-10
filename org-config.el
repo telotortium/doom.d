@@ -2563,54 +2563,56 @@ to this:
 
 (defcustom my-org-roam-directories (list org-roam-directory)
   "List of org-roam directories to examine in ‘my-org-roam-agenda-file-hook’.")
+(defun my-buffer-map-lines (buf callback)
+  "Run CALLBACK for each line in the buffer BUF."
+  (save-excursion
+    (with-current-buffer buf
+      (goto-char (point-min))
+      (while (not (eobp))
+        (funcall callback)
+        (forward-line 1)))))
 (defun my-org-roam-agenda-file-hook ()
   "Add recently-modified org-roam files to ‘org-agenda-files’."
   (interactive)
-  (let
-      ((proc
-        (async-start
-         `(lambda ()
-            ,(async-inject-variables "^\\(load-path\\|my-org-roam-directories\\)$")
-            (require 'org-hugo-auto-export-mode)
-            (require 'cl-lib)
-            (require 'org-ql)
-            (require 'f)
-            (require 's)
-            (let* (text-search agenda)
-              (dolist (dir my-org-roam-directories)
-                (let
-                    ((files
-                      (f-files dir
-                               (lambda (f)
-                                 (and (s-ends-with? ".org" f)
-                                      (not (s-contains? ".stversions" f))
-                                      (not (s-contains? ".sync-confict-" f))))
-                               'recursive)))
-                  (push files text-search)
-                  (push
-                   (org-ql-select
-                     files
-                     `(or
-                       (ts :from -45)
-                       (tags-local "inbox" "drill"))
-                     :action
-                     (lambda () (buffer-file-name (current-buffer))))
-                   agenda)))
-              (delete-dups agenda)
-              (delete-dups text-search)
-              (list agenda text-search)))
+  (let*
+      ((default-directory "/")
+       (proc
+        (async-start-process
+         "*my-org-roam-agenda-file-hook--find-text-search-extra-files*"
+         "bash"
          (lambda (res)
-           (setq!
-            org-agenda-files
-            (apply #'append (org-agenda-expand-files-name) (nth 0 res)))
-           (setq!
-            org-agenda-text-search-extra-files
-            (apply #'append org-agenda-text-search-extra-files (nth 1 res)))
-           (delete-dups org-agenda-files)
-           (delete-dups org-agenda-text-search-extra-files)))))
+           (let* (search-files)
+             (my-buffer-map-lines
+              (process-buffer res)
+              (lambda ()
+                (push (buffer-substring (pos-bol) (pos-eol)) search-files)))
+             (setq!
+              org-agenda-text-search-extra-files
+              (append org-agenda-text-search-extra-files search-files))
+             (delete-dups org-agenda-text-search-extra-files)
+             (async-start-process
+              "*my-org-roam-agenda-file-hook--find-agenda-files*"
+              "bash"
+              (lambda (res)
+                (let* (search-files)
+                  (my-buffer-map-lines
+                   (process-buffer res)
+                   (lambda ()
+                     (push (buffer-substring (pos-bol) (pos-eol)) search-files)))
+                  (setq!
+                   org-agenda-files
+                   (append (org-agenda-expand-files-name) search-files))
+                  (delete-dups org-agenda-files)))
+              "-c"
+              (concat
+               "{ rg -l -uuu -g '*.org' -e ':(inbox|drill):' \"$0\"; "
+               "fd -uuu --newer 45days -p '\.org$' -E '\.stversions' -E '\.sync-conflict-' \"$0\"; }")
+              (expand-file-name org-roam-directory))))
+         "-c"
+         "fd -uuu --older 45days -p '\.org$' -E '\.stversions' -E '\.sync-conflict-' \"$0\""
+         (expand-file-name org-roam-directory))))
     (call-process "renice" nil nil nil "-n20" (format "%d" (process-id proc)))
     proc))
-
 
 (run-with-idle-timer 5 nil #'my-org-roam-agenda-file-hook)
 (run-with-idle-timer (* 60 3) t #'my-org-roam-agenda-file-hook)
