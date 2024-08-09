@@ -705,6 +705,9 @@ capture, so I run into this situation a lot."
 (global-tree-sitter-mode)
 (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
 
+;; Formatting
+(setq-hook! 'python-mode-hook +format-with 'ruff)
+
 ;;;* Local configuration
 
 ;;; Allow users to provide an optional "config-local" containing personal settings
