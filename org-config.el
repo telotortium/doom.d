@@ -1948,6 +1948,22 @@ SCOPE, DRILL-MATCH, RESUME-P, and CRAM passed to ‘org-drill'."
     (anki-editor-reset-cloze-number))
   ;; Initialize
   (anki-editor-reset-cloze-number))
+;; Link to Anki notes in GUI
+(defun my-org-anki-note-follow (note-id)
+  "Open the Anki note given by NOTE-ID in the GUI using Anki Connect.
+NOTE-ID should be an integer or a stringified integer."
+  (setq note-id
+        (cond
+         ((integerp note-id) note-id)
+         ((stringp note-id) (string-to-number note-id))
+         (t
+          (user-error
+           "NOTE-ID should be number or string convertible to a number."))))
+  (anki-editor--anki-connect-invoke-result "guiEditNote" `((note . ,note-id)))
+  nil)
+(org-link-set-parameters
+ "anki-note"
+ :follow #'my-org-anki-note-follow)
 
 ;; TODO: replace with implementation from ‘org-generic-id-update-id-locations’ once
 ;; it’s merged upstream.
