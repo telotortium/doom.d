@@ -3445,7 +3445,7 @@ is to refresh the agenda and call ‘org-agenda-goto-today’ again."
 ;; Org-mode upstream. The old version is breaking anki-editor.
 (when-let*
     ;; Only execute this code when using yantar92/org fork.
-    ((package (alist-get 'org doom-packages))
+    ((package (alist-get 'org (doom-package-list)))
      (recipe (plist-get package :recipe))
      ((string= "yantar92/org"
                (or (plist-get (plist-get recipe :fork) :repo)
