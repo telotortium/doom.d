@@ -14,15 +14,14 @@
 ;;      Alternatively, press 'gd' (or 'C-c g d') on a module to browse its
 ;;      directory (for easy access to its source code).
 
-;; Deny some environment variables for `doom env`
+(load! "environment-variables")
+
+;; Deny transient environment variables for `doom env`.
 (after! doom-cli-env
   (nconc doom-env-deny
-         ;; Make sure each variable in the following list matches exactly that
-         ;; environment variable name.
          (mapcar (lambda (var) (format "^%s$" (regexp-quote var)))
-                 '("LaunchInstanceId" "SECURITYSESSIONID" "XPC_SERVICE_NAME"
-                   "XPC_FLAGS" "TERM_SESSION_ID" "TMPDIR"
-                   "ITERM_SESSION_ID" "ITERM_PROFILE"))))
+                 rmi-transient-environment-variables)
+         rmi-transient-environment-variable-patterns))
 
 (setq initial-buffer-choice
       (lambda ()
